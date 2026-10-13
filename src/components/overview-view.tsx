@@ -83,6 +83,32 @@ export function OverviewView({ onNavigateTab }: OverviewViewProps) {
         <div className="absolute left-1/3 -top-20 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
       </div>
 
+      {/* Salon Operating System Module Launchpad */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+        {[
+          { id: "calendar", label: "Chair Matrix", icon: Calendar, color: "text-blue-600 bg-blue-50 hover:border-blue-300" },
+          { id: "pos", label: "Counter POS", icon: Receipt, color: "text-emerald-600 bg-emerald-50 hover:border-emerald-300" },
+          { id: "customers", label: "Clients & CRM", icon: Users, color: "text-purple-600 bg-purple-50 hover:border-purple-300" },
+          { id: "services", label: "Service Menu", icon: Scissors, color: "text-indigo-600 bg-indigo-50 hover:border-indigo-300" },
+          { id: "reports", label: "Sales Reports", icon: TrendingUp, color: "text-amber-600 bg-amber-50 hover:border-amber-300" },
+          { id: "settings", label: "Salon Settings", icon: ShieldCheck, color: "text-slate-700 bg-slate-100 hover:border-slate-300" },
+        ].map((mod) => {
+          const Icon = mod.icon;
+          return (
+            <button
+              key={mod.id}
+              onClick={() => onNavigateTab(mod.id)}
+              className={`p-3 rounded-2xl border border-slate-200/80 bg-white hover:shadow-md transition-all flex items-center gap-2.5 text-xs font-bold text-slate-800 text-left`}
+            >
+              <span className={`p-2 rounded-xl ${mod.color}`}>
+                <Icon className="w-4 h-4" />
+              </span>
+              <span className="leading-tight">{mod.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Revenue */}

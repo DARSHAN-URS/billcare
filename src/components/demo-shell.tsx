@@ -11,6 +11,10 @@ import { CrmFollowupsView } from "./crm-followups-view";
 import { CalendarView } from "./calendar-view";
 import { BookingPreviewView } from "./booking-preview-view";
 import { CompetitorBenchmarkModal } from "./competitor-benchmark-modal";
+import { CustomersView } from "./customers-view";
+import { ServicesView } from "./services-view";
+import { ReportsView } from "./reports-view";
+import { SettingsView } from "./settings-view";
 import {
   LayoutDashboard,
   Receipt,
@@ -35,14 +39,32 @@ import {
   CreditCard,
   Crown,
   Laptop,
+  Scissors,
+  BarChart3,
+  Settings as SettingsIcon,
 } from "lucide-react";
 
-export function DemoShell() {
-  const { salon, followUps, inventory, staff, invoices, resetDemoData } = useDemo();
+export type TabType =
+  | "overview"
+  | "calendar"
+  | "pos"
+  | "customers"
+  | "services"
+  | "staff"
+  | "inventory"
+  | "followups"
+  | "reports"
+  | "booking"
+  | "settings";
 
-  const [activeTab, setActiveTab] = useState<
-    "overview" | "pos" | "staff" | "inventory" | "followups" | "calendar" | "booking"
-  >("overview");
+interface DemoShellProps {
+  initialTab?: TabType;
+}
+
+export function DemoShell({ initialTab = "overview" }: DemoShellProps) {
+  const { salon, followUps, inventory, staff, invoices, customers, resetDemoData } = useDemo();
+
+  const [activeTab, setActiveTab] = useState<TabType>(initialTab);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState(salon.branch);
@@ -87,11 +109,31 @@ export function DemoShell() {
       badge: null,
     },
     {
+      id: "calendar",
+      label: "Chair Matrix",
+      icon: Calendar,
+      badge: "Timeline",
+      badgeColor: "bg-blue-500/15 text-blue-700 border-blue-500/30",
+    },
+    {
       id: "pos",
       label: "Billing & POS",
       icon: Receipt,
       badge: "Fast Pay",
-      badgeColor: "bg-blue-500/15 text-blue-700 border-blue-500/30",
+      badgeColor: "bg-emerald-500/15 text-emerald-700 border-emerald-500/30",
+    },
+    {
+      id: "customers",
+      label: "Clients & CRM",
+      icon: Users,
+      badge: `${customers.length}`,
+      badgeColor: "bg-purple-500/15 text-purple-700 border-purple-500/30",
+    },
+    {
+      id: "services",
+      label: "Service Menu",
+      icon: Scissors,
+      badge: null,
     },
     {
       id: "staff",
@@ -115,9 +157,9 @@ export function DemoShell() {
       badgeColor: "bg-emerald-500/15 text-emerald-700 border-emerald-500/30",
     },
     {
-      id: "calendar",
-      label: "Chair Schedule",
-      icon: Calendar,
+      id: "reports",
+      label: "Sales Reports",
+      icon: BarChart3,
       badge: null,
     },
     {
@@ -126,6 +168,12 @@ export function DemoShell() {
       icon: Globe,
       badge: "Live View",
       badgeColor: "bg-purple-500/15 text-purple-700 border-purple-500/30",
+    },
+    {
+      id: "settings",
+      label: "Salon Settings",
+      icon: SettingsIcon,
+      badge: null,
     },
   ];
 
@@ -345,12 +393,21 @@ export function DemoShell() {
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {activeTab === "overview" && <OverviewView onNavigateTab={(tab) => setActiveTab(tab as any)} />}
+        {activeTab === "calendar" && <CalendarView onGoToPosBilling={handleGoToPosFromCalendar} />}
         {activeTab === "pos" && <PosView />}
+        {activeTab === "customers" && (
+          <CustomersView
+            onGoToPos={(_cid) => setActiveTab("pos")}
+            onGoToBooking={(_name, _phone) => setActiveTab("calendar")}
+          />
+        )}
+        {activeTab === "services" && <ServicesView />}
         {activeTab === "staff" && <StaffView />}
         {activeTab === "inventory" && <InventoryView />}
         {activeTab === "followups" && <CrmFollowupsView />}
-        {activeTab === "calendar" && <CalendarView onGoToPosBilling={handleGoToPosFromCalendar} />}
+        {activeTab === "reports" && <ReportsView />}
         {activeTab === "booking" && <BookingPreviewView />}
+        {activeTab === "settings" && <SettingsView />}
       </main>
 
       {/* Luxury Brand Footer */}
