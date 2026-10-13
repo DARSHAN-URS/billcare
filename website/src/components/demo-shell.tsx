@@ -10,6 +10,7 @@ import { InventoryView } from "./inventory-view";
 import { CrmFollowupsView } from "./crm-followups-view";
 import { CalendarView } from "./calendar-view";
 import { BookingPreviewView } from "./booking-preview-view";
+import { CompetitorBenchmarkModal } from "./competitor-benchmark-modal";
 import {
   LayoutDashboard,
   Receipt,
@@ -46,6 +47,7 @@ export function DemoShell() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState(salon.branch);
   const [currentTime, setCurrentTime] = useState<string>("");
+  const [showBenchmarkModal, setShowBenchmarkModal] = useState(false);
 
   useEffect(() => {
     const updateTime = () => {
@@ -152,6 +154,12 @@ export function DemoShell() {
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
               99.98% SLA
             </span>
+            <button
+              onClick={() => setShowBenchmarkModal(true)}
+              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 hover:bg-blue-500/30 hover:text-white transition-all font-bold text-[10px]"
+            >
+              <Sparkles className="w-3 h-3 text-amber-400" /> Compare vs Fresha & Zenoti
+            </button>
             <button
               onClick={resetDemoData}
               className="hover:text-white flex items-center gap-1 text-slate-400 hover:underline transition-all"
@@ -368,6 +376,10 @@ export function DemoShell() {
           </div>
         </div>
       </footer>
+
+      {showBenchmarkModal && (
+        <CompetitorBenchmarkModal onClose={() => setShowBenchmarkModal(false)} />
+      )}
     </div>
   );
 }
