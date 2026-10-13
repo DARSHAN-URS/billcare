@@ -42,6 +42,7 @@ import {
   Scissors,
   BarChart3,
   Settings as SettingsIcon,
+  MoreHorizontal,
 } from "lucide-react";
 
 export type TabType =
@@ -353,45 +354,106 @@ export function DemoShell({ initialTab = "overview" }: DemoShellProps) {
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t border-slate-200 bg-white p-4 space-y-1.5 animate-in fade-in slide-in-from-top-2 duration-200">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setActiveTab(item.id as any);
-                    setMobileMenuOpen(false);
-                  }}
-                  className={`w-full flex items-center justify-between p-3 rounded-xl text-xs font-bold transition-all ${
-                    isActive
-                      ? "bg-slate-900 text-white shadow-md"
-                      : "text-slate-700 hover:bg-slate-100"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon className={`w-4 h-4 ${isActive ? "text-blue-400" : "text-slate-500"}`} />
-                    <span>{item.label}</span>
+          <div className="lg:hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex flex-col justify-end">
+            <div className="bg-white rounded-t-3xl max-h-[85vh] overflow-y-auto p-5 space-y-4 animate-in slide-in-from-bottom duration-200">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-slate-950 flex items-center justify-center text-white font-black text-xs">
+                    R
                   </div>
-                  {item.badge && (
-                    <span
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                        isActive ? "bg-white/20 text-white" : item.badgeColor || "bg-slate-100 text-slate-700"
+                  <div>
+                    <h3 className="font-extrabold text-sm text-slate-950">RUVEXI Luxe Suite</h3>
+                    <p className="text-[10px] text-slate-400">All Modules & Settings</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-2 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Branch Selector on Mobile */}
+              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200 text-xs">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                  Active Salon Branch
+                </span>
+                <select
+                  value={selectedBranch}
+                  onChange={(e) => setSelectedBranch(e.target.value)}
+                  className="w-full bg-white px-3 py-2 border border-slate-200 rounded-xl font-bold text-slate-800"
+                >
+                  <option value="Indiranagar Flagship, Bengaluru">Indiranagar Flagship (Bengaluru)</option>
+                  <option value="Koramangala Studio, Bengaluru">Koramangala Studio (Bengaluru)</option>
+                  <option value="Lavelle Road Luxe Suite, Bengaluru">Lavelle Road Luxe Suite (Bengaluru)</option>
+                </select>
+              </div>
+
+              {/* Nav Items List */}
+              <div className="grid grid-cols-1 gap-1.5">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setActiveTab(item.id as any);
+                        setMobileMenuOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between p-3 rounded-2xl text-xs font-bold transition-all ${
+                        isActive
+                          ? "bg-slate-900 text-white shadow-md"
+                          : "text-slate-700 bg-slate-50 hover:bg-slate-100"
                       }`}
                     >
-                      {item.badge}
-                    </span>
-                  )}
+                      <div className="flex items-center gap-3">
+                        <Icon className={`w-4 h-4 ${isActive ? "text-blue-400" : "text-slate-500"}`} />
+                        <span>{item.label}</span>
+                      </div>
+                      {item.badge && (
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                            isActive ? "bg-white/20 text-white" : item.badgeColor || "bg-white text-slate-700"
+                          }`}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Benchmark comparison and reset */}
+              <div className="pt-2 border-t border-slate-100 space-y-2">
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setShowBenchmarkModal(true);
+                  }}
+                  className="w-full py-2.5 bg-blue-50 text-blue-700 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-blue-600" /> Compare vs Fresha & Zenoti
                 </button>
-              );
-            })}
+                <button
+                  onClick={() => {
+                    resetDemoData();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full py-2 text-slate-400 hover:text-slate-600 text-xs font-medium"
+                >
+                  Reset Demo Store Data
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </header>
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      {/* Main Content Area with Mobile Safe Padding */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8 pb-28 lg:pb-8">
         {activeTab === "overview" && <OverviewView onNavigateTab={(tab) => setActiveTab(tab as any)} />}
         {activeTab === "calendar" && <CalendarView onGoToPosBilling={handleGoToPosFromCalendar} />}
         {activeTab === "pos" && <PosView />}
@@ -410,8 +472,73 @@ export function DemoShell({ initialTab = "overview" }: DemoShellProps) {
         {activeTab === "settings" && <SettingsView />}
       </main>
 
+      {/* Fixed Native-Style Mobile Bottom Navigation Bar (Fresha & GlossGenius Style) */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-slate-200/90 shadow-[0_-4px_25px_rgba(0,0,0,0.08)] px-2 py-2">
+        <div className="grid grid-cols-5 gap-1 text-[10px] font-bold">
+          <button
+            onClick={() => setActiveTab("overview")}
+            className={`flex flex-col items-center justify-center py-1.5 rounded-xl transition-all ${
+              activeTab === "overview"
+                ? "text-blue-600 bg-blue-50/80 font-black"
+                : "text-slate-500 hover:text-slate-900"
+            }`}
+          >
+            <LayoutDashboard className="w-4 h-4 mb-0.5" />
+            <span>Hub</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("calendar")}
+            className={`flex flex-col items-center justify-center py-1.5 rounded-xl transition-all ${
+              activeTab === "calendar"
+                ? "text-blue-600 bg-blue-50/80 font-black"
+                : "text-slate-500 hover:text-slate-900"
+            }`}
+          >
+            <Calendar className="w-4 h-4 mb-0.5" />
+            <span>Schedule</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("pos")}
+            className={`flex flex-col items-center justify-center py-1.5 rounded-xl transition-all ${
+              activeTab === "pos"
+                ? "text-blue-600 bg-blue-50/80 font-black"
+                : "text-slate-500 hover:text-slate-900"
+            }`}
+          >
+            <Receipt className="w-4 h-4 mb-0.5" />
+            <span>POS</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("customers")}
+            className={`flex flex-col items-center justify-center py-1.5 rounded-xl transition-all ${
+              activeTab === "customers"
+                ? "text-purple-600 bg-purple-50/80 font-black"
+                : "text-slate-500 hover:text-slate-900"
+            }`}
+          >
+            <Users className="w-4 h-4 mb-0.5" />
+            <span>Clients</span>
+          </button>
+
+          <button
+            onClick={() => setMobileMenuOpen(true)}
+            className={`flex flex-col items-center justify-center py-1.5 rounded-xl transition-all ${
+              !["overview", "calendar", "pos", "customers"].includes(activeTab)
+                ? "text-blue-600 bg-blue-50/80 font-black"
+                : "text-slate-500 hover:text-slate-900"
+            }`}
+          >
+            <MoreHorizontal className="w-4 h-4 mb-0.5" />
+            <span>More</span>
+          </button>
+        </div>
+      </div>
+
       {/* Luxury Brand Footer */}
-      <footer className="border-t border-slate-200/80 bg-white/90 backdrop-blur-md py-8 mt-12 text-xs text-slate-500">
+      <footer className="border-t border-slate-200/80 bg-white/90 backdrop-blur-md py-8 mt-12 mb-16 lg:mb-0 text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-6 h-6 rounded-lg bg-slate-950 flex items-center justify-center text-white font-black text-xs">

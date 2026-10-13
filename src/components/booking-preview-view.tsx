@@ -86,19 +86,19 @@ export function BookingPreviewView() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
 
-          <div className="absolute bottom-6 left-8 right-8 flex flex-col md:flex-row md:items-end justify-between gap-4 text-white">
+          <div className="absolute bottom-4 left-4 right-4 md:bottom-6 md:left-8 md:right-8 flex flex-col md:flex-row md:items-end justify-between gap-3 text-white">
             <div className="space-y-1">
-              <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500 text-white shadow-md">
-                🟢 Salon Open • Accepting Online Reservations
+              <span className="px-2.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-emerald-500 text-white shadow-md inline-block">
+                🟢 Salon Open • Reservations Active
               </span>
-              <h1 className="text-2xl md:text-4xl font-black tracking-tight mt-2">{salon.name}</h1>
-              <p className="text-xs text-slate-300 flex items-center gap-2 font-medium">
-                <MapPin className="w-3.5 h-3.5 text-blue-400" /> {salon.address}
+              <h1 className="text-xl sm:text-3xl md:text-4xl font-black tracking-tight mt-1">{salon.name}</h1>
+              <p className="text-xs text-slate-300 flex items-center gap-1.5 font-medium line-clamp-1">
+                <MapPin className="w-3.5 h-3.5 text-blue-400 shrink-0" /> {salon.address}
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="bg-white/15 backdrop-blur-xl px-4 py-2 rounded-2xl border border-white/20 text-center">
+            <div className="flex items-center gap-3 self-start md:self-auto">
+              <div className="bg-white/15 backdrop-blur-xl px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl border border-white/20 text-center">
                 <div className="text-xs font-black flex items-center justify-center gap-1 text-amber-300">
                   <Star className="w-4 h-4 fill-amber-300" /> {salon.rating}
                 </div>
@@ -109,24 +109,24 @@ export function BookingPreviewView() {
         </div>
 
         {/* Booking Wizard Content */}
-        <div className="p-8 md:p-10">
+        <div className="p-4 sm:p-8 md:p-10">
           {!confirmed ? (
-            <div className="space-y-8">
+            <div className="space-y-6 sm:space-y-8">
               {/* Stepper Progress */}
-              <div className="flex items-center justify-between max-w-lg mx-auto text-xs font-black text-slate-400">
-                <div className={`flex items-center gap-2 ${step >= 1 ? "text-blue-600" : ""}`}>
+              <div className="flex items-center justify-between max-w-lg mx-auto text-xs font-black text-slate-400 px-1">
+                <div className={`flex items-center gap-1.5 ${step >= 1 ? "text-blue-600" : ""}`}>
                   <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${step >= 1 ? "bg-blue-600 text-white shadow-md shadow-blue-500/30" : "bg-slate-100"}`}>1</span>
-                  <span>Select Treatment</span>
+                  <span className="hidden sm:inline">Treatment</span>
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-300" />
-                <div className={`flex items-center gap-2 ${step >= 2 ? "text-blue-600" : ""}`}>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+                <div className={`flex items-center gap-1.5 ${step >= 2 ? "text-blue-600" : ""}`}>
                   <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${step >= 2 ? "bg-blue-600 text-white shadow-md shadow-blue-500/30" : "bg-slate-100"}`}>2</span>
-                  <span>Choose Artist</span>
+                  <span className="hidden sm:inline">Artist</span>
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-300" />
-                <div className={`flex items-center gap-2 ${step >= 3 ? "text-blue-600" : ""}`}>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+                <div className={`flex items-center gap-1.5 ${step >= 3 ? "text-blue-600" : ""}`}>
                   <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${step >= 3 ? "bg-blue-600 text-white shadow-md shadow-blue-500/30" : "bg-slate-100"}`}>3</span>
-                  <span>Schedule & Pass</span>
+                  <span className="hidden sm:inline">Schedule</span>
                 </div>
               </div>
 
