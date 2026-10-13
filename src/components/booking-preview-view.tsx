@@ -88,7 +88,7 @@ export function BookingPreviewView() {
 
           <div className="absolute bottom-4 left-4 right-4 md:bottom-6 md:left-8 md:right-8 flex flex-col md:flex-row md:items-end justify-between gap-3 text-white">
             <div className="space-y-1">
-              <span className="px-2.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-emerald-500 text-white shadow-md inline-block">
+              <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-emerald-500 text-white shadow-md inline-block">
                 🟢 Salon Open • Reservations Active
               </span>
               <h1 className="text-xl sm:text-3xl md:text-4xl font-black tracking-tight mt-1">{salon.name}</h1>
@@ -102,7 +102,7 @@ export function BookingPreviewView() {
                 <div className="text-xs font-black flex items-center justify-center gap-1 text-amber-300">
                   <Star className="w-4 h-4 fill-amber-300" /> {salon.rating}
                 </div>
-                <div className="text-[10px] text-slate-200 font-medium">{salon.reviewCount} Verified Reviews</div>
+                <div className="text-xs text-slate-200 font-semibold">{salon.reviewCount} Verified Reviews</div>
               </div>
             </div>
           </div>

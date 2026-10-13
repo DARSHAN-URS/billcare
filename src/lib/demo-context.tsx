@@ -18,6 +18,10 @@ import {
   INITIAL_FOLLOW_UPS,
   INITIAL_INVOICES,
   INITIAL_APPOINTMENTS,
+  UserPersona,
+  DEMO_PERSONAS,
+  CustomerFeedback,
+  INITIAL_FEEDBACK,
 } from "./demo-data";
 
 interface DemoContextType {
@@ -29,6 +33,16 @@ interface DemoContextType {
   followUps: FollowUpCampaign[];
   invoices: Invoice[];
   appointments: Appointment[];
+  feedbacks: CustomerFeedback[];
+
+  // Persona & Auth
+  currentPersona: UserPersona;
+  allPersonas: UserPersona[];
+  switchPersona: (personaId: string) => void;
+  loginAs: (role: UserPersona["role"], customName?: string) => void;
+  registerSalon: (salonData: { name: string; ownerName: string; branch?: string; chairs?: number; category?: string }) => void;
+  toast: string | null;
+  showToast: (message: string) => void;
 
   // POS Actions
   createInvoice: (newInvoice: Omit<Invoice, "id" | "invoiceNumber" | "date">) => Invoice;
@@ -62,6 +76,9 @@ interface DemoContextType {
   // Salon Profile Actions
   updateSalonProfile: (updates: Partial<SalonProfile>) => void;
 
+  // Feedback Actions
+  addFeedback: (fb: Omit<CustomerFeedback, "id" | "date">) => void;
+
   // Reset to default
   resetDemoData: () => void;
 }
@@ -77,6 +94,58 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
   const [followUps, setFollowUps] = useState<FollowUpCampaign[]>(INITIAL_FOLLOW_UPS);
   const [invoices, setInvoices] = useState<Invoice[]>(INITIAL_INVOICES);
   const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
+  const [feedbacks, setFeedbacks] = useState<CustomerFeedback[]>(INITIAL_FEEDBACK);
+  const [currentPersona, setCurrentPersona] = useState<UserPersona>(DEMO_PERSONAS[0]);
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showToast = (message: string) => {
+    setToast(message);
+    setTimeout(() => {
+      setToast((curr) => (curr === message ? null : curr));
+    }, 4000);
+  };
+
+  const switchPersona = (personaId: string) => {
+    const found = DEMO_PERSONAS.find((p) => p.id === personaId);
+    if (found) {
+      setCurrentPersona(found);
+      showToast(`Switched active profile to ${found.name} (${found.roleTitle})`);
+    }
+  };
+
+  const loginAs = (role: UserPersona["role"], customName?: string) => {
+    const found = DEMO_PERSONAS.find((p) => p.role === role) || DEMO_PERSONAS[0];
+    const persona = customName ? { ...found, name: customName } : found;
+    setCurrentPersona(persona);
+    showToast(`Logged in successfully as ${persona.name}`);
+  };
+
+  const registerSalon = (salonData: {
+    name: string;
+    ownerName: string;
+    branch?: string;
+    chairs?: number;
+    category?: string;
+  }) => {
+    const newSalon: SalonProfile = {
+      ...salon,
+      name: salonData.name,
+      branch: salonData.branch || `${salonData.name} - Flagship`,
+      tagline: salonData.category ? `Premier ${salonData.category} & Wellness Destination` : salon.tagline,
+    };
+    setSalon(newSalon);
+    const newOwnerPersona: UserPersona = {
+      id: "usr_owner_custom",
+      name: salonData.ownerName,
+      email: `${salonData.ownerName.toLowerCase().replace(/\s+/g, ".")}@${salonData.name.toLowerCase().replace(/[^a-z0-9]/g, "")}.com`,
+      role: "owner",
+      avatar: salonData.ownerName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "OW",
+      roleTitle: "Salon Owner & Managing Director",
+      salonBranch: newSalon.branch,
+    };
+    setCurrentPersona(newOwnerPersona);
+    showToast(`Welcome! ${salonData.name} workspace created successfully!`);
+  };
 
   // Initialize from localStorage if available
   useEffect(() => {
@@ -354,6 +423,13 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
         followUps,
         invoices,
         appointments,
+        currentPersona,
+        allPersonas: DEMO_PERSONAS,
+        switchPersona,
+        loginAs,
+        registerSalon,
+        toast,
+        showToast,
         createInvoice,
         toggleStaffStatus,
         updateStaffCommission,
@@ -370,6 +446,16 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
         updateSalonProfile,
         updateAppointmentStatus,
         bookAppointment,
+        feedbacks,
+        addFeedback: (fb: Omit<CustomerFeedback, "id" | "date">) => {
+          const newFb: CustomerFeedback = {
+            ...fb,
+            id: `fb_${Date.now()}`,
+            date: "Just now",
+          };
+          setFeedbacks((prev) => [newFb, ...prev]);
+          showToast(`New feedback received from ${fb.customerName} (${fb.serviceRating}★)!`);
+        },
         resetDemoData,
       }}
     >

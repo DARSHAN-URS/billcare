@@ -89,6 +89,75 @@ export interface FollowUpCampaign {
   discountOffer?: string;
 }
 
+export interface CustomerFeedback {
+  id: string;
+  customerName: string;
+  customerPhone: string;
+  staffName: string;
+  serviceName: string;
+  date: string;
+  serviceRating: number; // 1 to 5
+  friendlinessRating: number; // 1 to 5
+  ambienceRating: number; // 1 to 5
+  improvementTags: string[];
+  comment?: string;
+}
+
+export const INITIAL_FEEDBACK: CustomerFeedback[] = [
+  {
+    id: "fb_1",
+    customerName: "Ananya Sharma",
+    customerPhone: "+91 98450 12890",
+    staffName: "Priya Sharma",
+    serviceName: "Keratin Therapy",
+    date: "Today, 11:30 AM",
+    serviceRating: 5,
+    friendlinessRating: 5,
+    ambienceRating: 5,
+    improvementTags: ["Loved the service ✨", "Very polite staff", "Great coffee ☕"],
+    comment: "Priya is an artist! My hair feels like silk. Super friendly front desk too.",
+  },
+  {
+    id: "fb_2",
+    customerName: "Rohan Kapoor",
+    customerPhone: "+91 98201 44521",
+    staffName: "Arjun Verma",
+    serviceName: "Beard Sculpt & Fade",
+    date: "Today, 01:15 PM",
+    serviceRating: 5,
+    friendlinessRating: 5,
+    ambienceRating: 4,
+    improvementTags: ["Sharp cut ✂️", "Courteous team"],
+    comment: "Arjun knows exactly how to handle beard fades. Best barber in town.",
+  },
+  {
+    id: "fb_3",
+    customerName: "Sneha Reddy",
+    customerPhone: "+91 98112 33490",
+    staffName: "Sneha Kapur",
+    serviceName: "Hydra Facial",
+    date: "Yesterday",
+    serviceRating: 4,
+    friendlinessRating: 5,
+    ambienceRating: 4,
+    improvementTags: ["Relaxing facial 🌸", "Slight wait time (10m)"],
+    comment: "Loved the glow! Waiting time was about 10 minutes, but the green tea made up for it.",
+  },
+  {
+    id: "fb_4",
+    customerName: "Vikram Mehta",
+    customerPhone: "+91 98334 11209",
+    staffName: "Priya Sharma",
+    serviceName: "Haircut & Blowdry",
+    date: "2 days ago",
+    serviceRating: 5,
+    friendlinessRating: 5,
+    ambienceRating: 5,
+    improvementTags: ["Fast & professional", "Loved the music"],
+    comment: "Quick, seamless, and no hassle. Scanned QR code to pay and got receipt on WhatsApp instantly.",
+  },
+];
+
 export interface InvoiceItem {
   id: string;
   name: string;
@@ -703,5 +772,54 @@ export const INITIAL_APPOINTMENTS: Appointment[] = [
     price: 2400,
     status: "In-Service",
     source: "Phone Call",
+  },
+];
+
+export interface UserPersona {
+  id: string;
+  name: string;
+  email: string;
+  role: "owner" | "manager" | "stylist" | "admin";
+  avatar: string;
+  roleTitle: string;
+  salonBranch: string;
+}
+
+export const DEMO_PERSONAS: UserPersona[] = [
+  {
+    id: "usr_receptionist",
+    name: "Kavita Rao",
+    email: "reception@luxehaven.in",
+    role: "manager",
+    avatar: "KR",
+    roleTitle: "Front Desk Receptionist",
+    salonBranch: "Luxe Haven Salon",
+  },
+  {
+    id: "usr_owner",
+    name: "Sunil Kumar",
+    email: "sunil@luxehaven.in",
+    role: "owner",
+    avatar: "SK",
+    roleTitle: "Salon Owner",
+    salonBranch: "Luxe Haven Salon",
+  },
+  {
+    id: "usr_admin",
+    name: "Alex Vance",
+    email: "alex@ruvexi.com",
+    role: "admin",
+    avatar: "AV",
+    roleTitle: "RUVEXI Platform Owner",
+    salonBranch: "All Salons Hub",
+  },
+  {
+    id: "usr_stylist",
+    name: "Priya Sharma",
+    email: "priya.stylist@luxehaven.in",
+    role: "stylist",
+    avatar: "PS",
+    roleTitle: "Master Stylist",
+    salonBranch: "Luxe Haven Salon",
   },
 ];

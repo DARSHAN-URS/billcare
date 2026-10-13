@@ -213,173 +213,210 @@ export function CalendarView({ onGoToPosBilling }: CalendarViewProps) {
       {/* VIEW MODE 1: FRESHA-GRADE TIMELINE MATRIX (Signature Multi-Stylist Columns) */}
       {viewMode === "timeline" ? (
         <div className="luxury-card rounded-3xl overflow-hidden border border-slate-200 shadow-sm">
-          {/* Matrix Header info bar */}
-          <div className="p-4 bg-slate-900 text-white flex flex-wrap items-center justify-between gap-3 text-xs border-b border-slate-800">
-            <div className="flex items-center gap-3">
-              <span className="font-black text-amber-400 flex items-center gap-1.5">
+          {/* Timeline filter & controls */}
+          <div className="p-3 bg-slate-900 text-white flex flex-wrap items-center justify-between gap-3 text-xs border-b border-slate-800">
+            <div className="flex items-center gap-2 overflow-x-auto">
+              <span className="font-black text-amber-400 flex items-center gap-1.5 mr-2">
                 <Sparkles className="w-3.5 h-3.5" />
-                FRESHA PARITY TIMELINE
+                TIMELINE MATRIX
               </span>
-              <span className="text-slate-500">•</span>
-              <span className="text-slate-300">
-                Click any open cell to instantly reserve a chair slot.
-              </span>
+              <button
+                onClick={() => setSelectedStaffFilter("All")}
+                className={`px-3 py-1 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                  selectedStaffFilter === "All"
+                    ? "bg-blue-600 text-white shadow-xs"
+                    : "bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white"
+                }`}
+              >
+                All Chairs ({staff.length})
+              </button>
+              {staff.map((st) => (
+                <button
+                  key={st.id}
+                  onClick={() => setSelectedStaffFilter(st.name)}
+                  className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                    selectedStaffFilter === st.name
+                      ? "bg-blue-600 text-white shadow-xs"
+                      : "bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white"
+                  }`}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  {st.name}
+                </button>
+              ))}
             </div>
-            <div className="flex items-center gap-3 text-[11px] font-bold">
-              <span className="flex items-center gap-1 text-blue-300">
+
+            <div className="flex items-center gap-3 text-xs font-bold">
+              <span className="flex items-center gap-1.5 text-blue-300">
                 <span className="w-2 h-2 rounded-full bg-blue-400"></span> Confirmed
               </span>
-              <span className="flex items-center gap-1 text-amber-300">
+              <span className="flex items-center gap-1.5 text-amber-300">
                 <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> In Chair
               </span>
-              <span className="flex items-center gap-1 text-emerald-300">
+              <span className="flex items-center gap-1.5 text-emerald-300">
                 <span className="w-2 h-2 rounded-full bg-emerald-400"></span> Completed
               </span>
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <div className="min-w-[850px]">
-              {/* Columns Header (Stylists) */}
-              <div className="grid grid-cols-[85px_repeat(4,minmax(180px,1fr))] bg-slate-50 border-b border-slate-200 text-xs sticky top-0 z-20">
-                <div className="p-3 sm:p-4 font-black text-slate-400 uppercase tracking-wider text-[10px] flex items-center justify-center border-r border-slate-200 sticky left-0 z-30 bg-slate-50">
-                  Time
-                </div>
-                {staff.map((st) => (
+          {(() => {
+            const visibleStaff = selectedStaffFilter === "All"
+              ? staff
+              : staff.filter((s) => s.name === selectedStaffFilter);
+
+            return (
+              <div className="overflow-x-auto">
+                <div className={visibleStaff.length === 1 ? "min-w-full" : "min-w-[850px]"}>
+                  {/* Columns Header (Stylists) */}
                   <div
-                    key={st.id}
-                    className="p-3.5 border-r border-slate-200 last:border-r-0 flex items-center justify-between gap-2 bg-slate-50"
+                    className="grid bg-slate-50 border-b border-slate-200 text-xs sticky top-0 z-20"
+                    style={{
+                      gridTemplateColumns: `90px repeat(${visibleStaff.length}, minmax(180px, 1fr))`,
+                    }}
                   >
-                    <div className="flex items-center gap-2.5">
-                      <img
-                        src={st.avatar}
-                        alt={st.name}
-                        className="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-sm"
-                      />
-                      <div>
-                        <h4 className="font-extrabold text-slate-900 leading-tight">{st.name}</h4>
-                        <span className="text-[10px] text-slate-500 block truncate max-w-[120px]">
-                          {st.role}
-                        </span>
+                    <div className="p-3 sm:p-4 font-black text-slate-500 uppercase tracking-wider text-xs flex items-center justify-center border-r border-slate-200 sticky left-0 z-30 bg-slate-50">
+                      Time
+                    </div>
+                    {visibleStaff.map((st) => (
+                      <div
+                        key={st.id}
+                        className="p-3.5 border-r border-slate-200 last:border-r-0 flex items-center justify-between gap-2 bg-slate-50"
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <img
+                            src={st.avatar}
+                            alt={st.name}
+                            className="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-sm"
+                          />
+                          <div>
+                            <h4 className="font-extrabold text-slate-900 leading-tight">{st.name}</h4>
+                            <span className="text-[11px] text-slate-600 block truncate max-w-[140px] font-medium">
+                              {st.role}
+                            </span>
+                          </div>
+                        </div>
+                        <span
+                          className={`w-2.5 h-2.5 rounded-full ${
+                            st.status === "clocked_in"
+                              ? "bg-emerald-500 shadow-sm shadow-emerald-500/50"
+                              : "bg-amber-400"
+                          }`}
+                          title={st.status}
+                        />
                       </div>
-                    </div>
-                    <span
-                      className={`w-2 h-2 rounded-full ${
-                        st.status === "clocked_in"
-                          ? "bg-emerald-500 shadow-sm shadow-emerald-500/50"
-                          : "bg-amber-400"
-                      }`}
-                      title={st.status}
-                    />
+                    ))}
                   </div>
-                ))}
-              </div>
 
-              {/* Time Slots Grid */}
-              <div className="divide-y divide-slate-100">
-                {timelineHours.map((hour) => (
-                  <div
-                    key={hour}
-                    className="grid grid-cols-[85px_repeat(4,minmax(180px,1fr))] min-h-[92px] transition-colors"
-                  >
-                    {/* Time Label Column (Sticky) */}
-                    <div className="p-2 sm:p-3 font-mono font-bold text-slate-500 text-[10px] sm:text-[11px] bg-slate-50/95 border-r border-slate-200 flex items-start justify-center pt-3.5 sticky left-0 z-10 backdrop-blur-sm">
-                      {hour}
-                    </div>
+                  {/* Time Slots Grid */}
+                  <div className="divide-y divide-slate-100">
+                    {timelineHours.map((hour) => (
+                      <div
+                        key={hour}
+                        className="grid min-h-[96px] transition-colors"
+                        style={{
+                          gridTemplateColumns: `90px repeat(${visibleStaff.length}, minmax(180px, 1fr))`,
+                        }}
+                      >
+                        {/* Time Label Column (Sticky) */}
+                        <div className="p-2 sm:p-3 font-mono font-bold text-slate-600 text-xs bg-slate-50/95 border-r border-slate-200 flex items-start justify-center pt-3.5 sticky left-0 z-10 backdrop-blur-sm">
+                          {hour}
+                        </div>
 
-                    {/* Staff Columns for this Hour */}
-                    {staff.map((st) => {
-                      const apt = getAppointmentForSlotAndStaff(hour, st.name);
+                        {/* Staff Columns for this Hour */}
+                        {visibleStaff.map((st) => {
+                          const apt = getAppointmentForSlotAndStaff(hour, st.name);
 
-                      return (
-                        <div
-                          key={st.id}
-                          className="p-2 border-r border-slate-200 last:border-r-0 relative group hover:bg-blue-50/30 transition-colors flex flex-col justify-center"
-                        >
-                          {apt ? (
+                          return (
                             <div
-                              className={`p-3 rounded-2xl border transition-all shadow-sm ${
-                                apt.status === "Completed"
-                                  ? "bg-emerald-50/90 border-emerald-200/90 text-emerald-950"
-                                  : apt.status === "In-Service"
-                                  ? "bg-amber-50/90 border-amber-200/90 text-amber-950 ring-1 ring-amber-300"
-                                  : "bg-blue-50/90 border-blue-200/90 text-blue-950"
-                              }`}
+                              key={st.id}
+                              className="p-2 border-r border-slate-200 last:border-r-0 relative group hover:bg-blue-50/30 transition-colors flex flex-col justify-center"
                             >
-                              <div className="flex items-center justify-between gap-1 mb-1">
-                                <span className="font-mono text-[10px] font-black px-1.5 py-0.5 rounded-md bg-white/80 border border-slate-200/60">
-                                  {apt.time}
-                                </span>
-                                <span
-                                  className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
+                              {apt ? (
+                                <div
+                                  className={`p-3 rounded-2xl border transition-all shadow-sm ${
                                     apt.status === "Completed"
-                                      ? "bg-emerald-200/80 text-emerald-800"
+                                      ? "bg-emerald-50/90 border-emerald-200/90 text-emerald-950"
                                       : apt.status === "In-Service"
-                                      ? "bg-amber-200/80 text-amber-800 animate-pulse"
-                                      : "bg-blue-200/80 text-blue-800"
+                                      ? "bg-amber-50/90 border-amber-200/90 text-amber-950 ring-1 ring-amber-300"
+                                      : "bg-blue-50/90 border-blue-200/90 text-blue-950"
                                   }`}
                                 >
-                                  {apt.status}
-                                </span>
-                              </div>
-
-                              <h5 className="font-black text-xs text-slate-900 leading-snug line-clamp-1">
-                                {apt.customerName}
-                              </h5>
-                              <p className="text-[11px] text-slate-600 line-clamp-1 mt-0.5 font-medium">
-                                {apt.serviceName}
-                              </p>
-
-                              <div className="mt-2 pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px]">
-                                <span className="font-mono font-black text-slate-900">
-                                  {formatCurrency(apt.price)}
-                                </span>
-
-                                <div className="flex items-center gap-1">
-                                  {/* Formula Card Button */}
-                                  <button
-                                    onClick={() => handleOpenFormulaCard(apt.customerName)}
-                                    className="p-1 hover:bg-white rounded-lg text-indigo-600 transition-colors"
-                                    title="View Technical Formula Card"
-                                  >
-                                    <Sparkles className="w-3.5 h-3.5" />
-                                  </button>
-
-                                  {/* POS Checkout Button */}
-                                  {onGoToPosBilling && (
-                                    <button
-                                      onClick={() =>
-                                        onGoToPosBilling(
-                                          apt.customerName,
-                                          apt.serviceName,
-                                          apt.staffName
-                                        )
-                                      }
-                                      className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[10px] font-bold transition-all shadow-sm flex items-center gap-0.5"
-                                      title="Checkout at POS"
+                                  <div className="flex items-center justify-between gap-1 mb-1.5">
+                                    <span className="font-mono text-xs font-black px-2 py-0.5 rounded-md bg-white border border-slate-200/80">
+                                      {apt.time}
+                                    </span>
+                                    <span
+                                      className={`text-[11px] font-black uppercase px-2 py-0.5 rounded-full ${
+                                        apt.status === "Completed"
+                                          ? "bg-emerald-200 text-emerald-900"
+                                          : apt.status === "In-Service"
+                                          ? "bg-amber-200 text-amber-900 animate-pulse"
+                                          : "bg-blue-200 text-blue-900"
+                                      }`}
                                     >
-                                      <Receipt className="w-3 h-3" /> Pay
-                                    </button>
-                                  )}
+                                      {apt.status}
+                                    </span>
+                                  </div>
+
+                                  <h5 className="font-black text-xs text-slate-900 leading-snug line-clamp-1">
+                                    {apt.customerName}
+                                  </h5>
+                                  <p className="text-xs text-slate-700 line-clamp-1 mt-0.5 font-medium">
+                                    {apt.serviceName}
+                                  </p>
+
+                                  <div className="mt-2 pt-2 border-t border-slate-200/70 flex items-center justify-between text-xs">
+                                    <span className="font-mono font-black text-slate-900">
+                                      {formatCurrency(apt.price)}
+                                    </span>
+
+                                    <div className="flex items-center gap-1.5">
+                                      {/* Formula Card Button */}
+                                      <button
+                                        onClick={() => handleOpenFormulaCard(apt.customerName)}
+                                        className="p-1 hover:bg-white rounded-lg text-indigo-700 transition-colors border border-indigo-200/60"
+                                        title="View Technical Formula Card"
+                                      >
+                                        <Sparkles className="w-3.5 h-3.5" />
+                                      </button>
+
+                                      {/* POS Checkout Button */}
+                                      {onGoToPosBilling && (
+                                        <button
+                                          onClick={() =>
+                                            onGoToPosBilling(
+                                              apt.customerName,
+                                              apt.serviceName,
+                                              apt.staffName
+                                            )
+                                          }
+                                          className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all shadow-xs flex items-center gap-1"
+                                          title="Checkout at POS"
+                                        >
+                                          <Receipt className="w-3 h-3" /> Pay
+                                        </button>
+                                      )}
+                                    </div>
+                                  </div>
                                 </div>
-                              </div>
+                              ) : (
+                                <button
+                                  onClick={() => handleQuickSlotClick(hour, st.name)}
+                                  className="w-full h-full min-h-[70px] rounded-xl border border-dashed border-slate-200/90 hover:border-blue-500 hover:bg-blue-50/60 flex items-center justify-center text-slate-500 hover:text-blue-700 transition-all opacity-0 group-hover:opacity-100 text-xs font-bold gap-1"
+                                >
+                                  <Plus className="w-3.5 h-3.5" /> Book {hour}
+                                </button>
+                              )}
                             </div>
-                          ) : (
-                            <button
-                              onClick={() => handleQuickSlotClick(hour, st.name)}
-                              className="w-full h-full min-h-[70px] rounded-xl border border-dashed border-slate-200/80 hover:border-blue-400 hover:bg-blue-50/50 flex items-center justify-center text-slate-400 hover:text-blue-600 transition-all opacity-0 group-hover:opacity-100 text-xs font-bold gap-1"
-                            >
-                              <Plus className="w-3.5 h-3.5" /> Book {hour}
-                            </button>
-                          )}
-                        </div>
-                      );
-                    })}
+                          );
+                        })}
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
               </div>
-            </div>
-          </div>
+            );
+          })()}
         </div>
       ) : (
         /* VIEW MODE 2: CARDS GRID VIEW */
@@ -416,7 +453,26 @@ export function CalendarView({ onGoToPosBilling }: CalendarViewProps) {
             ))}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredAppointments.length === 0 ? (
+            <div className="luxury-card p-12 rounded-3xl text-center space-y-4 max-w-md mx-auto">
+              <div className="w-16 h-16 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mx-auto">
+                <CalendarIcon className="w-8 h-8" />
+              </div>
+              <div>
+                <h3 className="font-extrabold text-base text-slate-900">No Appointments Scheduled</h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  There are no bookings matching the selected artist filter.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowBookModal(true)}
+                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-sm inline-flex items-center gap-1.5"
+              >
+                <Plus className="w-4 h-4" /> Schedule New Booking
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredAppointments.map((apt) => (
               <div
                 key={apt.id}
@@ -519,6 +575,7 @@ export function CalendarView({ onGoToPosBilling }: CalendarViewProps) {
               </div>
             ))}
           </div>
+        )}
         </div>
       )}
 

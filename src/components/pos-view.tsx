@@ -303,42 +303,83 @@ export function PosView() {
             </div>
 
             {/* Catalog Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 max-h-[620px] overflow-y-auto pr-1">
-              {itemTypeTab === "services"
-                ? filteredServices.map((srv) => (
-                    <div
-                      key={srv.id}
-                      onClick={() => addToCart({ id: srv.id, name: srv.name, price: srv.price, type: "service" })}
-                      className="luxury-card group p-5 rounded-3xl hover:border-blue-400 hover:shadow-xl transition-all cursor-pointer flex flex-col justify-between"
+            <div className="max-h-[620px] overflow-y-auto pr-1">
+              {itemTypeTab === "services" ? (
+                filteredServices.length === 0 ? (
+                  <div className="luxury-card p-12 rounded-3xl text-center space-y-3">
+                    <div className="w-14 h-14 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mx-auto">
+                      <Scissors className="w-7 h-7" />
+                    </div>
+                    <h4 className="font-extrabold text-slate-900 text-sm">No treatments found</h4>
+                    <p className="text-xs text-slate-500">
+                      No salon service matches "{catalogSearch}" in {categoryFilter === "All" ? "any category" : categoryFilter}.
+                    </p>
+                    <button
+                      onClick={() => {
+                        setCatalogSearch("");
+                        setCategoryFilter("All");
+                      }}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs"
                     >
-                      <div>
-                        <div className="flex items-start justify-between gap-2">
-                          <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100">
-                            {srv.category}
+                      Reset Catalog Filter
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                    {filteredServices.map((srv) => (
+                      <div
+                        key={srv.id}
+                        onClick={() => addToCart({ id: srv.id, name: srv.name, price: srv.price, type: "service" })}
+                        className="luxury-card group p-5 rounded-3xl hover:border-blue-400 hover:shadow-xl transition-all cursor-pointer flex flex-col justify-between"
+                      >
+                        <div>
+                          <div className="flex items-start justify-between gap-2">
+                            <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100">
+                              {srv.category}
+                            </span>
+                            <span className="text-xs text-slate-500 font-semibold flex items-center gap-1 font-mono">
+                              <Clock className="w-3.5 h-3.5 text-slate-400" /> {srv.durationMinutes}m
+                            </span>
+                          </div>
+                          <h4 className="text-sm font-bold text-slate-900 mt-2.5 group-hover:text-blue-600 transition-colors leading-snug">
+                            {srv.name}
+                          </h4>
+                          <p className="text-xs text-slate-600 mt-1 line-clamp-2 leading-relaxed font-medium">
+                            {srv.description}
+                          </p>
+                        </div>
+
+                        <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                          <span className="text-base font-extrabold text-slate-900 font-mono">
+                            {formatCurrency(srv.price)}
                           </span>
-                          <span className="text-xs text-slate-400 font-medium flex items-center gap-1">
-                            <Clock className="w-3 h-3 text-slate-400" /> {srv.durationMinutes}m
+                          <span className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 group-hover:translate-x-1 transition-transform">
+                            <Plus className="w-3.5 h-3.5" /> Add
                           </span>
                         </div>
-                        <h4 className="text-sm font-bold text-slate-900 mt-2.5 group-hover:text-blue-600 transition-colors leading-snug">
-                          {srv.name}
-                        </h4>
-                        <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
-                          {srv.description}
-                        </p>
                       </div>
-
-                      <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-                        <span className="text-base font-extrabold text-slate-900 font-mono">
-                          {formatCurrency(srv.price)}
-                        </span>
-                        <span className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 group-hover:translate-x-1 transition-transform">
-                          <Plus className="w-3.5 h-3.5" /> Add
-                        </span>
-                      </div>
-                    </div>
-                  ))
-                : filteredRetailProducts.map((prod) => (
+                    ))}
+                  </div>
+                )
+              ) : filteredRetailProducts.length === 0 ? (
+                <div className="luxury-card p-12 rounded-3xl text-center space-y-3">
+                  <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center mx-auto">
+                    <ShoppingBag className="w-7 h-7" />
+                  </div>
+                  <h4 className="font-extrabold text-slate-900 text-sm">No retail products found</h4>
+                  <p className="text-xs text-slate-500">
+                    No retail take-home items matched "{catalogSearch}".
+                  </p>
+                  <button
+                    onClick={() => setCatalogSearch("")}
+                    className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs"
+                  >
+                    Clear Search
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                  {filteredRetailProducts.map((prod) => (
                     <div
                       key={prod.id}
                       onClick={() =>
@@ -353,14 +394,14 @@ export function PosView() {
                     >
                       <div>
                         <div className="flex items-start justify-between gap-2">
-                          <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-100">
+                          <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-100">
                             {prod.brand}
                           </span>
                           <span
-                            className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                            className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
                               prod.currentStock <= prod.minThreshold
-                                ? "bg-amber-100 text-amber-800 border border-amber-200"
-                                : "bg-slate-100 text-slate-600"
+                                ? "bg-amber-100 text-amber-900 border border-amber-200"
+                                : "bg-slate-100 text-slate-700"
                             }`}
                           >
                             Stock: {prod.currentStock} {prod.unit}
@@ -369,7 +410,7 @@ export function PosView() {
                         <h4 className="text-sm font-bold text-slate-900 mt-2.5 group-hover:text-emerald-700 transition-colors leading-snug">
                           {prod.name}
                         </h4>
-                        <p className="text-xs text-slate-400 font-mono mt-1">SKU: {prod.sku}</p>
+                        <p className="text-xs text-slate-500 font-mono mt-1 font-medium">SKU: {prod.sku}</p>
                       </div>
 
                       <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
@@ -382,6 +423,8 @@ export function PosView() {
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -421,13 +464,13 @@ export function PosView() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                    <User className="w-3.5 h-3.5 text-blue-600" /> Client Profile
+                    <User className="w-3.5 h-3.5 text-blue-600" /> Client Details
                   </label>
                   <button
                     onClick={() => setIsWalkIn(!isWalkIn)}
                     className="text-xs text-blue-600 hover:underline font-bold"
                   >
-                    {isWalkIn ? "Select VIP Client" : "+ Fast Walk-in"}
+                    {isWalkIn ? "Pick Existing Client" : "+ New Walk-In Client"}
                   </button>
                 </div>
 
@@ -599,13 +642,13 @@ export function PosView() {
 
               {/* Predefined Coupon Codes */}
               <div className="pt-2 border-t border-slate-100 space-y-2">
-                <span className="text-[11px] font-bold text-slate-500 block uppercase tracking-wider">
-                  Salon Privilege Vouchers:
+                <span className="text-xs font-bold text-slate-600 block uppercase tracking-wider">
+                  Discount Coupons:
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   <button
                     onClick={() => applyPredefinedCoupon("FESTIVE20")}
-                    className={`px-2.5 py-1 rounded-xl text-[11px] font-bold border transition-all ${
+                    className={`px-3 py-1 rounded-xl text-xs font-bold border transition-all ${
                       discountCode === "FESTIVE20"
                         ? "bg-blue-600 text-white border-blue-600 shadow-sm"
                         : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200"
@@ -615,7 +658,7 @@ export function PosView() {
                   </button>
                   <button
                     onClick={() => applyPredefinedCoupon("LUXE10")}
-                    className={`px-2.5 py-1 rounded-xl text-[11px] font-bold border transition-all ${
+                    className={`px-3 py-1 rounded-xl text-xs font-bold border transition-all ${
                       discountCode === "LUXE10"
                         ? "bg-blue-600 text-white border-blue-600 shadow-sm"
                         : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200"
@@ -625,7 +668,7 @@ export function PosView() {
                   </button>
                   <button
                     onClick={() => applyPredefinedCoupon("VIP500")}
-                    className={`px-2.5 py-1 rounded-xl text-[11px] font-bold border transition-all ${
+                    className={`px-3 py-1 rounded-xl text-xs font-bold border transition-all ${
                       discountCode === "VIP500"
                         ? "bg-blue-600 text-white border-blue-600 shadow-sm"
                         : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200"
@@ -635,15 +678,15 @@ export function PosView() {
                   </button>
                 </div>
                 {discountMessage && (
-                  <p className="text-[11px] text-emerald-600 font-bold">{discountMessage}</p>
+                  <p className="text-xs text-emerald-700 font-bold">{discountMessage}</p>
                 )}
               </div>
 
-              {/* Stylist Gratuity & Tip Selector (Boulevard & Fresha Gold Standard) */}
+              {/* Stylist Gratuity & Tip Selector */}
               <div className="pt-2 border-t border-slate-100 space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Stylist Gratuity & Tip
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Stylist Tip (Optional)
                   </span>
                   {tipAmount > 0 && (
                     <span className="font-black text-amber-600 font-mono">
@@ -675,33 +718,33 @@ export function PosView() {
               {/* Bill Breakdown */}
               <div className="bg-slate-50/90 p-4 rounded-2xl border border-slate-200 space-y-2 text-xs">
                 <div className="flex justify-between text-slate-600 font-medium">
-                  <span>Subtotal Amount:</span>
+                  <span>Subtotal:</span>
                   <span className="font-bold text-slate-900 font-mono">{formatCurrency(subtotal)}</span>
                 </div>
                 {appliedDiscount > 0 && (
                   <div className="flex justify-between text-emerald-600 font-bold">
-                    <span>Discount Privilege ({discountCode}):</span>
+                    <span>Discount ({discountCode}):</span>
                     <span className="font-mono">- {formatCurrency(appliedDiscount)}</span>
                   </div>
                 )}
                 {loyaltyDiscount > 0 && (
                   <div className="flex justify-between text-purple-600 font-bold">
-                    <span>Loyalty Points Redeemed:</span>
+                    <span>Points Discount:</span>
                     <span className="font-mono">- {formatCurrency(loyaltyDiscount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-slate-600 font-medium">
-                  <span>GST (CGST 2.5% + SGST 2.5%):</span>
+                  <span>Tax (5% GST):</span>
                   <span className="font-bold text-slate-900 font-mono">{formatCurrency(gstAmount)}</span>
                 </div>
                 {tipAmount > 0 && (
                   <div className="flex justify-between text-amber-600 font-bold">
-                    <span>Artist Gratuity (Direct to Staff):</span>
+                    <span>Stylist Tip:</span>
                     <span className="font-mono">+{formatCurrency(tipAmount)}</span>
                   </div>
                 )}
                 <div className="pt-2 border-t border-slate-200 flex justify-between text-sm font-extrabold text-slate-900">
-                  <span>Grand Total Payable:</span>
+                  <span>Total to Pay:</span>
                   <span className="text-blue-600 text-lg font-mono">{formatCurrency(grandTotal)}</span>
                 </div>
               </div>
@@ -709,7 +752,7 @@ export function PosView() {
               {/* Payment Mode Selector */}
               <div>
                 <label className="text-xs font-extrabold text-slate-800 uppercase tracking-wider block mb-2">
-                  Tender Payment Method
+                  How did the client pay?
                 </label>
                 <div className="grid grid-cols-4 gap-2">
                   <button

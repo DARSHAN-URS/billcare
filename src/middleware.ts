@@ -1,52 +1,55 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
- * RUVEXI Multi-Tenant Resolution Middleware (PRD Section 5.1)
- *
- * Handles:
- * 1. Root / marketing site (e.g., ruvexi.com) -> (marketing)
- * 2. Salon owner/staff dashboard (e.g., app.ruvexi.com) -> (dashboard)
- * 3. Super admin console (e.g., admin.ruvexi.com) -> (super-admin)
- * 4. Salon branded websites (e.g., [salon].ruvexi.com or custom domain) -> (tenant-site)/[salonSlug]
+ * RUVEXI Multi-Tenant Resolution Middleware
  */
 export function middleware(req: NextRequest) {
   const url = req.nextUrl;
   const hostname = req.headers.get('host') || '';
 
-  // Extract root domain from environment or default
-  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'ruvexi.com';
-
-  // Handle local development subdomains (e.g. salon1.localhost:3000)
-  const isLocalhost = hostname.includes('localhost') || hostname.includes('127.0.0.1');
-  let subdomain = '';
-
-  if (isLocalhost) {
-    const parts = hostname.split(':')[0].split('.');
-    if (parts.length > 1 && parts[0] !== 'localhost') {
-      subdomain = parts[0];
-    }
-  } else if (hostname.endsWith(`.${rootDomain}`)) {
-    subdomain = hostname.replace(`.${rootDomain}`, '');
+  // Never rewrite Next.js internals, static files, or API routes
+  if (
+    url.pathname.startsWith('/_next') ||
+    url.pathname.startsWith('/api') ||
+    url.pathname.startsWith('/static') ||
+    url.pathname.includes('.')
+  ) {
+    return NextResponse.next();
   }
 
-  // 1. App Dashboard
+  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'ruvexi.com';
+  const hostWithoutPort = hostname.split(':')[0];
+
+  // If accessing by IP (like 127.0.0.1), treat as no subdomain
+  const isIpAddress = /^\d+\.\d+\.\d+\.\d+$/.test(hostWithoutPort);
+  let subdomain = '';
+
+  if (!isIpAddress) {
+    if (hostWithoutPort.endsWith('.localhost')) {
+      subdomain = hostWithoutPort.replace('.localhost', '');
+    } else if (hostWithoutPort.endsWith(`.${rootDomain}`)) {
+      subdomain = hostWithoutPort.replace(`.${rootDomain}`, '');
+    }
+  }
+
+  // 1. App Dashboard subdomain
   if (subdomain === 'app') {
     return NextResponse.rewrite(new URL(`/(dashboard)${url.pathname}`, req.url));
   }
 
-  // 2. Super Admin Portal
+  // 2. Super Admin Portal subdomain
   if (subdomain === 'admin') {
     return NextResponse.rewrite(new URL(`/(super-admin)${url.pathname}`, req.url));
   }
 
   // 3. Branded Salon Subdomain (e.g. blossom-salon.ruvexi.com)
-  if (subdomain && subdomain !== 'www') {
+  if (subdomain && subdomain !== 'www' && subdomain !== 'localhost') {
     return NextResponse.rewrite(
       new URL(`/(tenant-site)/${subdomain}${url.pathname}`, req.url)
     );
   }
 
-  // 4. Fallback: Main SaaS Marketing Platform
+  // 4. Default: Standard App Routing
   return NextResponse.next();
 }
 
