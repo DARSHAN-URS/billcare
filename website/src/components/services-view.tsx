@@ -87,14 +87,14 @@ export function ServicesView() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
-                Salon Treatment Catalog & Service Menu
+                Services & Price List
               </h1>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                {services.length} Treatments Active
+                {services.length} Services Available
               </span>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              Service durations • Standard pricing & GST • Online booking catalog availability
+              Service times • Prices with GST • Ready for front desk & online bookings
             </p>
           </div>
         </div>
@@ -103,7 +103,7 @@ export function ServicesView() {
           onClick={() => setShowAddModal(true)}
           className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-md shadow-blue-500/20 transition-all self-start md:self-auto"
         >
-          <Plus className="w-4 h-4" /> Add New Treatment
+          <Plus className="w-4 h-4" /> Add New Service
         </button>
       </div>
 
@@ -111,7 +111,7 @@ export function ServicesView() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="luxury-card p-4 rounded-2xl border-slate-200/80">
           <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
-            Total Menu Services
+            Total Services
           </span>
           <span className="text-lg font-black text-slate-900 font-mono mt-1 block">
             {services.length} Items
@@ -119,7 +119,7 @@ export function ServicesView() {
         </div>
         <div className="luxury-card p-4 rounded-2xl border-slate-200/80">
           <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
-            Average Ticket Size
+            Average Price
           </span>
           <span className="text-lg font-black text-blue-600 font-mono mt-1 block">
             {formatCurrency(avgPrice)}
@@ -127,18 +127,18 @@ export function ServicesView() {
         </div>
         <div className="luxury-card p-4 rounded-2xl border-slate-200/80">
           <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
-            Signature Bestsellers
+            Most Popular
           </span>
           <span className="text-lg font-black text-amber-500 font-mono mt-1 block">
-            {popularCount} Flagships
+            {popularCount} Favorites
           </span>
         </div>
         <div className="luxury-card p-4 rounded-2xl border-slate-200/80">
           <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
-            GST Compliance
+            GST Included
           </span>
           <span className="text-lg font-black text-emerald-600 font-mono mt-1 block">
-            5% Standard Rate
+            5% Standard
           </span>
         </div>
       </div>
@@ -149,7 +149,7 @@ export function ServicesView() {
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder="Search treatments by name, therapy or keywords..."
+            placeholder="Search services by name or description..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 text-xs bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium shadow-2xs"

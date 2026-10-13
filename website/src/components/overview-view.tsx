@@ -39,18 +39,13 @@ export function OverviewView({ onNavigateTab }: OverviewViewProps) {
 
   return (
     <div className="space-y-6">
-      {/* Luxury Obsidian Executive Banner */}
+      {/* Salon Daily Welcome Banner */}
       <div className="relative overflow-hidden bg-gradient-to-br from-[#0b0f19] via-[#0f172a] to-[#1e1b4b] text-white p-7 sm:p-9 rounded-[2rem] shadow-2xl border border-slate-800/80">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-500/15 text-blue-300 text-xs font-bold border border-blue-400/30 backdrop-blur-md">
-              <Crown className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-              <span>Flagship Salon Node Online</span>
-              <span className="text-slate-500">•</span>
-              <span className="text-emerald-400 font-mono flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                99.98% Synced
-              </span>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-400/30 backdrop-blur-md">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Salon Open • Ready for Clients</span>
             </div>
 
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
@@ -58,22 +53,22 @@ export function OverviewView({ onNavigateTab }: OverviewViewProps) {
             </h1>
 
             <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed font-medium">
-              {salon.branch} • All operational subsystems synchronized: POS Billing, Staff Roster, Floor Inventory & Meta WhatsApp Engine.
+              {salon.branch} • Today's salon desk. Check in arriving clients, make quick bills, and see what needs restocking.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <button
+              onClick={() => onNavigateTab("frontdesk")}
+              className="px-5 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-2xl shadow-xl shadow-emerald-600/30 transition-all flex items-center gap-2 transform active:scale-95"
+            >
+              <CheckCircle2 className="w-4 h-4" /> Go to Front Desk
+            </button>
+            <button
               onClick={() => onNavigateTab("pos")}
               className="px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold text-xs rounded-2xl shadow-xl shadow-blue-600/30 transition-all flex items-center gap-2 transform active:scale-95"
             >
-              <Receipt className="w-4 h-4" /> Quick Counter POS
-            </button>
-            <button
-              onClick={() => onNavigateTab("followups")}
-              className="px-5 py-3 bg-slate-800/80 hover:bg-slate-800 text-emerald-400 font-extrabold text-xs rounded-2xl border border-slate-700 backdrop-blur-md transition-all flex items-center gap-2"
-            >
-              <MessageSquare className="w-4 h-4 text-emerald-400" /> Send Follow-ups ({pendingFollowUps.length})
+              <Receipt className="w-4 h-4" /> Make a Bill
             </button>
           </div>
         </div>
@@ -83,15 +78,15 @@ export function OverviewView({ onNavigateTab }: OverviewViewProps) {
         <div className="absolute left-1/3 -top-20 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
       </div>
 
-      {/* Salon Operating System Module Launchpad */}
+      {/* Quick Launch Buttons */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
         {[
-          { id: "calendar", label: "Chair Matrix", icon: Calendar, color: "text-blue-600 bg-blue-50 hover:border-blue-300" },
-          { id: "pos", label: "Counter POS", icon: Receipt, color: "text-emerald-600 bg-emerald-50 hover:border-emerald-300" },
-          { id: "customers", label: "Clients & CRM", icon: Users, color: "text-purple-600 bg-purple-50 hover:border-purple-300" },
-          { id: "services", label: "Service Menu", icon: Scissors, color: "text-indigo-600 bg-indigo-50 hover:border-indigo-300" },
-          { id: "reports", label: "Sales Reports", icon: TrendingUp, color: "text-amber-600 bg-amber-50 hover:border-amber-300" },
-          { id: "settings", label: "Salon Settings", icon: ShieldCheck, color: "text-slate-700 bg-slate-100 hover:border-slate-300" },
+          { id: "frontdesk", label: "Front Desk", icon: CheckCircle2, color: "text-emerald-700 bg-emerald-50 hover:border-emerald-300" },
+          { id: "calendar", label: "Appointments", icon: Calendar, color: "text-blue-600 bg-blue-50 hover:border-blue-300" },
+          { id: "pos", label: "Billing & Cash", icon: Receipt, color: "text-emerald-600 bg-emerald-50 hover:border-emerald-300" },
+          { id: "customers", label: "Clients List", icon: Users, color: "text-purple-600 bg-purple-50 hover:border-purple-300" },
+          { id: "services", label: "Services Menu", icon: Scissors, color: "text-indigo-600 bg-indigo-50 hover:border-indigo-300" },
+          { id: "inventory", label: "Products & Stock", icon: Boxes, color: "text-amber-600 bg-amber-50 hover:border-amber-300" },
         ].map((mod) => {
           const Icon = mod.icon;
           return (
@@ -109,7 +104,7 @@ export function OverviewView({ onNavigateTab }: OverviewViewProps) {
         })}
       </div>
 
-      {/* KPI Cards Grid */}
+      {/* KPI Cards Grid - Simple & Clear Numbers */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Revenue */}
         <div
@@ -117,8 +112,8 @@ export function OverviewView({ onNavigateTab }: OverviewViewProps) {
           className="luxury-card p-6 rounded-3xl cursor-pointer group hover:border-blue-500 transition-all"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
-              Today's Gross Sales
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Today's Total Sales
             </span>
             <span className="p-3 bg-blue-50 text-blue-600 rounded-2xl group-hover:scale-110 transition-transform shadow-2xs">
               <DollarSign className="w-5 h-5" />
@@ -128,21 +123,21 @@ export function OverviewView({ onNavigateTab }: OverviewViewProps) {
             {formatCurrency(totalTodayRevenue)}
           </div>
           <div className="flex items-center justify-between text-xs mt-3 pt-3 border-t border-slate-100">
-            <span className="text-emerald-600 font-extrabold flex items-center gap-1">
-              <ArrowUpRight className="w-4 h-4" /> +24% vs yesterday
+            <span className="text-emerald-700 font-extrabold flex items-center gap-1">
+              <ArrowUpRight className="w-4 h-4" /> Billed today
             </span>
-            <span className="text-slate-400 font-medium font-mono">{invoices.length} Invoices</span>
+            <span className="text-slate-500 font-semibold font-mono">{invoices.length} Bills paid</span>
           </div>
         </div>
 
-        {/* Staff on Chair */}
+        {/* Staff on Duty */}
         <div
           onClick={() => onNavigateTab("staff")}
           className="luxury-card p-6 rounded-3xl cursor-pointer group hover:border-indigo-500 transition-all"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
-              Artists on Duty
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Stylists Working Today
             </span>
             <span className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl group-hover:scale-110 transition-transform shadow-2xs">
               <Users className="w-5 h-5" />
@@ -150,13 +145,13 @@ export function OverviewView({ onNavigateTab }: OverviewViewProps) {
           </div>
           <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-3">
             {clockedInStaff.length}{" "}
-            <span className="text-sm font-bold text-slate-400">/ {staff.length} Present</span>
+            <span className="text-sm font-bold text-slate-500">/ {staff.length} Present</span>
           </div>
           <div className="flex items-center justify-between text-xs mt-3 pt-3 border-t border-slate-100">
-            <span className="text-indigo-600 font-bold font-mono">
-              Comm: {formatCurrency(totalCommission)}
+            <span className="text-indigo-700 font-bold font-mono">
+              Tips & Comm: {formatCurrency(totalCommission)}
             </span>
-            <span className="text-slate-400 font-medium">Shifts active →</span>
+            <span className="text-slate-500 font-semibold">View team →</span>
           </div>
         </div>
 

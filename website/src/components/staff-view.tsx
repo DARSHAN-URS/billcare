@@ -83,13 +83,13 @@ export function StaffView() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">Staff & Stylist Roster</h1>
+              <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">Staff & Stylists</h1>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-                Commission Ledger Active
+                Attendance & Earnings
               </span>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              Live chair attendance • Individual sales commission rules • Performance analytics
+              Who is working today • Commission earnings • 1-tap clock in / out
             </p>
           </div>
         </div>
@@ -98,7 +98,7 @@ export function StaffView() {
           onClick={() => setShowAddModal(true)}
           className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-md shadow-blue-500/20 transition-all self-start sm:self-auto"
         >
-          <UserPlus className="w-4 h-4" /> Add Team Specialist
+          <UserPlus className="w-4 h-4" /> Add Stylist
         </button>
       </div>
 
@@ -106,7 +106,7 @@ export function StaffView() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="luxury-card p-5 rounded-3xl">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Active On Duty</span>
+            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Working Right Now</span>
             <span className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl">
               <Clock className="w-4 h-4" />
             </span>
@@ -115,35 +115,35 @@ export function StaffView() {
             {clockedInCount} <span className="text-xs font-bold text-slate-400">/ {staff.length} Present</span>
           </div>
           <p className="text-[11px] text-emerald-600 font-bold mt-1">
-            {onBreakCount} on break • {staff.length - clockedInCount - onBreakCount} clocked out
+            {onBreakCount} on break • {staff.length - clockedInCount - onBreakCount} off shift
           </p>
         </div>
 
         <div className="luxury-card p-5 rounded-3xl">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Stylist Sales Generated</span>
+            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Today's Stylist Sales</span>
             <span className="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
               <DollarSign className="w-4 h-4" />
             </span>
           </div>
           <div className="text-2xl font-black text-slate-900 mt-2 font-mono">{formatCurrency(totalTodayRevenue)}</div>
-          <p className="text-[11px] text-blue-600 font-bold mt-1">Gross treatment & product sales</p>
+          <p className="text-[11px] text-blue-600 font-bold mt-1">Services & products sold today</p>
         </div>
 
         <div className="luxury-card p-5 rounded-3xl">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Accrued Commission</span>
+            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Total Commission</span>
             <span className="p-2.5 bg-purple-50 text-purple-600 rounded-xl">
               <Percent className="w-4 h-4" />
             </span>
           </div>
           <div className="text-2xl font-black text-purple-700 mt-2 font-mono">{formatCurrency(totalCommissionPayout)}</div>
-          <p className="text-[11px] text-slate-500 font-medium mt-1">Directly attributed from today's POS</p>
+          <p className="text-[11px] text-slate-500 font-medium mt-1">Calculated automatically from today's bills</p>
         </div>
 
         <div className="luxury-card p-5 rounded-3xl">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Average Artist Rating</span>
+            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Client Reviews</span>
             <span className="p-2.5 bg-amber-50 text-amber-600 rounded-xl">
               <Star className="w-4 h-4 fill-amber-500" />
             </span>

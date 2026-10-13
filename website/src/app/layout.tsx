@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "@/styles/globals.css";
 import { DemoProvider } from "@/lib/demo-context";
+import { DemoNavigationBanner } from "@/components/demo-navigation-banner";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -35,8 +36,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${jakarta.variable}`}>
-      <body className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-500 selection:text-white">
-        <DemoProvider>{children}</DemoProvider>
+      <body className="min-h-screen bg-[#faf9f6] text-slate-900 font-sans selection:bg-slate-900 selection:text-white">
+        <DemoProvider>
+          <DemoNavigationBanner />
+          {children}
+        </DemoProvider>
       </body>
     </html>
   );

@@ -104,14 +104,14 @@ export function CrmFollowupsView() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
-                Customer Follow-ups & WhatsApp Retention Engine
+                WhatsApp Messages & Reminders
               </h1>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                Meta Cloud API
+                WhatsApp Connected
               </span>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              Automated post-service reviews • Color refresh reminders • Inactive client re-activation
+              Send thank-you messages • Remind clients to visit again • Birthday wishes
             </p>
           </div>
         </div>

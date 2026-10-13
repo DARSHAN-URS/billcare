@@ -1,8 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { useDemo } from "@/lib/demo-context";
 import { formatCurrency } from "@/lib/utils";
+import { FrontDeskView } from "./front-desk-view";
+import { SalonOwnerView } from "./salon-owner-view";
 import { OverviewView } from "./overview-view";
 import { PosView } from "./pos-view";
 import { StaffView } from "./staff-view";
@@ -26,26 +29,22 @@ import {
   RotateCcw,
   Sparkles,
   Building2,
-  Bell,
-  Search,
-  CheckCircle2,
   Menu,
   X,
-  ShieldCheck,
-  ChevronDown,
-  Star,
   Clock,
-  TrendingUp,
-  CreditCard,
-  Crown,
-  Laptop,
   Scissors,
   BarChart3,
   Settings as SettingsIcon,
-  MoreHorizontal,
+  ChevronRight,
+  ShieldCheck,
+  UserCheck,
+  CheckCircle2,
+  Crown,
 } from "lucide-react";
 
 export type TabType =
+  | "frontdesk"
+  | "owner"
   | "overview"
   | "calendar"
   | "pos"
@@ -62,11 +61,10 @@ interface DemoShellProps {
   initialTab?: TabType;
 }
 
-export function DemoShell({ initialTab = "overview" }: DemoShellProps) {
-  const { salon, followUps, inventory, staff, invoices, customers, resetDemoData } = useDemo();
+export function DemoShell({ initialTab = "frontdesk" }: DemoShellProps) {
+  const { salon, followUps, inventory, staff, invoices, customers, resetDemoData, currentPersona } = useDemo();
 
   const [activeTab, setActiveTab] = useState<TabType>(initialTab);
-
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState(salon.branch);
   const [currentTime, setCurrentTime] = useState<string>("");
@@ -102,347 +100,335 @@ export function DemoShell({ initialTab = "overview" }: DemoShellProps) {
     setActiveTab("pos");
   };
 
-  const navItems = [
+  const navSections = [
     {
-      id: "overview",
-      label: "Executive Hub",
-      icon: LayoutDashboard,
-      badge: null,
+      title: "DAILY OPERATIONS",
+      items: [
+        {
+          id: "frontdesk" as TabType,
+          label: "Front Desk Counter",
+          icon: CheckCircle2,
+          badge: "Active",
+          badgeColor: "bg-emerald-100 text-emerald-800",
+        },
+        {
+          id: "owner" as TabType,
+          label: "Salon Owner View",
+          icon: Crown,
+          badge: "Business",
+          badgeColor: "bg-amber-100 text-amber-800",
+        },
+        {
+          id: "calendar" as TabType,
+          label: "Today's Appointments",
+          icon: Calendar,
+          badge: "Schedule",
+          badgeColor: "bg-blue-100 text-blue-800",
+        },
+        {
+          id: "pos" as TabType,
+          label: "Billing & Checkout",
+          icon: Receipt,
+          badge: "Fast Pay",
+          badgeColor: "bg-emerald-100 text-emerald-800",
+        },
+        {
+          id: "overview" as TabType,
+          label: "Daily Overview",
+          icon: LayoutDashboard,
+          badge: null,
+        },
+        {
+          id: "customers" as TabType,
+          label: "Clients List",
+          icon: Users,
+          badge: `${customers.length}`,
+          badgeColor: "bg-purple-100 text-purple-800",
+        },
+        {
+          id: "services" as TabType,
+          label: "Services & Prices",
+          icon: Scissors,
+          badge: null,
+        },
+      ],
     },
     {
-      id: "calendar",
-      label: "Chair Matrix",
-      icon: Calendar,
-      badge: "Timeline",
-      badgeColor: "bg-blue-500/15 text-blue-700 border-blue-500/30",
+      title: "STAFF & PRODUCTS",
+      items: [
+        {
+          id: "staff" as TabType,
+          label: "Staff & Stylists",
+          icon: Users,
+          badge: `${clockedInStaffCount} Present`,
+          badgeColor: "bg-indigo-100 text-indigo-800",
+        },
+        {
+          id: "inventory" as TabType,
+          label: "Products & Stock",
+          icon: Boxes,
+          badge: lowStockCount > 0 ? `${lowStockCount} Low` : null,
+          badgeColor: "bg-amber-100 text-amber-900",
+        },
+      ],
     },
     {
-      id: "pos",
-      label: "Billing & POS",
-      icon: Receipt,
-      badge: "Fast Pay",
-      badgeColor: "bg-emerald-500/15 text-emerald-700 border-emerald-500/30",
+      title: "MESSAGES & REPORTS",
+      items: [
+        {
+          id: "followups" as TabType,
+          label: "WhatsApp Messages",
+          icon: MessageSquare,
+          badge: pendingFollowUps > 0 ? `${pendingFollowUps} Due` : null,
+          badgeColor: "bg-emerald-100 text-emerald-800",
+        },
+        {
+          id: "reports" as TabType,
+          label: "Sales Reports",
+          icon: BarChart3,
+          badge: null,
+        },
+        {
+          id: "booking" as TabType,
+          label: "Client Booking Site",
+          icon: Globe,
+          badge: "Online",
+          badgeColor: "bg-slate-100 text-slate-800",
+        },
+      ],
     },
     {
-      id: "customers",
-      label: "Clients & CRM",
-      icon: Users,
-      badge: `${customers.length}`,
-      badgeColor: "bg-purple-500/15 text-purple-700 border-purple-500/30",
-    },
-    {
-      id: "services",
-      label: "Service Menu",
-      icon: Scissors,
-      badge: null,
-    },
-    {
-      id: "staff",
-      label: "Artists & Shifts",
-      icon: Users,
-      badge: `${clockedInStaffCount} Active`,
-      badgeColor: "bg-indigo-500/15 text-indigo-700 border-indigo-500/30",
-    },
-    {
-      id: "inventory",
-      label: "Stock & Inventory",
-      icon: Boxes,
-      badge: lowStockCount > 0 ? `${lowStockCount} Reorder` : null,
-      badgeColor: "bg-amber-500/15 text-amber-700 border-amber-500/30",
-    },
-    {
-      id: "followups",
-      label: "WhatsApp CRM",
-      icon: MessageSquare,
-      badge: pendingFollowUps > 0 ? `${pendingFollowUps} Due` : null,
-      badgeColor: "bg-emerald-500/15 text-emerald-700 border-emerald-500/30",
-    },
-    {
-      id: "reports",
-      label: "Sales Reports",
-      icon: BarChart3,
-      badge: null,
-    },
-    {
-      id: "booking",
-      label: "Customer Portal",
-      icon: Globe,
-      badge: "Live View",
-      badgeColor: "bg-purple-500/15 text-purple-700 border-purple-500/30",
-    },
-    {
-      id: "settings",
-      label: "Salon Settings",
-      icon: SettingsIcon,
-      badge: null,
+      title: "SETTINGS",
+      items: [
+        {
+          id: "settings" as TabType,
+          label: "Salon Settings",
+          icon: SettingsIcon,
+          badge: null,
+        },
+      ],
     },
   ];
 
+  const getActiveTabTitle = () => {
+    for (const sec of navSections) {
+      const found = sec.items.find((i) => i.id === activeTab);
+      if (found) return found.label;
+    }
+    return "Front Desk Counter";
+  };
+
   return (
-    <div className="min-h-screen luxury-ambient-bg flex flex-col font-sans text-slate-900 antialiased selection:bg-blue-600 selection:text-white">
-      {/* Topmost Obsidian Command Bar */}
-      <div className="bg-[#0b0f19] text-white border-b border-slate-800/80 px-4 sm:px-6 py-2 text-[11px] font-medium tracking-wide">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1.5 text-amber-400 font-semibold">
-              <Crown className="w-3.5 h-3.5 fill-amber-400" />
-              <span>RUVEXI ENTERPRISE SUITE</span>
-            </span>
-            <span className="text-slate-600 hidden sm:inline">•</span>
-            <span className="text-slate-400 hidden sm:inline">
-              Multi-Tenant Architecture v2.4 • Supabase RLS Active
-            </span>
-          </div>
-
-          <div className="flex items-center gap-4 text-slate-400">
-            <span className="flex items-center gap-1.5 text-slate-300 font-mono">
-              <Clock className="w-3 h-3 text-blue-400" />
-              {currentTime || "10:00 AM"} IST
-            </span>
-            <span className="hidden md:flex items-center gap-1 text-emerald-400 font-semibold">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              99.98% SLA
-            </span>
-            <button
-              onClick={() => setShowBenchmarkModal(true)}
-              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 hover:bg-blue-500/30 hover:text-white transition-all font-bold text-[10px]"
-            >
-              <Sparkles className="w-3 h-3 text-amber-400" /> Compare vs Fresha & Zenoti
-            </button>
-            <button
-              onClick={resetDemoData}
-              className="hover:text-white flex items-center gap-1 text-slate-400 hover:underline transition-all"
-              title="Reset mock data to pristine baseline"
-            >
-              <RotateCcw className="w-3 h-3" /> Reset Store
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Luxury Header */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-xl border-b border-slate-200/80 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            {/* Brand Logo & Salon selector */}
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-2 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition-colors"
-              >
-                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </button>
-
-              <div
-                onClick={() => setActiveTab("overview")}
-                className="flex items-center gap-3 cursor-pointer group"
-              >
-                <div className="relative w-11 h-11 rounded-2xl bg-gradient-to-tr from-slate-950 via-slate-900 to-blue-900 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-900/20 border border-slate-700/50 group-hover:scale-105 transition-all duration-300">
-                  <span className="bg-gradient-to-br from-white via-blue-100 to-indigo-300 bg-clip-text text-transparent">
-                    R
-                  </span>
-                  <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-blue-500 border-2 border-white flex items-center justify-center">
-                    <Sparkles className="w-2 h-2 text-white" />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-extrabold text-lg tracking-tight text-slate-950 group-hover:text-blue-600 transition-colors">
-                      RUVEXI
-                    </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-900 text-white tracking-widest uppercase">
-                      LUXE OS
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-slate-500 font-medium">
-                    The Modern Operating System for High-End Salons
-                  </p>
-                </div>
-              </div>
-
-              {/* Branch Switcher Badge */}
-              <div className="hidden xl:flex items-center gap-2 ml-4 pl-4 border-l border-slate-200">
-                <div className="flex items-center gap-2 bg-slate-100/80 hover:bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200/80 transition-all">
-                  <Building2 className="w-3.5 h-3.5 text-blue-600" />
-                  <select
-                    value={selectedBranch}
-                    onChange={(e) => setSelectedBranch(e.target.value)}
-                    className="bg-transparent font-bold text-slate-800 text-xs focus:outline-none cursor-pointer"
-                  >
-                    <option value="Indiranagar Flagship, Bengaluru">Indiranagar Flagship (Bengaluru)</option>
-                    <option value="Koramangala Studio, Bengaluru">Koramangala Studio (Bengaluru)</option>
-                    <option value="Lavelle Road Luxe Suite, Bengaluru">Lavelle Road Luxe Suite (Bengaluru)</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Live Ticker Metrics & Action Pill */}
+    <div className="min-h-screen bg-[#faf9f6] flex flex-col font-sans text-slate-800 antialiased selection:bg-slate-900 selection:text-white">
+      <div className="flex-1 flex min-h-screen">
+        {/* ============================================================ */}
+        {/* DESKTOP SIDE NAVIGATION BAR */}
+        {/* ============================================================ */}
+        <aside className="hidden lg:flex w-64 xl:w-72 bg-white border-r border-slate-200/90 flex-col justify-between shrink-0 h-screen sticky top-0 z-30 shadow-[1px_0_4px_rgba(0,0,0,0.01)]">
+          {/* Top Brand & Branch Header */}
+          <div className="p-5 border-b border-slate-200/80 space-y-4">
+            {/* Salon Brand Title */}
             <div className="flex items-center gap-3">
-              {/* Daily Gross Revenue Pill */}
-              <div className="hidden md:flex items-center gap-3 bg-slate-50 border border-slate-200/80 px-3.5 py-1.5 rounded-2xl">
-                <div>
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
-                    Today's Gross
-                  </span>
-                  <span className="text-xs font-extrabold text-slate-900 font-mono">
-                    {formatCurrency(totalTodayRevenue)}
-                  </span>
-                </div>
-                <div className="h-6 w-px bg-slate-200"></div>
-                <div>
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
-                    Chairs Active
-                  </span>
-                  <span className="text-xs font-extrabold text-blue-600">
-                    {clockedInStaffCount} / {staff.length}
-                  </span>
-                </div>
+              <div className="w-10 h-10 rounded-xl bg-slate-950 text-white flex items-center justify-center font-bold text-base shadow-sm shrink-0">
+                R
               </div>
-
-              {/* Primary Call to Action */}
-              <button
-                onClick={() => setActiveTab("pos")}
-                className="px-4 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-600/25 transition-all transform active:scale-[0.98] flex items-center gap-2"
-              >
-                <Receipt className="w-4 h-4" />
-                <span>New Checkout</span>
-              </button>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-extrabold text-sm text-slate-950 truncate tracking-tight">
+                    {salon.name}
+                  </span>
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-slate-100 text-slate-700 uppercase tracking-wider inline-block mt-0.5">
+                  LUXE OS
+                </span>
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* Desktop Segmented Navigation Tabs */}
-        <div className="hidden lg:block border-t border-slate-200/60 bg-slate-50/70">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <nav className="flex space-x-1.5 py-2 overflow-x-auto">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = activeTab === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveTab(item.id as any)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap ${
-                      isActive
-                        ? "bg-white text-slate-950 shadow-[0_2px_10px_-2px_rgba(0,0,0,0.08)] border border-slate-200/90 ring-1 ring-slate-900/5"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-white/70"
-                    }`}
-                  >
-                    <Icon
-                      className={`w-4 h-4 transition-colors ${
-                        isActive ? "text-blue-600" : "text-slate-400"
-                      }`}
-                    />
-                    <span>{item.label}</span>
-                    {item.badge && (
-                      <span
-                        className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${
-                          item.badgeColor || "bg-slate-100 text-slate-700 border-slate-200"
+            {/* Branch Selector Dropdown */}
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-1.5 flex items-center gap-2">
+              <Building2 className="w-3.5 h-3.5 text-slate-500 shrink-0 ml-1" />
+              <select
+                value={selectedBranch}
+                onChange={(e) => setSelectedBranch(e.target.value)}
+                className="bg-transparent text-[11px] font-bold text-slate-800 focus:outline-none cursor-pointer w-full truncate"
+              >
+                <option value="Indiranagar Flagship, Bengaluru">Indiranagar Flagship</option>
+                <option value="Koramangala Studio, Bengaluru">Koramangala Studio</option>
+                <option value="Lavelle Road Luxe Suite, Bengaluru">Lavelle Road Suite</option>
+              </select>
+            </div>
+
+            {/* Quick Checkout CTA */}
+            <button
+              onClick={() => setActiveTab("pos")}
+              className="w-full py-2.5 bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2"
+            >
+              <Receipt className="w-3.5 h-3.5" />
+              <span>New POS Checkout</span>
+            </button>
+          </div>
+
+          {/* Middle Nav Items (Grouped) */}
+          <div className="flex-1 overflow-y-auto p-3 space-y-5">
+            {navSections.map((section) => (
+              <div key={section.title} className="space-y-1">
+                <div className="px-3 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider font-mono">
+                  {section.title}
+                </div>
+                <nav className="space-y-0.5">
+                  {section.items.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = activeTab === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => setActiveTab(item.id)}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all text-left ${
+                          isActive
+                            ? "bg-slate-950 text-white shadow-xs"
+                            : "text-slate-600 hover:text-slate-950 hover:bg-slate-100/70"
                         }`}
                       >
-                        {item.badge}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </nav>
+                        <div className="flex items-center gap-2.5">
+                          <Icon
+                            className={`w-4 h-4 shrink-0 ${
+                              isActive ? "text-white" : "text-slate-400"
+                            }`}
+                          />
+                          <span>{item.label}</span>
+                        </div>
+                        {item.badge && (
+                          <span
+                            className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-full ${
+                              isActive
+                                ? "bg-white/20 text-white"
+                                : item.badgeColor || "bg-slate-100 text-slate-700"
+                            }`}
+                          >
+                            {item.badge}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </nav>
+              </div>
+            ))}
           </div>
-        </div>
 
-        {/* Mobile Navigation Drawer */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex flex-col justify-end">
-            <div className="bg-white rounded-t-3xl max-h-[85vh] overflow-y-auto p-5 space-y-4 animate-in slide-in-from-bottom duration-200">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-slate-950 flex items-center justify-center text-white font-black text-xs">
-                    R
+          {/* Bottom Footer Info & Persona Profile */}
+          <div className="p-3.5 border-t border-slate-200/80 bg-slate-50/70 space-y-2.5">
+            {/* Active Persona Card */}
+            <div className="flex items-center justify-between bg-white border border-slate-200/90 rounded-xl p-2.5 shadow-2xs">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-7 h-7 rounded-lg bg-slate-950 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                  {currentPersona.avatar}
+                </div>
+                <div className="min-w-0">
+                  <div className="font-bold text-xs text-slate-950 truncate">
+                    {currentPersona.name}
                   </div>
-                  <div>
-                    <h3 className="font-extrabold text-sm text-slate-950">RUVEXI Luxe Suite</h3>
-                    <p className="text-[10px] text-slate-400">All Modules & Settings</p>
+                  <div className="text-[10px] text-slate-500 truncate">
+                    {currentPersona.roleTitle}
                   </div>
                 </div>
-                <button
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900"
-                >
-                  <X className="w-5 h-5" />
-                </button>
               </div>
+            </div>
 
-              {/* Branch Selector on Mobile */}
-              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200 text-xs">
-                <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-                  Active Salon Branch
-                </span>
-                <select
-                  value={selectedBranch}
-                  onChange={(e) => setSelectedBranch(e.target.value)}
-                  className="w-full bg-white px-3 py-2 border border-slate-200 rounded-xl font-bold text-slate-800"
-                >
-                  <option value="Indiranagar Flagship, Bengaluru">Indiranagar Flagship (Bengaluru)</option>
-                  <option value="Koramangala Studio, Bengaluru">Koramangala Studio (Bengaluru)</option>
-                  <option value="Lavelle Road Luxe Suite, Bengaluru">Lavelle Road Luxe Suite (Bengaluru)</option>
-                </select>
-              </div>
+            {/* Quick Actions */}
+            <div className="flex items-center justify-between text-[11px] text-slate-500 font-semibold px-1">
+              <button
+                onClick={() => setShowBenchmarkModal(true)}
+                className="hover:text-slate-950 flex items-center gap-1 transition-colors"
+              >
+                <span>Comparison</span>
+              </button>
+              <button
+                onClick={resetDemoData}
+                className="hover:text-slate-950 flex items-center gap-1 transition-colors"
+                title="Reset mock store data"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>Reset Store</span>
+              </button>
+            </div>
+          </div>
+        </aside>
 
-              {/* Nav Items List */}
-              <div className="grid grid-cols-1 gap-1.5">
-                {navItems.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = activeTab === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => {
-                        setActiveTab(item.id as any);
-                        setMobileMenuOpen(false);
-                      }}
-                      className={`w-full flex items-center justify-between p-3 rounded-2xl text-xs font-bold transition-all ${
-                        isActive
-                          ? "bg-slate-900 text-white shadow-md"
-                          : "text-slate-700 bg-slate-50 hover:bg-slate-100"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Icon className={`w-4 h-4 ${isActive ? "text-blue-400" : "text-slate-500"}`} />
-                        <span>{item.label}</span>
+        {/* ============================================================ */}
+        {/* MOBILE DRAWER NAVIGATION */}
+        {/* ============================================================ */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex">
+            <div className="bg-white w-72 max-w-[85vw] h-full flex flex-col justify-between p-4 shadow-2xl animate-in slide-in-from-left duration-200">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-slate-950 text-white flex items-center justify-center font-bold text-sm">
+                      R
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-xs text-slate-950">{salon.name}</h3>
+                      <p className="text-[10px] text-slate-500">Navigation Menu</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="p-1.5 rounded-lg bg-slate-100 text-slate-500 hover:text-slate-900"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Mobile Nav Links */}
+                <div className="overflow-y-auto max-h-[70vh] space-y-4">
+                  {navSections.map((section) => (
+                    <div key={section.title} className="space-y-1">
+                      <div className="text-[10px] font-bold text-slate-400 uppercase font-mono">
+                        {section.title}
                       </div>
-                      {item.badge && (
-                        <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                            isActive ? "bg-white/20 text-white" : item.badgeColor || "bg-white text-slate-700"
-                          }`}
-                        >
-                          {item.badge}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
+                      <div className="space-y-1">
+                        {section.items.map((item) => {
+                          const Icon = item.icon;
+                          const isActive = activeTab === item.id;
+                          return (
+                            <button
+                              key={item.id}
+                              onClick={() => {
+                                setActiveTab(item.id);
+                                setMobileMenuOpen(false);
+                              }}
+                              className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all ${
+                                isActive
+                                  ? "bg-slate-950 text-white"
+                                  : "text-slate-700 hover:bg-slate-100"
+                              }`}
+                            >
+                              <div className="flex items-center gap-2.5">
+                                <Icon className="w-4 h-4" />
+                                <span>{item.label}</span>
+                              </div>
+                              {item.badge && (
+                                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                                  {item.badge}
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              {/* Benchmark comparison and reset */}
-              <div className="pt-2 border-t border-slate-100 space-y-2">
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setShowBenchmarkModal(true);
-                  }}
-                  className="w-full py-2.5 bg-blue-50 text-blue-700 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-blue-600" /> Compare vs Fresha & Zenoti
-                </button>
+              <div className="pt-3 border-t border-slate-200">
                 <button
                   onClick={() => {
                     resetDemoData();
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full py-2 text-slate-400 hover:text-slate-600 text-xs font-medium"
+                  className="w-full py-2 text-slate-500 hover:text-slate-900 text-xs font-bold"
                 >
                   Reset Demo Store Data
                 </button>
@@ -450,117 +436,111 @@ export function DemoShell({ initialTab = "overview" }: DemoShellProps) {
             </div>
           </div>
         )}
-      </header>
 
-      {/* Main Content Area with Mobile Safe Padding */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8 pb-28 lg:pb-8">
-        {activeTab === "overview" && <OverviewView onNavigateTab={(tab) => setActiveTab(tab as any)} />}
-        {activeTab === "calendar" && <CalendarView onGoToPosBilling={handleGoToPosFromCalendar} />}
-        {activeTab === "pos" && <PosView />}
-        {activeTab === "customers" && (
-          <CustomersView
-            onGoToPos={(_cid) => setActiveTab("pos")}
-            onGoToBooking={(_name, _phone) => setActiveTab("calendar")}
-          />
-        )}
-        {activeTab === "services" && <ServicesView />}
-        {activeTab === "staff" && <StaffView />}
-        {activeTab === "inventory" && <InventoryView />}
-        {activeTab === "followups" && <CrmFollowupsView />}
-        {activeTab === "reports" && <ReportsView />}
-        {activeTab === "booking" && <BookingPreviewView />}
-        {activeTab === "settings" && <SettingsView />}
-      </main>
+        {/* ============================================================ */}
+        {/* MAIN BODY AREA & TOP CONSOLE BAR */}
+        {/* ============================================================ */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Top Console Bar */}
+          <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 lg:px-8 py-3.5 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+            <div className="flex items-center justify-between gap-4">
+              {/* Left: Mobile hamburger & Breadcrumbs */}
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setMobileMenuOpen(true)}
+                  className="lg:hidden p-2 rounded-xl text-slate-600 hover:text-slate-950 hover:bg-slate-100 transition-colors"
+                >
+                  <Menu className="w-5 h-5" />
+                </button>
 
-      {/* Fixed Native-Style Mobile Bottom Navigation Bar (Fresha & GlossGenius Style) */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-slate-200/90 shadow-[0_-4px_25px_rgba(0,0,0,0.08)] px-2 py-2">
-        <div className="grid grid-cols-5 gap-1 text-[10px] font-bold">
-          <button
-            onClick={() => setActiveTab("overview")}
-            className={`flex flex-col items-center justify-center py-1.5 rounded-xl transition-all ${
-              activeTab === "overview"
-                ? "text-blue-600 bg-blue-50/80 font-black"
-                : "text-slate-500 hover:text-slate-900"
-            }`}
-          >
-            <LayoutDashboard className="w-4 h-4 mb-0.5" />
-            <span>Hub</span>
-          </button>
+                <div>
+                  <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-medium">
+                    <span>Salon Console</span>
+                    <ChevronRight className="w-3 h-3 text-slate-400" />
+                    <span className="text-slate-900 font-bold">{getActiveTabTitle()}</span>
+                  </div>
+                  <h1 className="text-base sm:text-lg font-black text-slate-950 tracking-tight leading-tight">
+                    {getActiveTabTitle()}
+                  </h1>
+                </div>
+              </div>
 
-          <button
-            onClick={() => setActiveTab("calendar")}
-            className={`flex flex-col items-center justify-center py-1.5 rounded-xl transition-all ${
-              activeTab === "calendar"
-                ? "text-blue-600 bg-blue-50/80 font-black"
-                : "text-slate-500 hover:text-slate-900"
-            }`}
-          >
-            <Calendar className="w-4 h-4 mb-0.5" />
-            <span>Schedule</span>
-          </button>
+              {/* Right: Metrics & Actions */}
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                {/* Live Clock */}
+                <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 font-mono text-xs font-semibold">
+                  <Clock className="w-3.5 h-3.5 text-slate-400" />
+                  <span>{currentTime || "10:00 AM"} IST</span>
+                </div>
 
-          <button
-            onClick={() => setActiveTab("pos")}
-            className={`flex flex-col items-center justify-center py-1.5 rounded-xl transition-all ${
-              activeTab === "pos"
-                ? "text-blue-600 bg-blue-50/80 font-black"
-                : "text-slate-500 hover:text-slate-900"
-            }`}
-          >
-            <Receipt className="w-4 h-4 mb-0.5" />
-            <span>POS</span>
-          </button>
+                {/* Gross Revenue Pill */}
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+                  <span className="text-slate-400 text-[10px] font-bold uppercase">Today</span>
+                  <span className="font-extrabold text-slate-950 font-mono">
+                    {formatCurrency(totalTodayRevenue)}
+                  </span>
+                </div>
 
-          <button
-            onClick={() => setActiveTab("customers")}
-            className={`flex flex-col items-center justify-center py-1.5 rounded-xl transition-all ${
-              activeTab === "customers"
-                ? "text-purple-600 bg-purple-50/80 font-black"
-                : "text-slate-500 hover:text-slate-900"
-            }`}
-          >
-            <Users className="w-4 h-4 mb-0.5" />
-            <span>Clients</span>
-          </button>
+                {/* Active Chairs */}
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+                  <span className="text-slate-400 text-[10px] font-bold uppercase">Chairs</span>
+                  <span className="font-extrabold text-blue-700">
+                    {clockedInStaffCount} / {staff.length}
+                  </span>
+                </div>
 
-          <button
-            onClick={() => setMobileMenuOpen(true)}
-            className={`flex flex-col items-center justify-center py-1.5 rounded-xl transition-all ${
-              !["overview", "calendar", "pos", "customers"].includes(activeTab)
-                ? "text-blue-600 bg-blue-50/80 font-black"
-                : "text-slate-500 hover:text-slate-900"
-            }`}
-          >
-            <MoreHorizontal className="w-4 h-4 mb-0.5" />
-            <span>More</span>
-          </button>
+                {/* Client Site Link */}
+                <Link
+                  href="/book"
+                  className="hidden xl:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs border border-slate-200 transition-all shadow-2xs"
+                  title="Test customer online booking experience"
+                >
+                  <Globe className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Client Site</span>
+                </Link>
+
+                {/* Primary New Checkout Button */}
+                <button
+                  onClick={() => setActiveTab("pos")}
+                  className="px-3.5 py-1.5 sm:px-4 sm:py-2 bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 shrink-0 tactile-btn"
+                >
+                  <Receipt className="w-3.5 h-3.5" />
+                  <span>Quick Bill</span>
+                </button>
+              </div>
+            </div>
+          </header>
+
+          {/* Main Module Content View */}
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 min-h-screen">
+            {activeTab === "frontdesk" && (
+              <FrontDeskView
+                onNavigateTab={(tab) => setActiveTab(tab as any)}
+                onGoToPosBilling={handleGoToPosFromCalendar}
+              />
+            )}
+            {activeTab === "owner" && <SalonOwnerView />}
+            {activeTab === "overview" && <OverviewView onNavigateTab={(tab) => setActiveTab(tab as any)} />}
+            {activeTab === "calendar" && <CalendarView onGoToPosBilling={handleGoToPosFromCalendar} />}
+            {activeTab === "pos" && <PosView />}
+            {activeTab === "customers" && (
+              <CustomersView
+                onGoToPos={(_cid) => setActiveTab("pos")}
+                onGoToBooking={(_name, _phone) => setActiveTab("calendar")}
+              />
+            )}
+            {activeTab === "services" && <ServicesView />}
+            {activeTab === "staff" && <StaffView />}
+            {activeTab === "inventory" && <InventoryView />}
+            {activeTab === "followups" && <CrmFollowupsView />}
+            {activeTab === "reports" && <ReportsView />}
+            {activeTab === "booking" && <BookingPreviewView />}
+            {activeTab === "settings" && <SettingsView />}
+          </main>
         </div>
       </div>
 
-      {/* Luxury Brand Footer */}
-      <footer className="border-t border-slate-200/80 bg-white/90 backdrop-blur-md py-8 mt-12 mb-16 lg:mb-0 text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-6 h-6 rounded-lg bg-slate-950 flex items-center justify-center text-white font-black text-xs">
-              R
-            </div>
-            <span className="font-bold text-slate-900">RUVEXI Luxe Salon SaaS</span>
-            <span className="text-slate-300">•</span>
-            <span className="text-slate-400">Enterprise High-Volume Architecture</span>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-4 text-[11px] font-semibold text-slate-500">
-            <span className="flex items-center gap-1 text-emerald-600">
-              <CheckCircle2 className="w-3.5 h-3.5" /> Razorpay & Meta Cloud Synced
-            </span>
-            <span>•</span>
-            <span>PostgreSQL Multi-Tenant RLS</span>
-            <span>•</span>
-            <span>GDPR / India DPDP Ready</span>
-          </div>
-        </div>
-      </footer>
-
+      {/* Competitor Benchmark Modal */}
       {showBenchmarkModal && (
         <CompetitorBenchmarkModal onClose={() => setShowBenchmarkModal(false)} />
       )}

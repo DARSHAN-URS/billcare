@@ -251,85 +251,112 @@ export function InventoryView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filteredInventory.map((item) => {
-                const isLow = item.currentStock <= item.minThreshold;
-                return (
-                  <tr key={item.id} className="hover:bg-slate-50/70 transition-colors">
-                    <td className="py-4 px-4">
-                      <div className="font-extrabold text-slate-900">{item.name}</div>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-[10px] text-blue-600 font-bold">{item.brand}</span>
-                        <span className="text-[10px] text-slate-400 font-mono">SKU: {item.sku}</span>
+              {filteredInventory.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-12 px-4 text-center">
+                    <div className="max-w-xs mx-auto space-y-3">
+                      <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center mx-auto">
+                        <Boxes className="w-6 h-6" />
                       </div>
-                    </td>
-
-                    <td className="py-4 px-4">
-                      <span
-                        className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                          item.usageType === "Retail Sale"
-                            ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                            : "bg-purple-50 text-purple-800 border border-purple-200"
-                        }`}
+                      <h4 className="font-extrabold text-slate-900 text-sm">No inventory items match</h4>
+                      <p className="text-xs text-slate-500 font-medium">
+                        Try modifying your search query or reset the filters.
+                      </p>
+                      <button
+                        onClick={() => {
+                          setSearchTerm("");
+                          setCategoryFilter("All");
+                          setUsageFilter("All");
+                          setOnlyLowStock(false);
+                        }}
+                        className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs"
                       >
-                        {item.usageType}
-                      </span>
-                    </td>
+                        Reset All Filters
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredInventory.map((item) => {
+                  const isLow = item.currentStock <= item.minThreshold;
+                  return (
+                    <tr key={item.id} className="hover:bg-slate-50/70 transition-colors">
+                      <td className="py-4 px-4">
+                        <div className="font-extrabold text-slate-900 text-xs sm:text-sm">{item.name}</div>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-[11px] text-blue-600 font-bold">{item.brand}</span>
+                          <span className="text-[11px] text-slate-500 font-mono font-medium">SKU: {item.sku}</span>
+                        </div>
+                      </td>
 
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-2">
+                      <td className="py-4 px-4">
                         <span
-                          className={`text-sm font-black font-mono ${
-                            isLow ? "text-rose-600" : "text-slate-800"
+                          className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase tracking-wider ${
+                            item.usageType === "Retail Sale"
+                              ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                              : "bg-purple-50 text-purple-800 border border-purple-200"
                           }`}
                         >
-                          {item.currentStock} {item.unit}
+                          {item.usageType}
                         </span>
-                        {isLow && (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-black bg-rose-100 text-rose-700 flex items-center gap-1 animate-pulse">
-                            <AlertTriangle className="w-2.5 h-2.5" /> REORDER
+                      </td>
+
+                      <td className="py-4 px-4">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`text-sm font-black font-mono ${
+                              isLow ? "text-rose-600" : "text-slate-800"
+                            }`}
+                          >
+                            {item.currentStock} {item.unit}
                           </span>
-                        )}
-                      </div>
-                    </td>
+                          {isLow && (
+                            <span className="px-2 py-0.5 rounded text-[11px] font-black bg-rose-100 text-rose-700 flex items-center gap-1 animate-pulse">
+                              <AlertTriangle className="w-3 h-3" /> REORDER
+                            </span>
+                          )}
+                        </div>
+                      </td>
 
-                    <td className="py-4 px-4 text-slate-500 font-medium">
-                      Min: {item.minThreshold} {item.unit}
-                    </td>
+                      <td className="py-4 px-4 text-slate-600 font-medium text-xs">
+                        Min: {item.minThreshold} {item.unit}
+                      </td>
 
-                    <td className="py-4 px-4 font-bold text-slate-700 font-mono">{formatCurrency(item.costPrice)}</td>
+                      <td className="py-4 px-4 font-bold text-slate-800 font-mono text-xs">{formatCurrency(item.costPrice)}</td>
 
-                    <td className="py-4 px-4 font-black text-emerald-700 font-mono">
-                      {item.retailPrice ? formatCurrency(item.retailPrice) : "—"}
-                    </td>
+                      <td className="py-4 px-4 font-black text-emerald-700 font-mono text-xs">
+                        {item.retailPrice ? formatCurrency(item.retailPrice) : "—"}
+                      </td>
 
-                    <td className="py-4 px-4 text-slate-500 font-mono text-[11px]">{item.lastRestocked}</td>
+                      <td className="py-4 px-4 text-slate-600 font-mono text-xs">{item.lastRestocked}</td>
 
-                    <td className="py-4 px-4">
-                      <div className="flex items-center justify-center gap-2">
-                        {/* Deduct usage in salon floor */}
-                        <button
-                          onClick={() => updateStock(item.id, -1, "Floor consumption")}
-                          title="Log 1 Unit Consumed in Treatment"
-                          className="p-1.5 text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors border border-slate-200"
-                        >
-                          <Minus className="w-3.5 h-3.5" />
-                        </button>
+                      <td className="py-4 px-4">
+                        <div className="flex items-center justify-center gap-2">
+                          {/* Deduct usage in salon floor */}
+                          <button
+                            onClick={() => updateStock(item.id, -1, "Floor consumption")}
+                            title="Log 1 Unit Consumed in Treatment"
+                            className="p-1.5 text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors border border-slate-200"
+                          >
+                            <Minus className="w-3.5 h-3.5" />
+                          </button>
 
-                        {/* Quick Restock Action */}
-                        <button
-                          onClick={() => {
-                            setRestockModalItem(item);
-                            setRestockQuantity(10);
-                          }}
-                          className="px-3 py-1.5 text-xs font-bold bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-xl transition-colors flex items-center gap-1"
-                        >
-                          <RotateCcw className="w-3 h-3" /> Restock Batch
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                          {/* Quick Restock Action */}
+                          <button
+                            onClick={() => {
+                              setRestockModalItem(item);
+                              setRestockQuantity(10);
+                            }}
+                            className="px-3 py-1.5 text-xs font-bold bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-xl transition-colors flex items-center gap-1"
+                          >
+                            <RotateCcw className="w-3 h-3" /> Restock Batch
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
