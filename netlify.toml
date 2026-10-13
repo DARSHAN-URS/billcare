@@ -1,0 +1,8 @@
+[build]
+  # Subdirectory where your Next.js application lives
+  base = "website"
+  publish = ".next"
+  command = "npm run build"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
