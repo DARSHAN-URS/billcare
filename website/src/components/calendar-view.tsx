@@ -241,14 +241,14 @@ export function CalendarView({ onGoToPosBilling }: CalendarViewProps) {
           <div className="overflow-x-auto">
             <div className="min-w-[850px]">
               {/* Columns Header (Stylists) */}
-              <div className="grid grid-cols-[100px_repeat(4,1fr)] bg-slate-50 border-b border-slate-200 text-xs">
-                <div className="p-4 font-black text-slate-400 uppercase tracking-wider text-[10px] flex items-center justify-center border-r border-slate-200">
+              <div className="grid grid-cols-[85px_repeat(4,minmax(180px,1fr))] bg-slate-50 border-b border-slate-200 text-xs sticky top-0 z-20">
+                <div className="p-3 sm:p-4 font-black text-slate-400 uppercase tracking-wider text-[10px] flex items-center justify-center border-r border-slate-200 sticky left-0 z-30 bg-slate-50">
                   Time
                 </div>
                 {staff.map((st) => (
                   <div
                     key={st.id}
-                    className="p-3.5 border-r border-slate-200 last:border-r-0 flex items-center justify-between gap-2"
+                    className="p-3.5 border-r border-slate-200 last:border-r-0 flex items-center justify-between gap-2 bg-slate-50"
                   >
                     <div className="flex items-center gap-2.5">
                       <img
@@ -280,10 +280,10 @@ export function CalendarView({ onGoToPosBilling }: CalendarViewProps) {
                 {timelineHours.map((hour) => (
                   <div
                     key={hour}
-                    className="grid grid-cols-[100px_repeat(4,1fr)] min-h-[92px] transition-colors"
+                    className="grid grid-cols-[85px_repeat(4,minmax(180px,1fr))] min-h-[92px] transition-colors"
                   >
-                    {/* Time Label Column */}
-                    <div className="p-3 font-mono font-bold text-slate-500 text-[11px] bg-slate-50/60 border-r border-slate-200 flex items-start justify-center pt-3.5">
+                    {/* Time Label Column (Sticky) */}
+                    <div className="p-2 sm:p-3 font-mono font-bold text-slate-500 text-[10px] sm:text-[11px] bg-slate-50/95 border-r border-slate-200 flex items-start justify-center pt-3.5 sticky left-0 z-10 backdrop-blur-sm">
                       {hour}
                     </div>
 

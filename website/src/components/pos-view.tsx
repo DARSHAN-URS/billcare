@@ -385,9 +385,38 @@ export function PosView() {
             </div>
           </div>
 
+          {/* Floating Mobile Cart Bar */}
+          {cart.length > 0 && (
+            <div className="lg:hidden fixed bottom-16 left-3 right-3 z-30 bg-slate-950 text-white p-3 rounded-2xl shadow-2xl flex items-center justify-between border border-slate-800 animate-in slide-in-from-bottom duration-200">
+              <div className="flex items-center gap-2.5">
+                <span className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-xs text-white">
+                  {cart.reduce((acc, i) => acc + i.quantity, 0)}
+                </span>
+                <div>
+                  <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">
+                    Cart Total
+                  </span>
+                  <span className="font-black text-sm text-white font-mono">
+                    {formatCurrency(grandTotal)}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  document.getElementById("pos-checkout-drawer")?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs rounded-xl shadow-md flex items-center gap-1.5"
+              >
+                <span>Checkout</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+
           {/* Right Side: Active Cart & Boutique Checkout Drawer */}
-          <div className="lg:col-span-5 space-y-4">
-            <div className="luxury-card rounded-3xl p-6 space-y-5 border-slate-200/90 shadow-lg">
+          <div id="pos-checkout-drawer" className="lg:col-span-5 space-y-4">
+            <div className="luxury-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 space-y-4 sm:space-y-5 border-slate-200/90 shadow-lg">
               {/* Customer Selector with VIP Badge */}
               <div>
                 <div className="flex items-center justify-between mb-2">

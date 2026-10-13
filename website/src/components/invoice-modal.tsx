@@ -34,10 +34,10 @@ export function InvoiceModal({ invoice, salon, onClose }: InvoiceModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 overflow-y-auto animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-2.5 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
+      <div className="relative w-full max-w-2xl bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-4 sm:my-8 max-h-[92vh] flex flex-col">
         {/* Top Obsidian Action Bar */}
-        <div className="flex items-center justify-between px-6 py-4 bg-[#0b0f19] text-white border-b border-slate-800">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-6 py-3.5 sm:py-4 bg-[#0b0f19] text-white border-b border-slate-800 shrink-0">
           <div className="flex items-center gap-3">
             <span className="p-2 rounded-xl bg-blue-600/30 text-blue-400 border border-blue-500/30">
               <Crown className="w-4 h-4 text-amber-400 fill-amber-400" />

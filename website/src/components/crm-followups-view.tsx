@@ -265,7 +265,7 @@ export function CrmFollowupsView() {
               </div>
 
               {/* iPhone 16 AMOLED Frame */}
-              <div className="rounded-[2.2rem] overflow-hidden border-4 border-slate-950 shadow-2xl bg-[#0b141a] relative">
+              <div className="rounded-[2.2rem] overflow-hidden border-4 border-slate-950 shadow-2xl bg-[#0b141a] relative max-w-sm mx-auto w-full">
                 {/* Dynamic Island Speaker pill */}
                 <div className="bg-slate-950 h-5 w-28 mx-auto rounded-b-xl flex items-center justify-center">
                   <div className="w-2.5 h-2.5 rounded-full bg-slate-900 border border-slate-800"></div>
