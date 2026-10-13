@@ -3,5 +3,5 @@
 import { DemoShell } from "@/components/demo-shell";
 
 export default function CustomersPage() {
-  return <DemoShell />;
+  return <DemoShell initialTab="customers" />;
 }

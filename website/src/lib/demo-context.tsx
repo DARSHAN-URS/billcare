@@ -52,6 +52,16 @@ interface DemoContextType {
   updateAppointmentStatus: (id: string, status: Appointment["status"]) => void;
   bookAppointment: (apt: Omit<Appointment, "id" | "status">) => void;
 
+  // Service Actions
+  addService: (service: Omit<ServiceItem, "id">) => void;
+  updateService: (id: string, updates: Partial<ServiceItem>) => void;
+
+  // Customer Actions
+  updateCustomer: (id: string, updates: Partial<CustomerProfile>) => void;
+
+  // Salon Profile Actions
+  updateSalonProfile: (updates: Partial<SalonProfile>) => void;
+
   // Reset to default
   resetDemoData: () => void;
 }
@@ -61,7 +71,7 @@ const DemoContext = createContext<DemoContextType | undefined>(undefined);
 export function DemoProvider({ children }: { children: React.ReactNode }) {
   const [salon, setSalon] = useState<SalonProfile>(INITIAL_SALON);
   const [staff, setStaff] = useState<StaffMember[]>(INITIAL_STAFF);
-  const [services] = useState<ServiceItem[]>(INITIAL_SERVICES);
+  const [services, setServices] = useState<ServiceItem[]>(INITIAL_SERVICES);
   const [inventory, setInventory] = useState<InventoryItem[]>(INITIAL_INVENTORY);
   const [customers, setCustomers] = useState<CustomerProfile[]>(INITIAL_CUSTOMERS);
   const [followUps, setFollowUps] = useState<FollowUpCampaign[]>(INITIAL_FOLLOW_UPS);
@@ -301,9 +311,30 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
     saveToStorage("ruvexi_appointments", updated);
   };
 
+  const addService = (srvData: Omit<ServiceItem, "id">) => {
+    const newSrv: ServiceItem = {
+      ...srvData,
+      id: `srv_${Date.now()}`,
+    };
+    setServices((prev) => [newSrv, ...prev]);
+  };
+
+  const updateService = (id: string, updates: Partial<ServiceItem>) => {
+    setServices((prev) => prev.map((s) => (s.id === id ? { ...s, ...updates } : s)));
+  };
+
+  const updateCustomer = (id: string, updates: Partial<CustomerProfile>) => {
+    setCustomers((prev) => prev.map((c) => (c.id === id ? { ...c, ...updates } : c)));
+  };
+
+  const updateSalonProfile = (updates: Partial<SalonProfile>) => {
+    setSalon((prev) => ({ ...prev, ...updates }));
+  };
+
   const resetDemoData = () => {
     setSalon(INITIAL_SALON);
     setStaff(INITIAL_STAFF);
+    setServices(INITIAL_SERVICES);
     setInventory(INITIAL_INVENTORY);
     setCustomers(INITIAL_CUSTOMERS);
     setFollowUps(INITIAL_FOLLOW_UPS);
@@ -333,6 +364,10 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
         sendFollowUp,
         createFollowUp,
         addCustomer,
+        updateCustomer,
+        addService,
+        updateService,
+        updateSalonProfile,
         updateAppointmentStatus,
         bookAppointment,
         resetDemoData,

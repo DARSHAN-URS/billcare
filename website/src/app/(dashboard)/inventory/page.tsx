@@ -3,5 +3,5 @@
 import { DemoShell } from "@/components/demo-shell";
 
 export default function InventoryPage() {
-  return <DemoShell />;
+  return <DemoShell initialTab="inventory" />;
 }
