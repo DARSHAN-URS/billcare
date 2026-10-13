@@ -20,8 +20,15 @@ export function InvoiceModal({ invoice, salon, onClose }: InvoiceModalProps) {
   };
 
   const handleShareWhatsApp = () => {
-    const text = `Hi ${invoice.customerName}! Thank you for choosing ${salon.name}. Here is your official tax receipt ${invoice.invoiceNumber} for amount ${formatCurrency(invoice.total)}. Digital verification: https://luxehaven.in/inv/${invoice.invoiceNumber}`;
-    navigator.clipboard.writeText(text);
+    const text = encodeURIComponent(
+      `Hi ${invoice.customerName}! ✨ Thank you for visiting ${salon.name}. Here is your official tax receipt ${invoice.invoiceNumber} for ${formatCurrency(invoice.total)}.\n\nServices: ${invoice.items.map((i) => i.name).join(", ")}\nTotal Paid: ${formatCurrency(invoice.total)} via ${invoice.paymentMethod}\n\nWe look forward to welcoming you back!`
+    );
+    const phoneClean = invoice.customerPhone.replace(/[^0-9]/g, "");
+    if (phoneClean && phoneClean.length > 5) {
+      window.open(`https://wa.me/${phoneClean}?text=${text}`, "_blank");
+    } else {
+      navigator.clipboard.writeText(decodeURIComponent(text));
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 3000);
   };

@@ -68,6 +68,12 @@ export interface CustomerProfile {
   preferredStaff: string;
   tags: string[];
   notes: string;
+  vipTier?: "Platinum VIP" | "Gold VIP" | "Silver Regular";
+  formulaNotes?: string;
+  patchTestStatus?: "Valid" | "Expired" | "Not Required";
+  patchTestDate?: string;
+  allergies?: string;
+  rebookingCadenceDays?: number;
 }
 
 export interface FollowUpCampaign {
@@ -367,6 +373,12 @@ export const INITIAL_CUSTOMERS: CustomerProfile[] = [
     preferredStaff: "Priya Sharma",
     tags: ["VIP", "Color Enthusiast", "High Ticket"],
     notes: "Prefers cold iced latte during services. Sensitive scalp; use sulfate-free wash.",
+    vipTier: "Platinum VIP",
+    formulaNotes: "Roots: Wella KP 6/1 (30g) + 20 Vol (30g). Balayage: Blondor + 20 Vol + Olaplex No.1. Toner: Color Touch 9/16 (20g) + 1.9% (40g) 15m.",
+    patchTestStatus: "Valid",
+    patchTestDate: "2026-09-15",
+    allergies: "Ammonia sensitivity (Mild)",
+    rebookingCadenceDays: 45,
   },
   {
     id: "cst_2",
@@ -381,7 +393,11 @@ export const INITIAL_CUSTOMERS: CustomerProfile[] = [
     lastService: "Executive Gentleman Haircut & Hot Towel Shave",
     preferredStaff: "Arjun Verma",
     tags: ["Weekly Regular", "Prompt Payer"],
-    notes: "Always books Thursday evenings at 6:30 PM.",
+    notes: "Always books Thursday evenings at 6:30 PM. Medium scissor fade on sides.",
+    vipTier: "Gold VIP",
+    formulaNotes: "Barber Spec: Low Skin Fade taper, #1.5 guard transition. Beard: Sandalwood pre-shave oil with straight razor lining.",
+    patchTestStatus: "Not Required",
+    rebookingCadenceDays: 14,
   },
   {
     id: "cst_3",
@@ -397,6 +413,12 @@ export const INITIAL_CUSTOMERS: CustomerProfile[] = [
     preferredStaff: "Aisha Khan",
     tags: ["Skin Care Loyal", "Due For Follow-up"],
     notes: "Suffers from seasonal dehydration. Loves the HydraFacial Antiox serum.",
+    vipTier: "Gold VIP",
+    formulaNotes: "Skin Tech: FitzPatrick Type III, dry T-zone. Protocol: GlySal 7.5% peel (mild tingle), Red LED phototherapy 15 mins. No retinol for 48h.",
+    patchTestStatus: "Valid",
+    patchTestDate: "2026-08-10",
+    allergies: "Tree nut extracts",
+    rebookingCadenceDays: 30,
   },
   {
     id: "cst_4",
@@ -412,6 +434,8 @@ export const INITIAL_CUSTOMERS: CustomerProfile[] = [
     preferredStaff: "Arjun Verma",
     tags: ["At-Risk Inactive", "First Timer"],
     notes: "Has not visited in 48 days. Prime target for win-back campaign.",
+    vipTier: "Silver Regular",
+    rebookingCadenceDays: 25,
   },
   {
     id: "cst_5",
@@ -427,6 +451,11 @@ export const INITIAL_CUSTOMERS: CustomerProfile[] = [
     preferredStaff: "Priya Sharma",
     tags: ["VIP", "Keratin Repeat"],
     notes: "Birthday coming up this Sunday (Oct 18). Send birthday greeting with voucher.",
+    vipTier: "Platinum VIP",
+    formulaNotes: "Hair Spec: 3B curls, coarse texture. Keratin: Amazonian Formaldehyde-free formula 60ml. Flat iron at 210°C (7 passes per section).",
+    patchTestStatus: "Valid",
+    patchTestDate: "2026-07-22",
+    rebookingCadenceDays: 90,
   },
 ];
 
@@ -635,5 +664,44 @@ export const INITIAL_APPOINTMENTS: Appointment[] = [
     price: 1600,
     status: "Confirmed",
     source: "Online Booking",
+  },
+  {
+    id: "apt_6",
+    customerName: "Ananya Deshmukh",
+    customerPhone: "+91 99201 88721",
+    serviceName: "Signature Balayage & Olaplex Gloss",
+    staffName: "Priya Sharma",
+    staffId: "st_1",
+    time: "03:00 PM",
+    durationMinutes: 90,
+    price: 6500,
+    status: "Confirmed",
+    source: "Online Booking",
+  },
+  {
+    id: "apt_7",
+    customerName: "Karan Singhania",
+    customerPhone: "+91 98450 67123",
+    serviceName: "Executive Gentleman Haircut & Hot Towel Shave",
+    staffName: "Arjun Verma",
+    staffId: "st_2",
+    time: "11:30 AM",
+    durationMinutes: 45,
+    price: 1200,
+    status: "Completed",
+    source: "Walk-in",
+  },
+  {
+    id: "apt_8",
+    customerName: "Divya Sen",
+    customerPhone: "+91 98230 44991",
+    serviceName: "Sculpted Gel Extensions & Chrome Art",
+    staffName: "Rohit Mehta",
+    staffId: "st_4",
+    time: "11:00 AM",
+    durationMinutes: 60,
+    price: 2400,
+    status: "In-Service",
+    source: "Phone Call",
   },
 ];
