@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
- * RUVEXI Multi-Tenant Resolution Middleware
+ * BillCare Multi-Tenant Resolution Middleware
  */
 export function middleware(req: NextRequest) {
   const url = req.nextUrl;
@@ -17,7 +17,7 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'ruvexi.com';
+  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'billcare.io';
   const hostWithoutPort = hostname.split(':')[0];
 
   // If accessing by IP (like 127.0.0.1), treat as no subdomain
@@ -42,7 +42,7 @@ export function middleware(req: NextRequest) {
     return NextResponse.rewrite(new URL(`/(super-admin)${url.pathname}`, req.url));
   }
 
-  // 3. Branded Salon Subdomain (e.g. blossom-salon.ruvexi.com)
+  // 3. Branded Salon Subdomain (e.g. blossom-salon.billcare.io)
   if (subdomain && subdomain !== 'www' && subdomain !== 'localhost') {
     return NextResponse.rewrite(
       new URL(`/(tenant-site)/${subdomain}${url.pathname}`, req.url)

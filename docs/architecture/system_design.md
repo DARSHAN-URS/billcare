@@ -1,6 +1,6 @@
-# RUVEXI System Design & Technical Specification
+# BillCare Solution System Design & Technical Specification
 
-Based on **RUVEXI Product Requirements Document v1.0**.
+The All-in-One Operating System for Modern Salons & Spas.
 
 ---
 
@@ -8,7 +8,7 @@ Based on **RUVEXI Product Requirements Document v1.0**.
 
 ```
                                  ┌──────────────────────────────┐
-                                 │       RUVEXI Platform        │
+                                 │      BillCare Platform       │
                                  └──────────────┬───────────────┘
                                                 │
          ┌──────────────────────────────┼──────────────────────────────┐
@@ -17,8 +17,8 @@ Based on **RUVEXI Product Requirements Document v1.0**.
 │  Salon Websites  │          │ Owner & Staff    │          │  Super-Admin     │
 │  & Online Book   │          │ Dashboard & POS  │          │  Control Console │
 ├──────────────────┤          ├──────────────────┤          ├──────────────────┤
-│ [slug].ruvexi.com│          │ app.ruvexi.com   │          │ admin.ruvexi.com │
-│ (Next.js / PWA)  │          │ (Next.js + shadcn│          │ (Protected Web)  │
+│[slug].billcare.io│          │ app.billcare.io  │          │admin.billcare.io │
+│ (Next.js / PWA)  │          │ (Next.js + RLS)  │          │ (Protected Web)  │
 └──────────────────┘          └────────┬─────────┘          └──────────────────┘
                                        │
                                        ▼
@@ -31,24 +31,7 @@ Based on **RUVEXI Product Requirements Document v1.0**.
                               └──────────────────┘
 ```
 
----
-
-## 2. Technology Stack & Responsibilities
-
-| Layer | Technology | Primary Responsibilities |
-|---|---|---|
-| **Web Platform** | Next.js 14+ (TypeScript) + Tailwind CSS + shadcn/ui | Owner dashboard, branded tenant websites, customer booking flow, super-admin |
-| **Mobile App** | Flutter (Dart) + BLoC | Staff daily schedule, appointment completion, attendance clock-in, commission tracker |
-| **Backend API** | FastAPI (Python) Modular Monolith | Business logic, booking concurrency locking, RBAC, tenant authorization |
-| **Database** | Supabase PostgreSQL | Multi-tenant relational schema, Row-Level Security (RLS), foreign key cascades |
-| **Auth & Storage** | Supabase Auth & Storage | Session validation, logo & image uploads |
-| **Async & Workers** | Redis + Celery / ARQ | Appointment reminders, WhatsApp automation, scheduled reports |
-| **Integrations** | Razorpay, Meta WhatsApp Cloud API | Payments, invoices, automated notifications |
-
----
-
-## 3. Multi-Tenant Isolation Guarantees
-1. **Never trust `salon_id` from client payloads.**
-2. Request headers and JWT tokens are mapped to authenticated profile identities.
-3. Database queries enforce tenant scoping via PostgreSQL RLS policies.
-4. Concurrency lock prevents double-booking the same staff/slot combination across simultaneous requests.
+## 2. Multi-Tenant Architecture
+- Every salon tenant is partitioned with strict tenancy isolation.
+- Subdomain resolution dynamically loads salon settings, service menus, and booking calendars.
+- Zero commissions: Salons retain 100% of revenue from their clients.

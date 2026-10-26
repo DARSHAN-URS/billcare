@@ -1,6 +1,6 @@
 -- ============================================================================
--- RUVEXI Row-Level Security (RLS) Policies
--- Enforces tenant isolation at the database layer (PRD Section 5.3 & 11.2)
+-- BillCare Solution Row-Level Security (RLS) Policies
+-- Enforces tenant isolation at the database layer
 -- ============================================================================
 
 -- Enable RLS on all tenant-specific tables

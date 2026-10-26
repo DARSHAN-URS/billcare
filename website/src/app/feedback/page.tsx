@@ -3,7 +3,7 @@
 import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useDemo } from "@/lib/demo-context";
+import { useBillCare } from "@/lib/billcare-context";
 import {
   Star,
   Sparkles,
@@ -24,7 +24,7 @@ import {
 
 function FeedbackFormContent() {
   const searchParams = useSearchParams();
-  const { salon, staff, addFeedback, showToast } = useDemo();
+  const { salon, staff, addFeedback, showToast } = useBillCare();
 
   const customerName = searchParams.get("name") || "Ananya Sharma";
   const customerPhone = searchParams.get("phone") || "+91 98450 12890";
@@ -36,17 +36,17 @@ function FeedbackFormContent() {
   const [friendlinessRating, setFriendlinessRating] = useState<number>(5);
   const [ambienceRating, setAmbienceRating] = useState<number>(5);
   const [selectedTags, setSelectedTags] = useState<string[]>([
-    "Loved the service ✨",
+    "Loved the service",
     "Very polite staff",
   ]);
   const [comment, setComment] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const availableTags = [
-    "Loved the service ✨",
+    "Loved the service",
     "Very polite staff",
-    "Great coffee & vibe ☕",
-    "Sharp & precise styling ✂️",
+    "Great coffee & ambience",
+    "Sharp & precise styling",
     "Clean & hygienic chairs",
     "Slight wait time (5-10m)",
     "Music was a bit loud",
@@ -90,7 +90,7 @@ function FeedbackFormContent() {
               {salon.name}
             </h1>
             <p className="text-xs text-slate-500 font-medium">
-              Client Feedback • Powered by RUVEXI
+              Client Feedback • Powered by BillCare Solution
             </p>
           </div>
         </div>
@@ -108,7 +108,7 @@ function FeedbackFormContent() {
               </div>
               <div className="min-w-0">
                 <div className="font-extrabold text-xs text-slate-950 truncate">
-                  Hi {customerName}! 👋
+                  Welcome, {customerName}
                 </div>
                 <div className="text-[11px] text-slate-600 truncate">
                   Service by <strong>{staffName}</strong> • {serviceName}
@@ -241,7 +241,7 @@ function FeedbackFormContent() {
 
             <div className="space-y-1">
               <h2 className="text-lg sm:text-xl font-black text-slate-950">
-                Thank You, {customerName}! 💖
+                Thank You, {customerName}
               </h2>
               <p className="text-xs text-slate-600">
                 Your feedback has been delivered directly to the salon owner and {staffName}.
@@ -294,7 +294,7 @@ function FeedbackFormContent() {
 
       {/* Footer */}
       <footer className="text-center text-[11px] text-slate-400 py-2">
-        Powered by RUVEXI Salon OS • Private & Verified Feedback
+        Powered by BillCare Solution Salon OS • Private & Verified Feedback
       </footer>
     </div>
   );

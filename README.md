@@ -1,96 +1,39 @@
-# RUVEXI - Salon Management SaaS Monorepo
+# BillCare Solution - Salon Management SaaS Monorepo
 
-The Operating System for Modern Salons. Multi-tenant SaaS platform covering daily operations, branded booking websites, customer CRM, POS, staff management, WhatsApp automation, and business intelligence.
+The All-in-One Operating System for Modern Salons & Spas. Multi-tenant SaaS platform covering appointment scheduling, branded online customer booking, client CRM, fast POS billing, staff commission tracking, stock inventory control, WhatsApp automation, and AI business intelligence.
 
 ---
 
-## 📁 Repository Structure Overview
+## 📁 Repository Overview
 
 ```
-RUVEXI/
-├── website/                     # Next.js 14+ Web Application (Dashboard + Branded Sites + Super Admin)
+BillCare/
+├── website/                     # Next.js 14+ Web Platform (Console, POS, Booking & Landing)
 │   ├── src/
 │   │   ├── app/                 # App Router with multi-tenant domain routing
-│   │   │   ├── (marketing)/     # RUVEXI main marketing & SaaS sales site
-│   │   │   ├── (dashboard)/     # Salon Owner / Staff Operations Portal (POS, CRM, Calendar)
-│   │   │   ├── (tenant-site)/   # Dynamic branded salon websites & customer booking flow
-│   │   │   ├── (super-admin)/   # Multi-tenant platform management console
-│   │   │   └── api/             # Next.js edge API routes / webhook forwarders
-│   │   ├── components/          # Reusable UI & design system (shadcn/ui + Tailwind)
-│   │   ├── lib/                 # Client utilities, Supabase client, tenant resolver
-│   │   └── styles/              # Global styles, Tailwind config, design tokens
-│   ├── public/                  # Static assets & brand media
-│   └── package.json
+│   │   │   ├── (dashboard)/     # Salon Operations Portal (POS, CRM, Calendar, Inventory)
+│   │   │   ├── (tenant-site)/   # Dynamic branded salon booking sites
+│   │   │   ├── admin/           # Platform management console
+│   │   │   ├── book/            # Real 24/7 client booking engine
+│   │   │   ├── login/           # Real authentication & session login
+│   │   │   └── signup/          # Multi-step salon onboarding & instance provisioning
+│   │   ├── components/          # Reusable UI & BillCare design system
+│   │   ├── lib/                 # Real persistence engine (BillCare Context, utils)
+│   │   └── styles/              # Global luxury dark & light styling
+│   └── public/                  # Official BillCare brand logo & media
 │
-├── app/                         # Mobile Application (Flutter / React Native - Staff & Customer)
-│   ├── lib/                     # Application source code
-│   │   ├── core/                # Theme, network client, auth, storage, constants
-│   │   ├── features/            # Feature-driven architecture (Auth, Schedule, Attendance, Comm)
-│   │   │   ├── auth/            # Staff login & session handling
-│   │   │   ├── appointments/    # Daily timeline, assigned appointments & status update
-│   │   │   ├── attendance/      # Clock-in / clock-out & branch shift check
-│   │   │   ├── commissions/     # Earnings, commission breakdown & completed services
-│   │   │   └── profile/         # Staff profile & specialties
-│   │   └── shared/              # Shared widgets and state management
-│   └── pubspec.yaml             # Mobile app dependencies & configuration
-│
-├── backend/                     # FastAPI + Python Modular Monolith API
-│   ├── app/
-│   │   ├── api/v1/              # API router endpoints
-│   │   ├── core/                # Security, database connection, Redis, config
-│   │   ├── modules/             # Business modules (Tenant isolation, Appointments, POS, etc.)
-│   │   │   ├── tenants/         # Tenant lifecycle, branding config, domain mapping
-│   │   │   ├── appointments/    # Scheduling engine, conflict prevention & concurrency lock
-│   │   │   ├── customers/       # CRM, customer profile, history, GDPR/DPDP consent
-│   │   │   ├── staff/           # Staff profiles, working hours, commissions
-│   │   │   ├── pos/             # Billing, invoices, split payments, GST calculations
-│   │   │   ├── inventory/       # Stock tracking, ledger, low-stock alerts
-│   │   │   ├── notifications/   # Meta WhatsApp Cloud API & reminders
-│   │   │   └── ai_insights/     # Revenue forecasting & business pattern analysis
-│   │   ├── workers/             # Background task workers (Celery/ARQ with Redis)
-│   │   └── main.py              # Application entrypoint
-│   ├── requirements.txt         # Python dependencies
-│   └── Dockerfile               # Railway/container deployment configuration
-│
-├── database/                    # Supabase PostgreSQL Database
-│   ├── migrations/              # SQL schema migrations
-│   ├── rls_policies/            # Row-Level Security (RLS) multi-tenant isolation policies
-│   └── seeds/                   # Development seed fixtures
-│
-└── docs/                        # Architecture specs, PRD references, API contracts
+├── backend/                     # FastAPI + Python Modular API
+├── database/                    # PostgreSQL Schema & Migrations
+└── docs/                        # Architecture specs & documentation
 ```
 
----
+## 🚀 Key Modules (Modeled on Salonist.io)
 
-## 🎨 Brand Identity Guidelines (PRD v1.0)
-- **Primary Blue**: `#2563EB` (Interactive elements, primary CTAs)
-- **Deep Navy**: `#0F172A` (Headings, dark surfaces, sidebar)
-- **Accent Purple**: `#8B5CF6` (Badges, highlights, AI features)
-- **Surfaces**: Clean white `#FFFFFF` & light neutral `#F8FAFC`
-
----
-
-## 🚀 Quick Setup & Getting Started
-
-### 1. Website (Next.js Dashboard & Branded Sites)
-```bash
-cd website
-npm install
-npm run dev
-```
-
-### 2. Mobile App (Staff App)
-```bash
-cd app
-flutter pub get
-flutter run
-```
-
-### 3. Backend (FastAPI API & Workers)
-```bash
-cd backend
-python -m venv venv
-venv\Scripts\activate   # Windows
-pip install -r requirements.txt
-uvicorn app.main:app --reload
-```
+1. **Smart Appointment Calendar**: Day, week & staff-matrix views with live drag-and-drop status flow (Scheduled -> Confirmed -> Arrived -> In Service -> Completed).
+2. **Point of Sale (POS) Billing**: Lightning-fast checkout, CGST + SGST tax computation, discount application, split payment methods (UPI, Card, Cash), and thermal receipt printing.
+3. **Customer 360 CRM**: Profile management, loyalty points, visit histories, treatment notes, and formula cards.
+4. **Staff & Stylist Management**: Live clock-in attendance tracker, designations, and automated commission calculations.
+5. **Inventory & Stock Tracking**: Product catalog, retail vs back-bar stock, low-stock threshold warnings, and auto-deduction upon sale.
+6. **WhatsApp Retention Automation**: Automated reminders for 28-day color retouch, 60-day keratin refresh, birthday greetings, and review collection.
+7. **BillCare AI Business Advisor**: Natural-language conversational AI assistant analyzing daily revenue, top services, inventory alerts, and stylist efficiency.
+8. **24/7 Online Client Booking**: Dedicated booking page for clients to choose services, pick staff, select timeslots, and reserve immediately.

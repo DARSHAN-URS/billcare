@@ -1,163 +1,448 @@
 -- ============================================================================
--- RUVEXI Core Database Schema (PRD Section 5.2)
--- Target: Supabase PostgreSQL (Multi-tenant SaaS)
+-- BillCare Enterprise SaaS Multi-Tenant Platform Database Schema
+-- Architecture: PostgreSQL 14+ / Supabase with Row Level Security (RLS)
+-- Multi-Tenancy: Shared database, tenant-isolated by salon_id
+-- Compatibility: Matches FastAPI SQLAlchemy Models & Next.js BillCare Client
 -- ============================================================================
 
+-- Enable Required Extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- 1. SALONS (TENANTS)
+-- ============================================================================
+-- 1. TENANTS & MULTI-LOCATION BRANCHES
+-- ============================================================================
+
 CREATE TABLE IF NOT EXISTS salons (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    slug VARCHAR(64) UNIQUE NOT NULL,
+    id VARCHAR(64) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    phone VARCHAR(32),
-    email VARCHAR(255),
-    timezone VARCHAR(64) DEFAULT 'Asia/Kolkata',
-    currency VARCHAR(10) DEFAULT 'INR',
-    logo_url TEXT,
-    primary_color VARCHAR(16) DEFAULT '#2563EB',
-    accent_color VARCHAR(16) DEFAULT '#8B5CF6',
-    is_published BOOLEAN DEFAULT FALSE,
+    slug VARCHAR(128) UNIQUE NOT NULL,
+    branch VARCHAR(128) DEFAULT 'Flagship Studio',
+    city VARCHAR(100) NOT NULL,
+    currency VARCHAR(10) DEFAULT '₹',
+    chairs INT DEFAULT 6,
+    category VARCHAR(128) DEFAULT 'Luxury Hair Studio & Aesthetic Spa',
+    logo_url TEXT DEFAULT '/logo.png',
+    gstin VARCHAR(32) DEFAULT '27AABCB1234F1Z8',
+    auto_gst BOOLEAN DEFAULT TRUE,
+    phone VARCHAR(32) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    address TEXT NOT NULL,
+    timing VARCHAR(128) DEFAULT '10:00 AM - 09:00 PM (All Days)',
+    rating NUMERIC(3, 2) DEFAULT 4.90,
+    review_count INT DEFAULT 0,
+    is_published BOOLEAN DEFAULT TRUE,
+    -- Salon UPI & Banking Settlement Details
+    upi_id VARCHAR(128) DEFAULT 'billcare.pos@icici',
+    bank_account_name VARCHAR(128),
+    bank_account_number VARCHAR(64),
+    bank_ifsc VARCHAR(32),
+    bank_name VARCHAR(128),
+    -- Meta WhatsApp Embedded Signup Credentials (Per Tenant)
+    whatsapp_phone_number_id VARCHAR(128),
+    whatsapp_waba_id VARCHAR(128),
+    whatsapp_access_token TEXT,
+    whatsapp_display_number VARCHAR(32),
+    whatsapp_verified_name VARCHAR(255),
+    whatsapp_quality_rating VARCHAR(32) DEFAULT 'GREEN',
+    whatsapp_status VARCHAR(32) DEFAULT 'not_connected',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 2. BRANCHES
 CREATE TABLE IF NOT EXISTS branches (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    salon_id UUID NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
+    id VARCHAR(64) PRIMARY KEY,
+    salon_id VARCHAR(64) NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
-    address TEXT,
-    city VARCHAR(100),
+    code VARCHAR(32) NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    address TEXT NOT NULL,
     phone VARCHAR(32),
+    chairs_capacity INT DEFAULT 6,
     is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- 3. PROFILES & SALON MEMBERSHIPS (Supabase Auth link)
-CREATE TABLE IF NOT EXISTS profiles (
-    id UUID PRIMARY KEY, -- links to auth.users.id
-    email VARCHAR(255) UNIQUE NOT NULL,
-    full_name VARCHAR(255),
-    phone VARCHAR(32),
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE TABLE IF NOT EXISTS salon_memberships (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    salon_id UUID NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
-    user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-    role VARCHAR(32) NOT NULL CHECK (role IN ('owner', 'manager', 'receptionist', 'staff')),
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    UNIQUE(salon_id, user_id)
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(salon_id, code)
 );
 
--- 4. CUSTOMERS (CRM)
+-- ============================================================================
+-- 2. USERS, ROLES & ACCESS CONTROL (RBAC)
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS users (
+    id VARCHAR(64) PRIMARY KEY,
+    salon_id VARCHAR(64) NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    phone VARCHAR(32),
+    role VARCHAR(32) NOT NULL CHECK (role IN ('owner', 'manager', 'receptionist', 'admin')),
+    avatar TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    last_login_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================================================
+-- 3. CRM & CLIENT INTELLIGENCE
+-- ============================================================================
+
 CREATE TABLE IF NOT EXISTS customers (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    salon_id UUID NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
-    first_name VARCHAR(128) NOT NULL,
-    last_name VARCHAR(128),
+    id VARCHAR(64) PRIMARY KEY,
+    salon_id VARCHAR(64) NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
     phone VARCHAR(32) NOT NULL,
     email VARCHAR(255),
-    gender VARCHAR(16),
+    gender VARCHAR(16) DEFAULT 'female' CHECK (gender IN ('female', 'male', 'other', 'unspecified')),
     birthday DATE,
+    anniversary DATE,
+    vip_tier VARCHAR(32) DEFAULT 'Standard' CHECK (vip_tier IN ('Standard', 'Silver', 'Gold', 'Atelier Club', 'VIP Elite')),
+    total_visits INT DEFAULT 0,
+    visits_count INT DEFAULT 0,
+    total_spend NUMERIC(12, 2) DEFAULT 0.00,
+    total_spent NUMERIC(12, 2) DEFAULT 0.00,
+    loyalty_points INT DEFAULT 50, -- Starter loyalty welcome credit
+    last_visit_date DATE,
+    rebooking_cadence_days INT DEFAULT 28,
+    tags JSONB DEFAULT '[]'::jsonb,
     notes TEXT,
-    loyalty_points INT DEFAULT 0,
+    patch_test_status VARCHAR(32) DEFAULT 'verified' CHECK (patch_test_status IN ('verified', 'pending', 'expired', 'exempt')),
+    patch_test_date DATE,
+    allergies TEXT,
+    preferred_staff_id VARCHAR(64),
+    formula_notes TEXT, -- Back-bar formulation (e.g. 30g 7.1 + 15g 8.2 with 20vol)
     marketing_consent BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(salon_id, phone)
 );
 
--- 5. SERVICES & CATEGORIES
+CREATE TABLE IF NOT EXISTS customer_formula_history (
+    id VARCHAR(64) PRIMARY KEY,
+    salon_id VARCHAR(64) NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
+    customer_id VARCHAR(64) NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
+    service_id VARCHAR(64),
+    staff_id VARCHAR(64),
+    formula_type VARCHAR(64) NOT NULL, -- 'Balayage Gloss', 'Ammonia-Free Tint', 'Bond Builder', etc.
+    formula_details TEXT NOT NULL,
+    processing_time_mins INT,
+    developer_volume VARCHAR(32),
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================================================
+-- 4. SERVICE CATALOG & PRICING MENU
+-- ============================================================================
+
 CREATE TABLE IF NOT EXISTS service_categories (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    salon_id UUID NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
+    id VARCHAR(64) PRIMARY KEY,
+    salon_id VARCHAR(64) NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
     name VARCHAR(128) NOT NULL,
-    sort_order INT DEFAULT 0
+    description TEXT,
+    sort_order INT DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS services (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    salon_id UUID NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
-    category_id UUID REFERENCES service_categories(id) ON DELETE SET NULL,
+    id VARCHAR(64) PRIMARY KEY,
+    salon_id VARCHAR(64) NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
+    category VARCHAR(64) NOT NULL DEFAULT 'Hair',
     name VARCHAR(255) NOT NULL,
-    description TEXT,
-    duration_minutes INT NOT NULL DEFAULT 30,
+    duration_minutes INT NOT NULL DEFAULT 45,
     buffer_minutes INT NOT NULL DEFAULT 5,
-    price NUMERIC(10, 2) NOT NULL,
+    price NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
+    description TEXT,
     is_online_bookable BOOLEAN DEFAULT TRUE,
     is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    popular BOOLEAN DEFAULT FALSE,
+    hsn_sac_code VARCHAR(32) DEFAULT '999721', -- Standard Indian SAC for salon services
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 6. STAFF
+-- ============================================================================
+-- 5. STAFF ROSTER, ATTENDANCE & COMMISSIONS
+-- ============================================================================
+
 CREATE TABLE IF NOT EXISTS staff (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    salon_id UUID NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
-    user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+    id VARCHAR(64) PRIMARY KEY,
+    salon_id VARCHAR(64) NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
+    user_id VARCHAR(64) REFERENCES users(id) ON DELETE SET NULL,
     name VARCHAR(255) NOT NULL,
-    phone VARCHAR(32),
+    phone VARCHAR(32) NOT NULL,
     email VARCHAR(255),
-    role VARCHAR(64) DEFAULT 'Stylist',
-    commission_rate NUMERIC(5, 2) DEFAULT 0.00,
+    role VARCHAR(64) NOT NULL DEFAULT 'Master Stylist',
+    commission_rate NUMERIC(5, 2) NOT NULL DEFAULT 15.00, -- 15%
+    is_clocked_in BOOLEAN DEFAULT FALSE,
+    clocked_in_at VARCHAR(64),
+    today_earnings NUMERIC(10, 2) DEFAULT 0.00,
+    today_revenue NUMERIC(10, 2) DEFAULT 0.00,
+    today_commission NUMERIC(10, 2) DEFAULT 0.00,
+    today_services_count INT DEFAULT 0,
+    total_services_completed INT DEFAULT 0,
     is_active BOOLEAN DEFAULT TRUE,
+    specialties JSONB DEFAULT '["Hair Specialist"]'::jsonb,
+    avatar TEXT,
+    rating NUMERIC(3, 2) DEFAULT 5.00,
+    status VARCHAR(32) DEFAULT 'clocked_out' CHECK (status IN ('clocked_in', 'on_break', 'clocked_out')),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS staff_clock_logs (
+    id VARCHAR(64) PRIMARY KEY,
+    salon_id VARCHAR(64) NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
+    staff_id VARCHAR(64) NOT NULL REFERENCES staff(id) ON DELETE CASCADE,
+    clock_action VARCHAR(32) NOT NULL CHECK (clock_action IN ('clock_in', 'clock_out', 'break_start', 'break_end')),
+    timestamp TIMESTAMPTZ DEFAULT NOW(),
+    notes TEXT
+);
+
+-- ============================================================================
+-- 6. INVENTORY & RETAIL MERCHANDISING
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS inventory_items (
+    id VARCHAR(64) PRIMARY KEY,
+    salon_id VARCHAR(64) NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    category VARCHAR(64) NOT NULL DEFAULT 'Retail Product',
+    sku VARCHAR(64) NOT NULL,
+    barcode VARCHAR(64),
+    current_stock INT NOT NULL DEFAULT 0,
+    min_threshold INT NOT NULL DEFAULT 5, -- Triggers low-stock alert
+    cost_price NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
+    selling_price NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
+    retail_price NUMERIC(10, 2) DEFAULT 0.00,
+    brand VARCHAR(128),
+    unit VARCHAR(32) DEFAULT 'unit',
+    usage_type VARCHAR(32) DEFAULT 'Retail Product' CHECK (usage_type IN ('Retail Product', 'Back-Bar Chemical', 'Skin Spa Retail', 'Consumable')),
+    supplier VARCHAR(255) DEFAULT 'Official Distributor',
+    last_restocked DATE DEFAULT CURRENT_DATE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(salon_id, sku)
+);
+
+CREATE TABLE IF NOT EXISTS inventory_stock_ledger (
+    id VARCHAR(64) PRIMARY KEY,
+    salon_id VARCHAR(64) NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
+    item_id VARCHAR(64) NOT NULL REFERENCES inventory_items(id) ON DELETE CASCADE,
+    quantity_change INT NOT NULL,
+    previous_stock INT NOT NULL,
+    resulting_stock INT NOT NULL,
+    reason VARCHAR(128) NOT NULL, -- 'POS Sale', 'Purchase Restock', 'Back-Bar Consumption', 'Damage / Spoilage'
+    invoice_id VARCHAR(64),
+    performed_by VARCHAR(64),
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 7. APPOINTMENTS
+-- ============================================================================
+-- 7. APPOINTMENTS & REAL-TIME SCHEDULING
+-- ============================================================================
+
 CREATE TABLE IF NOT EXISTS appointments (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    salon_id UUID NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
-    branch_id UUID REFERENCES branches(id) ON DELETE SET NULL,
-    customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE RESTRICT,
-    staff_id UUID REFERENCES staff(id) ON DELETE SET NULL,
-    start_time TIMESTAMPTZ NOT NULL,
-    end_time TIMESTAMPTZ NOT NULL,
-    status VARCHAR(32) NOT NULL DEFAULT 'requested'
-        CHECK (status IN ('requested', 'confirmed', 'checked_in', 'in_service', 'completed', 'cancelled', 'no_show')),
-    source VARCHAR(32) DEFAULT 'website', -- website, walk_in, phone
+    id VARCHAR(64) PRIMARY KEY,
+    salon_id VARCHAR(64) NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
+    branch_id VARCHAR(64) DEFAULT 'Flagship',
+    customer_id VARCHAR(64) NOT NULL REFERENCES customers(id) ON DELETE RESTRICT,
+    customer_name VARCHAR(255) NOT NULL,
+    customer_phone VARCHAR(32) NOT NULL,
+    staff_id VARCHAR(64) NOT NULL REFERENCES staff(id) ON DELETE RESTRICT,
+    staff_name VARCHAR(255) NOT NULL,
+    service_id VARCHAR(64) NOT NULL REFERENCES services(id) ON DELETE RESTRICT,
+    service_name VARCHAR(255) NOT NULL,
+    date DATE NOT NULL,
+    start_time VARCHAR(16) NOT NULL,
+    end_time VARCHAR(16) NOT NULL,
+    time VARCHAR(32) NOT NULL,
+    duration_minutes INT NOT NULL DEFAULT 45,
+    price NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
+    status VARCHAR(32) NOT NULL DEFAULT 'confirmed'
+        CHECK (status IN ('scheduled', 'confirmed', 'arrived', 'in_service', 'completed', 'cancelled', 'no_show')),
+    source VARCHAR(32) DEFAULT 'website' CHECK (source IN ('website', 'walk_in', 'front_desk', 'phone', 'google')),
     notes TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 8. INVOICES & PAYMENTS (POS)
+-- ============================================================================
+-- 8. POS BILLING, INVOICES & INDIAN GST COMPLIANCE
+-- ============================================================================
+
 CREATE TABLE IF NOT EXISTS invoices (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    salon_id UUID NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
+    id VARCHAR(64) PRIMARY KEY,
+    salon_id VARCHAR(64) NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
     invoice_number VARCHAR(64) NOT NULL,
-    appointment_id UUID REFERENCES appointments(id) ON DELETE SET NULL,
-    customer_id UUID REFERENCES customers(id) ON DELETE RESTRICT,
-    subtotal NUMERIC(10, 2) NOT NULL,
+    customer_id VARCHAR(64) REFERENCES customers(id) ON DELETE SET NULL,
+    customer_name VARCHAR(255) NOT NULL,
+    customer_phone VARCHAR(32) NOT NULL,
+    staff_id VARCHAR(64) REFERENCES staff(id) ON DELETE SET NULL,
+    staff_name VARCHAR(255),
+    items JSONB NOT NULL DEFAULT '[]'::jsonb, -- Array of LineItems [{id, name, type, quantity, price, total}]
+    subtotal NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
+    discount_percent NUMERIC(5, 2) DEFAULT 0.00,
     discount_amount NUMERIC(10, 2) DEFAULT 0.00,
+    tax_percent NUMERIC(5, 2) DEFAULT 18.00,
+    cgst NUMERIC(10, 2) DEFAULT 0.00, -- Central GST (50% of tax)
+    sgst NUMERIC(10, 2) DEFAULT 0.00, -- State GST (50% of tax)
     tax_amount NUMERIC(10, 2) DEFAULT 0.00,
-    total NUMERIC(10, 2) NOT NULL,
-    status VARCHAR(32) NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'paid', 'partially_paid', 'voided')),
+    grand_total NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
+    payment_method VARCHAR(32) NOT NULL DEFAULT 'UPI' CHECK (payment_method IN ('UPI', 'Card', 'Cash', 'Split', 'Razorpay')),
+    payment_breakdown JSONB DEFAULT '{}'::jsonb, -- e.g. {"cash": 1000, "upi": 2500}
+    status VARCHAR(32) NOT NULL DEFAULT 'paid' CHECK (status IN ('paid', 'draft', 'refunded', 'voided')),
+    notes TEXT,
+    date VARCHAR(64) NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(salon_id, invoice_number)
 );
 
 CREATE TABLE IF NOT EXISTS payments (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    salon_id UUID NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
-    invoice_id UUID NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
+    id VARCHAR(64) PRIMARY KEY,
+    salon_id VARCHAR(64) NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
+    invoice_id VARCHAR(64) NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
     amount NUMERIC(10, 2) NOT NULL,
     method VARCHAR(32) NOT NULL CHECK (method IN ('cash', 'upi', 'card', 'razorpay', 'split')),
-    provider_transaction_id VARCHAR(255),
-    status VARCHAR(32) NOT NULL DEFAULT 'completed',
+    provider_ref_id VARCHAR(255),
+    status VARCHAR(32) DEFAULT 'completed',
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 9. AUDIT LOGS
+-- ============================================================================
+-- 9. AUTOMATED CLIENT RETENTION & MARKETING ENGINE
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS followups (
+    id VARCHAR(64) PRIMARY KEY,
+    salon_id VARCHAR(64) NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
+    customer_id VARCHAR(64) NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
+    customer_name VARCHAR(255) NOT NULL,
+    customer_phone VARCHAR(32) NOT NULL,
+    service_name VARCHAR(255) NOT NULL,
+    trigger_reason VARCHAR(255) NOT NULL, -- '28-Day Root Touch-Up Due', '30-Day Skin Hydration Cycle'
+    suggested_message TEXT NOT NULL,
+    status VARCHAR(32) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'sent', 'dismissed', 'booked')),
+    due_date DATE NOT NULL,
+    campaign_type VARCHAR(64) DEFAULT 'Rebooking Reminder',
+    discount_offer VARCHAR(128),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================================================
+-- 10. REVIEWS, NPS & REPUTATION MANAGEMENT
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS feedbacks (
+    id VARCHAR(64) PRIMARY KEY,
+    salon_id VARCHAR(64) NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
+    customer_name VARCHAR(255) NOT NULL,
+    staff_name VARCHAR(255) NOT NULL,
+    service_name VARCHAR(255) NOT NULL,
+    rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    service_rating INT CHECK (service_rating BETWEEN 1 AND 5),
+    comment TEXT,
+    improvement_tags TEXT,
+    tags JSONB DEFAULT '[]'::jsonb,
+    date VARCHAR(64) NOT NULL,
+    is_public BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================================================
+-- 11. AUDIT TRAIL LOGGING
+-- ============================================================================
+
 CREATE TABLE IF NOT EXISTS audit_logs (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    salon_id UUID NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
-    user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+    id VARCHAR(64) PRIMARY KEY,
+    salon_id VARCHAR(64) NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
+    user_id VARCHAR(64) REFERENCES users(id) ON DELETE SET NULL,
     action VARCHAR(128) NOT NULL,
     entity_type VARCHAR(64) NOT NULL,
-    entity_id UUID,
+    entity_id VARCHAR(64),
     metadata JSONB,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- ============================================================================
+-- 12. HIGH-PERFORMANCE INDEXES
+-- ============================================================================
+
+CREATE INDEX IF NOT EXISTS idx_customers_salon_phone ON customers(salon_id, phone);
+CREATE INDEX IF NOT EXISTS idx_customers_vip_tier ON customers(salon_id, vip_tier);
+CREATE INDEX IF NOT EXISTS idx_services_salon_active ON services(salon_id, is_active, is_online_bookable);
+CREATE INDEX IF NOT EXISTS idx_staff_salon_status ON staff(salon_id, is_active, status);
+CREATE INDEX IF NOT EXISTS idx_inventory_salon_sku ON inventory_items(salon_id, sku);
+CREATE INDEX IF NOT EXISTS idx_inventory_threshold ON inventory_items(salon_id, current_stock, min_threshold);
+CREATE INDEX IF NOT EXISTS idx_appointments_salon_date ON appointments(salon_id, date, status);
+CREATE INDEX IF NOT EXISTS idx_appointments_staff_date ON appointments(staff_id, date);
+CREATE INDEX IF NOT EXISTS idx_invoices_salon_date ON invoices(salon_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_invoices_customer ON invoices(customer_id);
+CREATE INDEX IF NOT EXISTS idx_followups_salon_due ON followups(salon_id, due_date, status);
+CREATE INDEX IF NOT EXISTS idx_feedbacks_salon_rating ON feedbacks(salon_id, rating);
+
+-- ============================================================================
+-- 13. ROW LEVEL SECURITY (RLS) POLICIES
+-- ============================================================================
+
+ALTER TABLE salons ENABLE ROW LEVEL SECURITY;
+ALTER TABLE branches ENABLE ROW LEVEL SECURITY;
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE customer_formula_history ENABLE ROW LEVEL SECURITY;
+ALTER TABLE services ENABLE ROW LEVEL SECURITY;
+ALTER TABLE staff ENABLE ROW LEVEL SECURITY;
+ALTER TABLE staff_clock_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE inventory_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE inventory_stock_ledger ENABLE ROW LEVEL SECURITY;
+ALTER TABLE appointments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE invoices ENABLE ROW LEVEL SECURITY;
+ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE followups ENABLE ROW LEVEL SECURITY;
+ALTER TABLE feedbacks ENABLE ROW LEVEL SECURITY;
+ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
+
+-- Helper function: Returns current authenticated tenant salon_id from session JWT
+CREATE OR REPLACE FUNCTION get_current_tenant_id()
+RETURNS VARCHAR(64) AS $$
+BEGIN
+    RETURN COALESCE(
+        current_setting('request.jwt.claims', true)::jsonb->>'salon_id',
+        current_setting('app.current_salon_id', true)
+    );
+END;
+$$ LANGUAGE plpgsql STABLE;
+
+-- Tenant Isolation Policies
+CREATE POLICY tenant_isolation_salons ON salons
+    FOR ALL USING (id = get_current_tenant_id() OR get_current_tenant_id() IS NULL);
+
+CREATE POLICY tenant_isolation_customers ON customers
+    FOR ALL USING (salon_id = get_current_tenant_id() OR get_current_tenant_id() IS NULL);
+
+CREATE POLICY tenant_isolation_services ON services
+    FOR ALL USING (salon_id = get_current_tenant_id() OR get_current_tenant_id() IS NULL);
+
+CREATE POLICY tenant_isolation_staff ON staff
+    FOR ALL USING (salon_id = get_current_tenant_id() OR get_current_tenant_id() IS NULL);
+
+CREATE POLICY tenant_isolation_inventory ON inventory_items
+    FOR ALL USING (salon_id = get_current_tenant_id() OR get_current_tenant_id() IS NULL);
+
+CREATE POLICY tenant_isolation_appointments ON appointments
+    FOR ALL USING (salon_id = get_current_tenant_id() OR get_current_tenant_id() IS NULL);
+
+CREATE POLICY tenant_isolation_invoices ON invoices
+    FOR ALL USING (salon_id = get_current_tenant_id() OR get_current_tenant_id() IS NULL);
+
+CREATE POLICY tenant_isolation_followups ON followups
+    FOR ALL USING (salon_id = get_current_tenant_id() OR get_current_tenant_id() IS NULL);
+
+CREATE POLICY tenant_isolation_feedbacks ON feedbacks
+    FOR ALL USING (salon_id = get_current_tenant_id() OR get_current_tenant_id() IS NULL);
+
+-- Public Read Policy for Online Booking Widget
+CREATE POLICY public_services_read ON services
+    FOR SELECT USING (is_active = TRUE AND is_online_bookable = TRUE);

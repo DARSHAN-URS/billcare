@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useDemo } from "@/lib/demo-context";
+import { useBillCare } from "@/lib/billcare-context";
 import { formatCurrency } from "@/lib/utils";
 import {
   BarChart3,
@@ -22,25 +22,27 @@ import {
 } from "lucide-react";
 
 export function ReportsView() {
-  const { salon, invoices, staff } = useDemo();
+  const { salon, invoices, staff } = useBillCare();
 
   const [dateFilter, setDateFilter] = useState<"Today" | "Week" | "Month">("Today");
 
   // Calculations
-  const totalGrossRevenue = invoices.reduce((acc, inv) => acc + inv.total, 0);
-  const totalDiscounts = invoices.reduce((acc, inv) => acc + inv.discount, 0);
-  const totalGst = invoices.reduce((acc, inv) => acc + inv.gstAmount, 0);
+  const totalGrossRevenue = invoices.reduce((acc, inv) => acc + (inv.total || inv.grandTotal || 0), 0);
+  const totalDiscounts = invoices.reduce((acc, inv) => acc + (inv.discount || inv.discountAmount || 0), 0);
+  const totalGst = invoices.reduce((acc, inv) => acc + (inv.gstAmount || inv.taxAmount || 0), 0);
 
   // Service vs Product breakdown
   let totalServiceRevenue = 0;
   let totalRetailRevenue = 0;
 
   invoices.forEach((inv) => {
-    inv.items.forEach((item) => {
+    inv.items?.forEach((item: any) => {
+      const price = item.price || item.unitPrice || 0;
+      const qty = item.quantity || 1;
       if (item.type === "service") {
-        totalServiceRevenue += item.price * item.quantity;
+        totalServiceRevenue += price * qty;
       } else {
-        totalRetailRevenue += item.price * item.quantity;
+        totalRetailRevenue += price * qty;
       }
     });
   });
@@ -70,35 +72,35 @@ export function ReportsView() {
     const rows = invoices
       .map(
         (i) =>
-          `"${i.invoiceNumber}","${i.date}","${i.customerName}","${i.paymentMethod}",${i.subtotal},${i.discount},${i.gstAmount},${i.total}`
+          `"${i.invoiceNumber}","${i.date || ""}","${i.customerName}","${i.paymentMethod}",${i.subtotal},${i.discount || i.discountAmount || 0},${i.gstAmount || i.taxAmount || 0},${i.total || i.grandTotal || 0}`
       )
       .join("\n");
     const blob = new Blob([headers + rows], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `ruvexi_sales_report_${new Date().toISOString().split("T")[0]}.csv`;
+    a.download = `billcare_sales_report_${new Date().toISOString().split("T")[0]}.csv`;
     a.click();
   };
 
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="luxury-card p-6 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[#0D0D0F] border border-[#27272A] p-5 sm:p-6 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-600 flex items-center justify-center text-white shadow-lg shadow-emerald-500/25 border border-white/20">
+          <div className="w-12 h-12 rounded-xl bg-[#F5C928]/10 border border-[#F5C928]/30 flex items-center justify-center text-[#F5C928] shadow-lg shadow-[#F5C928]/5 shrink-0">
             <BarChart3 className="w-6 h-6" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
-                Executive Sales & Financial Intelligence
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-xl font-serif font-bold text-[#F5F4F0] tracking-tight">
+                Sales & Tax Intelligence
               </h1>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span className="text-[10px] font-mono uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
                 GST Ready
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-[#7E8B9C] mt-0.5">
               Daily revenue ledger • Payment tender settlement • Staff commission distribution
             </p>
           </div>
@@ -107,13 +109,13 @@ export function ReportsView() {
         <div className="flex items-center gap-2">
           <button
             onClick={handleExportCSV}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs rounded-xl shadow-2xs transition-all"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-[#171719] border border-[#27272A] hover:bg-[#27272A] text-[#F5F4F0] font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" /> Export CSV
           </button>
           <button
             onClick={handlePrint}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs rounded-xl shadow-md transition-all"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#F5C928] hover:bg-[#f7d348] text-[#080809] font-bold text-xs rounded-xl shadow-md shadow-[#F5C928]/10 transition-all cursor-pointer"
           >
             <Printer className="w-3.5 h-3.5" /> Print Ledger
           </button>
@@ -122,51 +124,51 @@ export function ReportsView() {
 
       {/* Primary KPI Highlights */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="luxury-card p-5 rounded-3xl border-slate-200">
-          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
+        <div className="bg-[#111113] border border-[#27272A] p-5 rounded-xl">
+          <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-wider block">
             Gross Billed Revenue
           </span>
-          <h3 className="text-2xl font-black text-slate-900 font-mono mt-1">
+          <h3 className="text-2xl font-mono font-bold text-[#F5C928] mt-1">
             {formatCurrency(totalGrossRevenue)}
           </h3>
-          <span className="text-[11px] text-emerald-600 font-bold mt-2 flex items-center gap-1">
+          <span className="text-[11px] text-emerald-400 font-mono mt-2 flex items-center gap-1">
             <TrendingUp className="w-3.5 h-3.5" /> +18.4% vs last cycle
           </span>
         </div>
 
-        <div className="luxury-card p-5 rounded-3xl border-slate-200">
-          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
+        <div className="bg-[#111113] border border-[#27272A] p-5 rounded-xl">
+          <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-wider block">
             Average Ticket Size
           </span>
-          <h3 className="text-2xl font-black text-blue-600 font-mono mt-1">
+          <h3 className="text-2xl font-mono font-bold text-[#F5F4F0] mt-1">
             {formatCurrency(avgTicket)}
           </h3>
-          <span className="text-[11px] text-slate-500 font-medium mt-2 block">
+          <span className="text-[11px] text-[#7E8B9C] font-mono mt-2 block">
             Across {invoices.length} completed tickets
           </span>
         </div>
 
-        <div className="luxury-card p-5 rounded-3xl border-slate-200">
-          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
+        <div className="bg-[#111113] border border-[#27272A] p-5 rounded-xl">
+          <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-wider block">
             Net GST Collected (5%)
           </span>
-          <h3 className="text-2xl font-black text-indigo-600 font-mono mt-1">
+          <h3 className="text-2xl font-mono font-bold text-[#F5C928] mt-1">
             {formatCurrency(totalGst)}
           </h3>
-          <span className="text-[11px] text-slate-500 font-medium mt-2 block">
+          <span className="text-[11px] text-[#7E8B9C] font-mono mt-2 block">
             CGST: {formatCurrency(Math.round(totalGst / 2))} • SGST:{" "}
             {formatCurrency(Math.round(totalGst / 2))}
           </span>
         </div>
 
-        <div className="luxury-card p-5 rounded-3xl border-slate-200">
-          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
+        <div className="bg-[#111113] border border-[#27272A] p-5 rounded-xl">
+          <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-wider block">
             Total Privilege Vouchers
           </span>
-          <h3 className="text-2xl font-black text-amber-600 font-mono mt-1">
+          <h3 className="text-2xl font-mono font-bold text-amber-400 mt-1">
             {formatCurrency(totalDiscounts)}
           </h3>
-          <span className="text-[11px] text-amber-700 font-medium mt-2 block">
+          <span className="text-[11px] text-[#7E8B9C] font-mono mt-2 block">
             Customer retention promotions
           </span>
         </div>
@@ -175,69 +177,69 @@ export function ReportsView() {
       {/* Two Column Section: Payment Mode Breakdown & Revenue Mix */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Payment Tender Settlement */}
-        <div className="luxury-card p-6 rounded-3xl space-y-4">
-          <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-            <CreditCard className="w-4 h-4 text-blue-600" />
+        <div className="bg-[#0D0D0F] border border-[#27272A] p-6 rounded-2xl space-y-4 shadow-xl">
+          <h3 className="text-xs font-mono font-bold text-[#A3A3AD] uppercase tracking-wider flex items-center gap-2">
+            <CreditCard className="w-4 h-4 text-[#F5C928]" />
             Payment Mode Settlement Distribution
           </h3>
 
           <div className="space-y-3">
-            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+            <div className="p-3.5 rounded-xl bg-[#111113] border border-[#27272A] flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-emerald-100 text-emerald-800">
+                <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
                   <QrCode className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="font-extrabold text-slate-900 text-xs">UPI & Dynamic QR</h4>
-                  <span className="text-[11px] text-slate-400 font-mono">0% Merchant Fee</span>
+                  <h4 className="font-bold text-[#F5F4F0] text-xs">UPI & Dynamic QR</h4>
+                  <span className="text-[11px] text-[#7E8B9C] font-mono">0% Merchant Fee</span>
                 </div>
               </div>
-              <span className="font-black text-slate-900 font-mono text-sm">
+              <span className="font-mono font-bold text-[#F5C928] text-sm">
                 {formatCurrency(upiTotal)}
               </span>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+            <div className="p-3.5 rounded-xl bg-[#111113] border border-[#27272A] flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-blue-100 text-blue-800">
+                <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/30">
                   <CreditCard className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="font-extrabold text-slate-900 text-xs">Credit & Debit Cards</h4>
-                  <span className="text-[11px] text-slate-400 font-mono">Visa / Mastercard / RuPay</span>
+                  <h4 className="font-bold text-[#F5F4F0] text-xs">Credit & Debit Cards</h4>
+                  <span className="text-[11px] text-[#7E8B9C] font-mono">Visa / Mastercard / RuPay</span>
                 </div>
               </div>
-              <span className="font-black text-slate-900 font-mono text-sm">
+              <span className="font-mono font-bold text-[#F5C928] text-sm">
                 {formatCurrency(cardTotal)}
               </span>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+            <div className="p-3.5 rounded-xl bg-[#111113] border border-[#27272A] flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-amber-100 text-amber-800">
+                <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/30">
                   <Banknote className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="font-extrabold text-slate-900 text-xs">Physical Cash Register</h4>
-                  <span className="text-[11px] text-slate-400 font-mono">Counter Tender</span>
+                  <h4 className="font-bold text-[#F5F4F0] text-xs">Physical Cash Register</h4>
+                  <span className="text-[11px] text-[#7E8B9C] font-mono">Counter Tender</span>
                 </div>
               </div>
-              <span className="font-black text-slate-900 font-mono text-sm">
+              <span className="font-mono font-bold text-[#F5C928] text-sm">
                 {formatCurrency(cashTotal)}
               </span>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+            <div className="p-3.5 rounded-xl bg-[#111113] border border-[#27272A] flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-purple-100 text-purple-800">
+                <div className="p-2 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/30">
                   <Split className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="font-extrabold text-slate-900 text-xs">Multi-Tender Split Pay</h4>
-                  <span className="text-[11px] text-slate-400 font-mono">Combined Tenders</span>
+                  <h4 className="font-bold text-[#F5F4F0] text-xs">Multi-Tender Split Pay</h4>
+                  <span className="text-[11px] text-[#7E8B9C] font-mono">Combined Tenders</span>
                 </div>
               </div>
-              <span className="font-black text-slate-900 font-mono text-sm">
+              <span className="font-mono font-bold text-[#F5C928] text-sm">
                 {formatCurrency(splitTotal)}
               </span>
             </div>
@@ -245,40 +247,40 @@ export function ReportsView() {
         </div>
 
         {/* Revenue Mix: Salon Services vs Retail Products */}
-        <div className="luxury-card p-6 rounded-3xl space-y-4">
-          <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-purple-600" />
+        <div className="bg-[#0D0D0F] border border-[#27272A] p-6 rounded-2xl space-y-4 shadow-xl">
+          <h3 className="text-xs font-mono font-bold text-[#A3A3AD] uppercase tracking-wider flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-[#F5C928]" />
             Revenue Category Split
           </h3>
 
           <div className="space-y-4">
             <div>
               <div className="flex justify-between text-xs font-bold mb-1.5">
-                <span className="text-slate-700">Salon Treatment Services</span>
-                <span className="text-slate-900 font-mono">
+                <span className="text-[#A3A3AD]">Salon Treatment Services</span>
+                <span className="text-[#F5F4F0] font-mono">
                   {formatCurrency(totalServiceRevenue)} (88%)
                 </span>
               </div>
-              <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
-                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 h-full rounded-full w-[88%]" />
+              <div className="w-full bg-[#171719] h-2.5 rounded-full overflow-hidden border border-[#27272A]">
+                <div className="bg-[#F5C928] h-full rounded-full w-[88%]" />
               </div>
             </div>
 
             <div>
               <div className="flex justify-between text-xs font-bold mb-1.5">
-                <span className="text-slate-700">Retail Product Sales (Moroccanoil, Olaplex)</span>
-                <span className="text-slate-900 font-mono">
+                <span className="text-[#A3A3AD]">Retail Product Sales (Moroccanoil, Olaplex)</span>
+                <span className="text-[#F5F4F0] font-mono">
                   {formatCurrency(totalRetailRevenue)} (12%)
                 </span>
               </div>
-              <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
-                <div className="bg-gradient-to-r from-amber-500 to-amber-600 h-full rounded-full w-[12%]" />
+              <div className="w-full bg-[#171719] h-2.5 rounded-full overflow-hidden border border-[#27272A]">
+                <div className="bg-emerald-400 h-full rounded-full w-[12%]" />
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-indigo-50/60 border border-indigo-100/80 text-xs">
-              <h4 className="font-extrabold text-indigo-950">Retail Upsell Insight</h4>
-              <p className="text-indigo-900 mt-1">
+            <div className="p-4 rounded-xl bg-[#111113] border border-[#27272A] text-xs">
+              <h4 className="font-bold text-[#F5C928]">Retail Upsell Insight</h4>
+              <p className="text-[#7E8B9C] mt-1 leading-relaxed">
                 Top performing salons maintain a 15–20% retail ratio. Encourage stylists to suggest take-home hair masks following chemical services.
               </p>
             </div>
@@ -287,24 +289,24 @@ export function ReportsView() {
       </div>
 
       {/* Staff Commission Distribution Leaderboard */}
-      <div className="luxury-card p-6 rounded-3xl space-y-4">
+      <div className="bg-[#0D0D0F] border border-[#27272A] p-6 rounded-2xl space-y-4 shadow-xl">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-base font-extrabold text-slate-900">
+            <h3 className="font-serif font-bold text-[#F5F4F0] text-base">
               Stylist & Artist Performance Leaderboard
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-[#7E8B9C]">
               Individual billings, assigned treatments, and credited commissions
             </p>
           </div>
-          <span className="text-xs font-black text-purple-700 bg-purple-50 px-3 py-1 rounded-xl border border-purple-200">
+          <span className="text-xs font-mono font-bold text-[#F5C928] bg-[#171719] px-3 py-1 rounded-xl border border-[#27272A]">
             {staff.length} Artists Credited
           </span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
+            <thead className="bg-[#111113] text-[#7E8B9C] font-mono text-[11px] uppercase tracking-wider border-b border-[#27272A]">
               <tr>
                 <th className="py-3 px-4">Artist Name & Specialty</th>
                 <th className="py-3 px-4">Services Done</th>
@@ -313,33 +315,33 @@ export function ReportsView() {
                 <th className="py-3 px-4 text-right">Commission Earned</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-[#27272A]">
               {staff.map((st) => (
-                <tr key={st.id} className="hover:bg-slate-50/70 transition-colors">
+                <tr key={st.id} className="hover:bg-[#171719] transition-colors">
                   <td className="py-3.5 px-4">
                     <div className="flex items-center gap-2.5">
                       <img
                         src={st.avatar}
                         alt={st.name}
-                        className="w-7 h-7 rounded-full object-cover"
+                        className="w-7 h-7 rounded-full object-cover border border-[#27272A]"
                       />
                       <div>
-                        <span className="font-extrabold text-slate-900 block">{st.name}</span>
-                        <span className="text-[10px] text-slate-400">{st.role}</span>
+                        <span className="font-bold text-[#F5F4F0] block">{st.name}</span>
+                        <span className="text-[10px] text-[#7E8B9C]">{st.role}</span>
                       </div>
                     </div>
                   </td>
-                  <td className="py-3.5 px-4 font-bold text-slate-800">
+                  <td className="py-3.5 px-4 font-mono font-bold text-[#A3A3AD]">
                     {st.todayServicesCount} treatments
                   </td>
-                  <td className="py-3.5 px-4 font-mono font-bold text-blue-600">
+                  <td className="py-3.5 px-4 font-mono font-bold text-[#F5C928]">
                     {st.commissionRate}%
                   </td>
-                  <td className="py-3.5 px-4 text-right font-black text-slate-900 font-mono">
-                    {formatCurrency(st.todayRevenue)}
+                  <td className="py-3.5 px-4 text-right font-mono font-bold text-[#F5F4F0]">
+                    {formatCurrency(st.todayRevenue || 0)}
                   </td>
-                  <td className="py-3.5 px-4 text-right font-black text-emerald-600 font-mono">
-                    {formatCurrency(st.todayCommission)}
+                  <td className="py-3.5 px-4 text-right font-mono font-bold text-emerald-400">
+                    {formatCurrency(st.todayCommission || 0)}
                   </td>
                 </tr>
               ))}

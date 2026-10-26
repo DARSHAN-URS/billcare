@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useDemo } from "@/lib/demo-context";
+import { useBillCare } from "@/lib/billcare-context";
 import { formatCurrency } from "@/lib/utils";
 import {
   TrendingUp,
@@ -22,6 +22,7 @@ import {
   ShieldCheck,
   Star,
   Activity,
+  ArrowRight,
 } from "lucide-react";
 
 interface OverviewViewProps {
@@ -29,185 +30,193 @@ interface OverviewViewProps {
 }
 
 export function OverviewView({ onNavigateTab }: OverviewViewProps) {
-  const { salon, staff, inventory, followUps, invoices, appointments } = useDemo();
+  const { salon, staff, inventory, followUps, invoices, appointments } = useBillCare();
 
-  const totalTodayRevenue = invoices.reduce((acc, inv) => acc + inv.total, 0);
-  const totalCommission = staff.reduce((acc, s) => acc + s.todayCommission, 0);
-  const clockedInStaff = staff.filter((s) => s.status === "clocked_in");
+  const totalTodayRevenue = invoices.reduce((acc, inv) => acc + (inv.total || inv.grandTotal || 0), 0);
+  const totalCommission = staff.reduce((acc, s) => acc + (s.todayCommission || s.todayEarnings || 0), 0);
+  const clockedInStaff = staff.filter((s) => s.status === "clocked_in" || s.isClockedIn);
   const lowStockItems = inventory.filter((i) => i.currentStock <= i.minThreshold);
-  const pendingFollowUps = followUps.filter((f) => f.status === "Pending");
+  const pendingFollowUps = followUps.filter((f) => f.status === "Pending" || f.status === "pending");
+
+  const todayDateString = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-[#F5F4F0]">
       {/* Salon Daily Welcome Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#0b0f19] via-[#0f172a] to-[#1e1b4b] text-white p-7 sm:p-9 rounded-[2rem] shadow-2xl border border-slate-800/80">
+      <div className="relative overflow-hidden bg-[#0D0D0F] border border-[#27272A] p-7 sm:p-9 rounded-2xl shadow-2xl">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#F5C928]/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-1/4 w-80 h-80 bg-white/[0.02] rounded-full blur-3xl pointer-events-none" />
+
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-400/30 backdrop-blur-md">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>Salon Open • Ready for Clients</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#171719] border border-[#27272A] text-xs font-mono tracking-wider">
+              <span className="w-2 h-2 rounded-full bg-[#35C995] animate-pulse" />
+              <span className="text-[#35C995] font-semibold">Salon Operational</span>
+              <span className="text-[#7E8B9C]">•</span>
+              <span className="text-[#A3A3AD]">{todayDateString}</span>
             </div>
 
-            <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
+            <h1 className="font-serif text-3xl sm:text-4xl font-normal text-[#F5F4F0] tracking-tight">
               {salon.name}
             </h1>
 
-            <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed font-medium">
-              {salon.branch} • Today's salon desk. Check in arriving clients, make quick bills, and see what needs restocking.
+            <p className="text-xs sm:text-sm text-[#A3A3AD] max-w-2xl leading-relaxed font-light">
+              {salon.branch} • Operational executive console. Review active chairs, manage client checkout, and monitor live stylist yields.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => onNavigateTab("frontdesk")}
-              className="px-5 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-2xl shadow-xl shadow-emerald-600/30 transition-all flex items-center gap-2 transform active:scale-95"
+              className="px-5 py-3 bg-[#171719] hover:bg-[#1D1D20] text-[#F5F4F0] font-semibold text-xs rounded-xl border border-[#27272A] hover:border-[#F5C928]/50 transition-all flex items-center gap-2 cursor-pointer"
             >
-              <CheckCircle2 className="w-4 h-4" /> Go to Front Desk
+              <CheckCircle2 className="w-4 h-4 text-[#35C995]" />
+              <span>Front Desk Counter</span>
             </button>
             <button
               onClick={() => onNavigateTab("pos")}
-              className="px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold text-xs rounded-2xl shadow-xl shadow-blue-600/30 transition-all flex items-center gap-2 transform active:scale-95"
+              className="px-5 py-3 bg-[#F5C928] hover:bg-[#FFDA50] text-[#080809] font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg transition-all flex items-center gap-2 cursor-pointer"
             >
-              <Receipt className="w-4 h-4" /> Make a Bill
+              <Receipt className="w-4 h-4" />
+              <span>Make a Bill</span>
             </button>
           </div>
         </div>
-
-        {/* Ambient decorative glow orbs */}
-        <div className="absolute -right-16 -bottom-16 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute left-1/3 -top-20 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
       </div>
 
-      {/* Quick Launch Buttons */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+      {/* Quick Launch Action Pills */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {[
-          { id: "frontdesk", label: "Front Desk", icon: CheckCircle2, color: "text-emerald-700 bg-emerald-50 hover:border-emerald-300" },
-          { id: "calendar", label: "Appointments", icon: Calendar, color: "text-blue-600 bg-blue-50 hover:border-blue-300" },
-          { id: "pos", label: "Billing & Cash", icon: Receipt, color: "text-emerald-600 bg-emerald-50 hover:border-emerald-300" },
-          { id: "customers", label: "Clients List", icon: Users, color: "text-purple-600 bg-purple-50 hover:border-purple-300" },
-          { id: "services", label: "Services Menu", icon: Scissors, color: "text-indigo-600 bg-indigo-50 hover:border-indigo-300" },
-          { id: "inventory", label: "Products & Stock", icon: Boxes, color: "text-amber-600 bg-amber-50 hover:border-amber-300" },
+          { id: "frontdesk", label: "Front Desk", icon: CheckCircle2, accent: "text-[#35C995]" },
+          { id: "calendar", label: "Chair Schedule", icon: Calendar, accent: "text-[#87B8E8]" },
+          { id: "pos", label: "Live POS", icon: Receipt, accent: "text-[#F5C928]" },
+          { id: "customers", label: "Customer CRM", icon: Users, accent: "text-[#A3A3AD]" },
+          { id: "services", label: "Services Menu", icon: Scissors, accent: "text-[#E9A23B]" },
+          { id: "inventory", label: "Stock & Products", icon: Boxes, accent: "text-[#F16B70]" },
         ].map((mod) => {
           const Icon = mod.icon;
           return (
             <button
               key={mod.id}
               onClick={() => onNavigateTab(mod.id)}
-              className={`p-3 rounded-2xl border border-slate-200/80 bg-white hover:shadow-md transition-all flex items-center gap-2.5 text-xs font-bold text-slate-800 text-left`}
+              className="p-3.5 rounded-xl border border-[#27272A] bg-[#111113] hover:bg-[#171719] hover:border-[#343438] transition-all flex items-center gap-3 text-xs font-medium text-[#F5F4F0] text-left cursor-pointer group"
             >
-              <span className={`p-2 rounded-xl ${mod.color}`}>
-                <Icon className="w-4 h-4" />
-              </span>
-              <span className="leading-tight">{mod.label}</span>
+              <div className="p-2 rounded-lg bg-[#171719] border border-[#27272A] group-hover:border-[#F5C928]/30 transition-colors">
+                <Icon className={`w-4 h-4 ${mod.accent}`} />
+              </div>
+              <span className="leading-tight font-sans text-xs">{mod.label}</span>
             </button>
           );
         })}
       </div>
 
-      {/* KPI Cards Grid - Simple & Clear Numbers */}
+      {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Revenue */}
         <div
           onClick={() => onNavigateTab("pos")}
-          className="luxury-card p-6 rounded-3xl cursor-pointer group hover:border-blue-500 transition-all"
+          className="bg-[#111113] border border-[#27272A] hover:border-[#F5C928]/50 p-6 rounded-2xl cursor-pointer group transition-all"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              Today's Total Sales
+            <span className="text-[11px] font-mono uppercase tracking-wider text-[#7E8B9C]">
+              Today's Revenue
             </span>
-            <span className="p-3 bg-blue-50 text-blue-600 rounded-2xl group-hover:scale-110 transition-transform shadow-2xs">
-              <DollarSign className="w-5 h-5" />
+            <span className="p-2.5 bg-[#171719] text-[#F5C928] rounded-xl border border-[#27272A]">
+              <DollarSign className="w-4 h-4" />
             </span>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-3 font-mono">
+          <div className="font-serif text-2xl sm:text-3xl text-[#F5C928] mt-3 tracking-tight font-medium">
             {formatCurrency(totalTodayRevenue)}
           </div>
-          <div className="flex items-center justify-between text-xs mt-3 pt-3 border-t border-slate-100">
-            <span className="text-emerald-700 font-extrabold flex items-center gap-1">
-              <ArrowUpRight className="w-4 h-4" /> Billed today
+          <div className="flex items-center justify-between text-xs mt-3 pt-3 border-t border-[#27272A]/80">
+            <span className="text-[#35C995] font-mono text-[11px] flex items-center gap-1">
+              <ArrowUpRight className="w-3.5 h-3.5" /> Live Receipts
             </span>
-            <span className="text-slate-500 font-semibold font-mono">{invoices.length} Bills paid</span>
+            <span className="text-[#7E8B9C] font-mono text-[11px]">{invoices.length} Bills paid</span>
           </div>
         </div>
 
         {/* Staff on Duty */}
         <div
           onClick={() => onNavigateTab("staff")}
-          className="luxury-card p-6 rounded-3xl cursor-pointer group hover:border-indigo-500 transition-all"
+          className="bg-[#111113] border border-[#27272A] hover:border-[#35C995]/50 p-6 rounded-2xl cursor-pointer group transition-all"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              Stylists Working Today
+            <span className="text-[11px] font-mono uppercase tracking-wider text-[#7E8B9C]">
+              Stylists on Duty
             </span>
-            <span className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl group-hover:scale-110 transition-transform shadow-2xs">
-              <Users className="w-5 h-5" />
+            <span className="p-2.5 bg-[#171719] text-[#35C995] rounded-xl border border-[#27272A]">
+              <Users className="w-4 h-4" />
             </span>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-3">
+          <div className="font-serif text-2xl sm:text-3xl text-[#F5F4F0] mt-3 tracking-tight font-medium">
             {clockedInStaff.length}{" "}
-            <span className="text-sm font-bold text-slate-500">/ {staff.length} Present</span>
+            <span className="text-sm font-sans font-light text-[#7E8B9C]">/ {staff.length} Active</span>
           </div>
-          <div className="flex items-center justify-between text-xs mt-3 pt-3 border-t border-slate-100">
-            <span className="text-indigo-700 font-bold font-mono">
-              Tips & Comm: {formatCurrency(totalCommission)}
+          <div className="flex items-center justify-between text-xs mt-3 pt-3 border-t border-[#27272A]/80">
+            <span className="text-[#A3A3AD] font-mono text-[11px]">
+              Commission: {formatCurrency(totalCommission)}
             </span>
-            <span className="text-slate-500 font-semibold">View team →</span>
+            <span className="text-[#7E8B9C] text-[11px] group-hover:text-[#F5F4F0] transition-colors">Team →</span>
           </div>
         </div>
 
         {/* Stock Alert */}
         <div
           onClick={() => onNavigateTab("inventory")}
-          className="luxury-card p-6 rounded-3xl cursor-pointer group hover:border-amber-500 transition-all"
+          className="bg-[#111113] border border-[#27272A] hover:border-[#E9A23B]/50 p-6 rounded-2xl cursor-pointer group transition-all"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
-              Backbar Inventory
+            <span className="text-[11px] font-mono uppercase tracking-wider text-[#7E8B9C]">
+              Inventory Status
             </span>
             <span
-              className={`p-3 rounded-2xl group-hover:scale-110 transition-transform shadow-2xs ${
-                lowStockItems.length > 0 ? "bg-rose-50 text-rose-600" : "bg-emerald-50 text-emerald-600"
+              className={`p-2.5 rounded-xl border border-[#27272A] ${
+                lowStockItems.length > 0 ? "bg-[#F16B70]/10 text-[#F16B70]" : "bg-[#35C995]/10 text-[#35C995]"
               }`}
             >
-              <Boxes className="w-5 h-5" />
+              <Boxes className="w-4 h-4" />
             </span>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-3">
+          <div className="font-serif text-2xl sm:text-3xl text-[#F5F4F0] mt-3 tracking-tight font-medium">
             {lowStockItems.length > 0 ? (
-              <span className="text-rose-600 flex items-center gap-1.5">
-                {lowStockItems.length} Low
-              </span>
+              <span className="text-[#F16B70]">{lowStockItems.length} Low Stock</span>
             ) : (
-              <span className="text-emerald-600">Optimal</span>
+              <span className="text-[#35C995]">Healthy</span>
             )}
           </div>
-          <div className="flex items-center justify-between text-xs mt-3 pt-3 border-t border-slate-100">
-            <span className={lowStockItems.length > 0 ? "text-rose-600 font-bold" : "text-emerald-600 font-bold"}>
-              {lowStockItems.length > 0 ? "Restock required" : "All SKUs healthy"}
+          <div className="flex items-center justify-between text-xs mt-3 pt-3 border-t border-[#27272A]/80">
+            <span className={`text-[11px] font-mono ${lowStockItems.length > 0 ? "text-[#F16B70]" : "text-[#35C995]"}`}>
+              {lowStockItems.length > 0 ? "Reorder alerts" : "All SKUs stocked"}
             </span>
-            <span className="text-slate-400 font-mono font-medium">{inventory.length} SKUs</span>
+            <span className="text-[#7E8B9C] font-mono text-[11px]">{inventory.length} SKUs</span>
           </div>
         </div>
 
-        {/* CRM Retention */}
+        {/* WhatsApp Retention */}
         <div
           onClick={() => onNavigateTab("followups")}
-          className="luxury-card p-6 rounded-3xl cursor-pointer group hover:border-emerald-500 transition-all"
+          className="bg-[#111113] border border-[#27272A] hover:border-[#87B8E8]/50 p-6 rounded-2xl cursor-pointer group transition-all"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
+            <span className="text-[11px] font-mono uppercase tracking-wider text-[#7E8B9C]">
               WhatsApp CRM
             </span>
-            <span className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl group-hover:scale-110 transition-transform shadow-2xs">
-              <MessageSquare className="w-5 h-5" />
+            <span className="p-2.5 bg-[#171719] text-[#87B8E8] rounded-xl border border-[#27272A]">
+              <MessageSquare className="w-4 h-4" />
             </span>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-emerald-700 mt-3">
-            {pendingFollowUps.length} Triggers
+          <div className="font-serif text-2xl sm:text-3xl text-[#F5F4F0] mt-3 tracking-tight font-medium">
+            {pendingFollowUps.length} <span className="text-sm font-sans font-light text-[#7E8B9C]">Due</span>
           </div>
-          <div className="flex items-center justify-between text-xs mt-3 pt-3 border-t border-slate-100">
-            <span className="text-emerald-700 font-bold">Meta Cloud API</span>
-            <span className="text-slate-400 font-medium">Review queue →</span>
+          <div className="flex items-center justify-between text-xs mt-3 pt-3 border-t border-[#27272A]/80">
+            <span className="text-[#35C995] font-mono text-[11px]">Meta Cloud API</span>
+            <span className="text-[#7E8B9C] text-[11px] group-hover:text-[#F5F4F0] transition-colors">Cadence →</span>
           </div>
         </div>
       </div>
@@ -215,57 +224,62 @@ export function OverviewView({ onNavigateTab }: OverviewViewProps) {
       {/* Main Split: Today's Appointments & Stylist Leaderboard */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Today's Appointments */}
-        <div className="lg:col-span-7 luxury-card rounded-3xl p-6 space-y-4">
-          <div className="flex items-center justify-between">
+        <div className="lg:col-span-7 bg-[#111113] border border-[#27272A] rounded-2xl p-6 space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-[#27272A]">
             <div className="flex items-center gap-2.5">
-              <Calendar className="w-5 h-5 text-blue-600" />
-              <h3 className="font-extrabold text-slate-900 text-base tracking-tight">
+              <Calendar className="w-4 h-4 text-[#F5C928]" />
+              <h3 className="font-serif text-lg font-normal text-[#F5F4F0] tracking-tight">
                 Live Stylist Chair Schedule
               </h3>
             </div>
             <button
               onClick={() => onNavigateTab("calendar")}
-              className="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1"
+              className="text-xs font-mono text-[#F5C928] hover:underline flex items-center gap-1 cursor-pointer"
             >
-              Full Calendar <ChevronRight className="w-4 h-4" />
+              Full Calendar <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {appointments.map((apt) => (
               <div
                 key={apt.id}
-                className="p-4 rounded-2xl border border-slate-100 bg-slate-50/70 hover:bg-slate-50 transition-colors flex items-center justify-between gap-3 shadow-2xs"
+                className="p-3.5 rounded-xl border border-[#27272A] bg-[#171719] hover:bg-[#1D1D20] transition-colors flex items-center justify-between gap-3"
               >
-                <div className="flex items-center gap-3.5">
+                <div className="flex items-center gap-3">
                   <div className="w-14 text-center">
-                    <span className="text-xs font-black text-slate-900 block font-mono">{apt.time.split(" ")[0]}</span>
-                    <span className="text-[10px] text-slate-400 uppercase font-black">{apt.time.split(" ")[1]}</span>
+                    <span className="text-xs font-bold text-[#F5F4F0] block font-mono">
+                      {apt.time.split(" ")[0]}
+                    </span>
+                    <span className="text-[10px] text-[#7E8B9C] uppercase font-mono">
+                      {apt.time.split(" ")[1]}
+                    </span>
                   </div>
 
-                  <div className="h-9 w-px bg-slate-200"></div>
+                  <div className="h-8 w-px bg-[#27272A]" />
 
                   <div>
-                    <h4 className="text-xs font-extrabold text-slate-900">{apt.serviceName}</h4>
-                    <p className="text-[11px] text-slate-500 font-medium mt-0.5">
-                      Client: <b className="text-slate-800">{apt.customerName}</b> • Artist: <b className="text-indigo-600">{apt.staffName}</b>
+                    <h4 className="text-xs font-medium text-[#F5F4F0]">{apt.serviceName}</h4>
+                    <p className="text-[11px] text-[#7E8B9C] mt-0.5 font-light">
+                      Client: <span className="text-[#A3A3AD] font-normal">{apt.customerName}</span> • Stylist:{" "}
+                      <span className="text-[#F5C928] font-normal">{apt.staffName}</span>
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3">
                   <span
-                    className={`text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider ${
+                    className={`text-[10px] font-mono px-2 py-0.5 rounded-full uppercase tracking-wider ${
                       apt.status === "Completed"
-                        ? "bg-emerald-100 text-emerald-800"
+                        ? "bg-emerald-500/10 text-[#35C995] border border-emerald-500/20"
                         : apt.status === "In-Service"
-                        ? "bg-amber-100 text-amber-800"
-                        : "bg-blue-100 text-blue-800"
+                        ? "bg-amber-500/10 text-[#F5C928] border border-amber-500/20"
+                        : "bg-blue-500/10 text-[#87B8E8] border border-blue-500/20"
                     }`}
                   >
                     {apt.status}
                   </span>
-                  <span className="text-xs font-black text-slate-900 font-mono">
+                  <span className="text-xs font-mono text-[#F5C928] font-medium">
                     {formatCurrency(apt.price)}
                   </span>
                 </div>
@@ -274,39 +288,48 @@ export function OverviewView({ onNavigateTab }: OverviewViewProps) {
           </div>
         </div>
 
-        {/* Right Column: Stylist Productivity & Urgent Restock Feed */}
+        {/* Right Column: Stylist Productivity & Stock Feed */}
         <div className="lg:col-span-5 space-y-6">
           {/* Stylist Leaderboard */}
-          <div className="luxury-card rounded-3xl p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-extrabold text-slate-900 text-sm flex items-center gap-2">
-                <Scissors className="w-4 h-4 text-indigo-600" /> Master Artist Productivity
+          <div className="bg-[#111113] border border-[#27272A] rounded-2xl p-6 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#27272A]">
+              <h3 className="font-serif text-lg font-normal text-[#F5F4F0] flex items-center gap-2">
+                <Scissors className="w-4 h-4 text-[#F5C928]" /> Stylist Productivity
               </h3>
               <button
                 onClick={() => onNavigateTab("staff")}
-                className="text-xs text-indigo-600 hover:underline font-bold"
+                className="text-xs text-[#F5C928] hover:underline font-mono cursor-pointer"
               >
-                View Roster
+                Roster →
               </button>
             </div>
 
-            <div className="space-y-3.5">
+            <div className="space-y-3">
               {staff.map((st) => (
-                <div key={st.id} className="flex items-center justify-between text-xs">
+                <div
+                  key={st.id}
+                  className="flex items-center justify-between text-xs p-2.5 rounded-xl bg-[#171719] border border-[#27272A]"
+                >
                   <div className="flex items-center gap-3">
-                    <img src={st.avatar} alt={st.name} className="w-10 h-10 rounded-2xl object-cover border border-slate-100 shadow-2xs" />
+                    <img
+                      src={st.avatar}
+                      alt={st.name}
+                      className="w-9 h-9 rounded-xl object-cover border border-[#27272A]"
+                    />
                     <div>
-                      <div className="font-extrabold text-slate-900">{st.name}</div>
-                      <span className="text-[10px] text-slate-400 font-medium">
-                        {st.todayServicesCount} services ({st.commissionRate}% comm)
+                      <div className="font-medium text-[#F5F4F0]">{st.name}</div>
+                      <span className="text-[10px] text-[#7E8B9C] font-mono">
+                        {st.todayServicesCount} services • {st.commissionRate}% comm
                       </span>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <div className="font-extrabold text-blue-600 font-mono">{formatCurrency(st.todayRevenue)}</div>
-                    <span className="text-[10px] text-emerald-600 font-bold font-mono">
-                      +{formatCurrency(st.todayCommission)} comm
+                    <div className="font-mono text-[#F5C928] font-medium">
+                      {formatCurrency(st.todayRevenue || 0)}
+                    </div>
+                    <span className="text-[10px] text-[#35C995] font-mono">
+                      +{formatCurrency(st.todayCommission || 0)} comm
                     </span>
                   </div>
                 </div>
@@ -314,18 +337,18 @@ export function OverviewView({ onNavigateTab }: OverviewViewProps) {
             </div>
           </div>
 
-          {/* Urgent Low Stock Alerts widget */}
+          {/* Urgent Low Stock Alerts */}
           {lowStockItems.length > 0 && (
-            <div className="bg-rose-50/80 border border-rose-200 rounded-3xl p-6 space-y-3.5 shadow-sm">
-              <div className="flex items-center justify-between text-rose-900">
-                <h4 className="font-extrabold text-xs flex items-center gap-2 uppercase tracking-wider">
-                  <AlertTriangle className="w-4 h-4 text-rose-600" /> Backbar Reorder Required ({lowStockItems.length})
+            <div className="bg-[#111113] border border-[#F16B70]/30 rounded-2xl p-6 space-y-3.5">
+              <div className="flex items-center justify-between pb-2 border-b border-[#27272A]">
+                <h4 className="font-mono text-xs text-[#F16B70] flex items-center gap-2 uppercase tracking-wider">
+                  <AlertTriangle className="w-3.5 h-3.5" /> Reorder Alerts ({lowStockItems.length})
                 </h4>
                 <button
                   onClick={() => onNavigateTab("inventory")}
-                  className="text-xs text-rose-700 hover:underline font-black"
+                  className="text-xs text-[#F5C928] hover:underline font-mono cursor-pointer"
                 >
-                  Restock All →
+                  Restock →
                 </button>
               </div>
 
@@ -333,13 +356,15 @@ export function OverviewView({ onNavigateTab }: OverviewViewProps) {
                 {lowStockItems.slice(0, 3).map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between text-xs bg-white p-3 rounded-2xl border border-rose-100 shadow-2xs"
+                    className="flex items-center justify-between text-xs bg-[#171719] p-3 rounded-xl border border-[#27272A]"
                   >
                     <div>
-                      <span className="font-bold text-slate-900 block truncate max-w-[210px]">{item.name}</span>
-                      <span className="text-[10px] text-slate-400 font-mono">SKU: {item.sku}</span>
+                      <span className="font-medium text-[#F5F4F0] block truncate max-w-[190px]">
+                        {item.name}
+                      </span>
+                      <span className="text-[10px] text-[#7E8B9C] font-mono">SKU: {item.sku}</span>
                     </div>
-                    <span className="text-xs font-black text-rose-600 bg-rose-50 px-2.5 py-1 rounded-xl">
+                    <span className="text-[11px] font-mono text-[#F16B70] bg-[#F16B70]/10 px-2 py-0.5 rounded-md border border-[#F16B70]/20">
                       {item.currentStock} {item.unit} left
                     </span>
                   </div>

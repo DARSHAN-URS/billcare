@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { useDemo } from "@/lib/demo-context";
+import { useBillCare } from "@/lib/billcare-context";
 import { formatCurrency } from "@/lib/utils";
-import { InventoryItem } from "@/lib/demo-data";
+import { InventoryItem } from "@/lib/types";
 import {
   Package,
   AlertTriangle,
@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 
 export function InventoryView() {
-  const { inventory, updateStock, restockItem, addInventoryItem } = useDemo();
+  const { inventory, updateStock, restockItem, addInventoryItem } = useBillCare();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
@@ -32,15 +32,15 @@ export function InventoryView() {
   const [onlyLowStock, setOnlyLowStock] = useState(false);
 
   // Modals
-  const [restockModalItem, setRestockModalItem] = useState<InventoryItem | null>(null);
+  const [restockModalItem, setRestockModalItem] = useState<any>(null);
   const [restockQuantity, setRestockQuantity] = useState<number>(10);
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [newItemName, setNewItemName] = useState("");
   const [newItemBrand, setNewItemBrand] = useState("");
   const [newItemSku, setNewItemSku] = useState("");
-  const [newItemCategory, setNewItemCategory] = useState<InventoryItem["category"]>("Hair Care");
-  const [newItemUsage, setNewItemUsage] = useState<InventoryItem["usageType"]>("Salon Professional");
+  const [newItemCategory, setNewItemCategory] = useState<any>("Hair Care");
+  const [newItemUsage, setNewItemUsage] = useState<any>("Salon Professional");
   const [newItemCurrentStock, setNewItemCurrentStock] = useState(10);
   const [newItemMinThreshold, setNewItemMinThreshold] = useState(5);
   const [newItemCostPrice, setNewItemCostPrice] = useState(850);
@@ -51,7 +51,7 @@ export function InventoryView() {
   const filteredInventory = inventory.filter((item) => {
     const matchesSearch =
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.brand?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
       item.sku.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === "All" || item.category === categoryFilter;
     const matchesUsage = usageFilter === "All" || item.usageType === usageFilter;
@@ -102,21 +102,21 @@ export function InventoryView() {
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="luxury-card p-6 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-[#0D0D0F] border border-[#27272A] p-5 sm:p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center text-white shadow-lg shadow-amber-500/25 border border-white/20">
+          <div className="w-12 h-12 rounded-xl bg-[#F5C928]/10 border border-[#F5C928]/30 flex items-center justify-center text-[#F5C928] shadow-lg shadow-[#F5C928]/5 shrink-0">
             <Boxes className="w-6 h-6" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
-                Salon Floor Stock & Retail Inventory
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-xl font-serif font-bold text-[#F5F4F0] tracking-tight">
+                Floor Stock & Retail Inventory
               </h1>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+              <span className="text-[10px] font-mono uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-[#171719] text-[#F5C928] border border-[#27272A]">
                 Multi-Bin Ledger
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-[#7E8B9C] mt-0.5">
               Professional salon backbar usage • Retail shelves ledger • Dynamic reorder threshold alerts
             </p>
           </div>
@@ -124,7 +124,7 @@ export function InventoryView() {
 
         <button
           onClick={() => setShowAddModal(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-md shadow-blue-500/20 transition-all self-start sm:self-auto"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#F5C928] hover:bg-[#f7d348] text-[#080809] font-bold text-xs rounded-xl shadow-lg shadow-[#F5C928]/10 transition-all self-start sm:self-auto cursor-pointer"
         >
           <Plus className="w-4 h-4" /> Add Product SKU
         </button>
@@ -132,67 +132,67 @@ export function InventoryView() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="luxury-card p-5 rounded-3xl">
+        <div className="bg-[#111113] border border-[#27272A] p-5 rounded-xl">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Total Active SKUs</span>
-            <span className="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
+            <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-widest">Total Active SKUs</span>
+            <span className="p-2 bg-[#171719] text-[#F5C928] rounded-lg border border-[#27272A]">
               <Package className="w-4 h-4" />
             </span>
           </div>
-          <div className="text-2xl font-black text-slate-900 mt-2">{inventory.length} Products</div>
-          <p className="text-[11px] text-slate-500 font-medium mt-1">Across 4 luxury categories</p>
+          <div className="text-2xl font-mono font-bold text-[#F5F4F0] mt-2">{inventory.length} Products</div>
+          <p className="text-[11px] text-[#7E8B9C] mt-1 font-mono">Across 4 luxury categories</p>
         </div>
 
-        <div className="luxury-card p-5 rounded-3xl">
+        <div className="bg-[#111113] border border-[#27272A] p-5 rounded-xl">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Reorder Alerts</span>
-            <span className="p-2.5 bg-rose-50 text-rose-600 rounded-xl">
+            <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-widest">Reorder Alerts</span>
+            <span className="p-2 bg-[#171719] text-rose-400 rounded-lg border border-[#27272A]">
               <AlertTriangle className="w-4 h-4" />
             </span>
           </div>
-          <div className="text-2xl font-black text-rose-600 mt-2">{lowStockCount} Critical</div>
+          <div className="text-2xl font-mono font-bold text-rose-400 mt-2">{lowStockCount} Critical</div>
           <button
             onClick={() => setOnlyLowStock(!onlyLowStock)}
-            className="text-[11px] text-rose-600 hover:underline font-bold mt-1 block"
+            className="text-[11px] text-rose-400 hover:underline font-mono mt-1 block cursor-pointer"
           >
             {onlyLowStock ? "Show all items" : "Filter below threshold →"}
           </button>
         </div>
 
-        <div className="luxury-card p-5 rounded-3xl">
+        <div className="bg-[#111113] border border-[#27272A] p-5 rounded-xl">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Wholesale Cost Basis</span>
-            <span className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl">
+            <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-widest">Wholesale Cost Basis</span>
+            <span className="p-2 bg-[#171719] text-[#F5C928] rounded-lg border border-[#27272A]">
               <DollarSign className="w-4 h-4" />
             </span>
           </div>
-          <div className="text-2xl font-black text-slate-900 mt-2 font-mono">{formatCurrency(totalValuation)}</div>
-          <p className="text-[11px] text-slate-500 font-medium mt-1">Total physical stock value</p>
+          <div className="text-2xl font-mono font-bold text-[#F5C928] mt-2">{formatCurrency(totalValuation)}</div>
+          <p className="text-[11px] text-[#7E8B9C] mt-1 font-mono">Total physical stock value</p>
         </div>
 
-        <div className="luxury-card p-5 rounded-3xl">
+        <div className="bg-[#111113] border border-[#27272A] p-5 rounded-xl">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Retail Shelf Potential</span>
-            <span className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl">
+            <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-widest">Retail Shelf Potential</span>
+            <span className="p-2 bg-[#171719] text-emerald-400 rounded-lg border border-[#27272A]">
               <TrendingUp className="w-4 h-4" />
             </span>
           </div>
-          <div className="text-2xl font-black text-emerald-600 mt-2 font-mono">{formatCurrency(retailPotentialValue)}</div>
-          <p className="text-[11px] text-slate-500 font-medium mt-1">Projected customer revenue</p>
+          <div className="text-2xl font-mono font-bold text-emerald-400 mt-2">{formatCurrency(retailPotentialValue)}</div>
+          <p className="text-[11px] text-[#7E8B9C] mt-1 font-mono">Projected customer revenue</p>
         </div>
       </div>
 
       {/* Filters and Search Bar */}
-      <div className="luxury-card p-4 rounded-3xl space-y-3">
+      <div className="bg-[#0D0D0F] border border-[#27272A] p-4 rounded-xl space-y-3 shadow-xl">
         <div className="flex flex-col md:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#7E8B9C]" />
             <input
               type="text"
               placeholder="Search product name, brand or SKU (e.g. Olaplex, Moroccanoil, Wella)..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:outline-none font-medium"
+              className="w-full pl-10 pr-4 py-2.5 text-xs bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] placeholder-[#7E8B9C] focus:outline-none focus:border-[#F5C928] font-medium"
             />
           </div>
 
@@ -200,31 +200,31 @@ export function InventoryView() {
             <select
               value={usageFilter}
               onChange={(e: any) => setUsageFilter(e.target.value)}
-              className="px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 focus:outline-none"
+              className="px-3.5 py-2 text-xs bg-[#111113] border border-[#27272A] rounded-xl font-bold text-[#F5F4F0] focus:outline-none focus:border-[#F5C928]"
             >
-              <option value="All">All Usages (Backbar & Retail)</option>
-              <option value="Salon Professional">Salon Backbar (Professional)</option>
-              <option value="Retail Sale">Retail Shelves</option>
+              <option value="All" className="bg-[#111113] text-[#F5F4F0]">All Usages (Backbar & Retail)</option>
+              <option value="Salon Professional" className="bg-[#111113] text-[#F5F4F0]">Salon Backbar (Professional)</option>
+              <option value="Retail Sale" className="bg-[#111113] text-[#F5F4F0]">Retail Shelves</option>
             </select>
 
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 focus:outline-none"
+              className="px-3.5 py-2 text-xs bg-[#111113] border border-[#27272A] rounded-xl font-bold text-[#F5F4F0] focus:outline-none focus:border-[#F5C928]"
             >
-              <option value="All">All Categories</option>
-              <option value="Hair Care">Hair Care</option>
-              <option value="Color & Chemical">Color & Chemical</option>
-              <option value="Skin & Facial">Skin & Facial</option>
-              <option value="Tools & Disposables">Tools & Disposables</option>
+              <option value="All" className="bg-[#111113] text-[#F5F4F0]">All Categories</option>
+              <option value="Hair Care" className="bg-[#111113] text-[#F5F4F0]">Hair Care</option>
+              <option value="Color & Chemical" className="bg-[#111113] text-[#F5F4F0]">Color & Chemical</option>
+              <option value="Skin & Facial" className="bg-[#111113] text-[#F5F4F0]">Skin & Facial</option>
+              <option value="Tools & Disposables" className="bg-[#111113] text-[#F5F4F0]">Tools & Disposables</option>
             </select>
 
             <button
               onClick={() => setOnlyLowStock(!onlyLowStock)}
-              className={`px-3.5 py-2 text-xs font-bold rounded-xl border transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-2 text-xs font-bold rounded-xl border transition-all flex items-center gap-1.5 cursor-pointer ${
                 onlyLowStock
-                  ? "bg-rose-50 text-rose-700 border-rose-300 shadow-sm"
-                  : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                  ? "bg-rose-500/20 text-rose-400 border-rose-500/40 shadow-sm"
+                  : "bg-[#111113] text-[#A3A3AD] border-[#27272A] hover:text-[#F5F4F0]"
               }`}
             >
               <AlertTriangle className="w-3.5 h-3.5" />
@@ -235,10 +235,10 @@ export function InventoryView() {
       </div>
 
       {/* Stock Table */}
-      <div className="luxury-card rounded-3xl overflow-hidden shadow-lg border-slate-200">
+      <div className="bg-[#0D0D0F] border border-[#27272A] rounded-2xl overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
+            <thead className="bg-[#111113] text-[#7E8B9C] font-mono text-[11px] uppercase tracking-wider border-b border-[#27272A]">
               <tr>
                 <th className="py-3.5 px-4">Item & Brand</th>
                 <th className="py-3.5 px-4">Classification</th>
@@ -250,16 +250,16 @@ export function InventoryView() {
                 <th className="py-3.5 px-4 text-center">Fast Inventory Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-[#27272A]">
               {filteredInventory.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="py-12 px-4 text-center">
                     <div className="max-w-xs mx-auto space-y-3">
-                      <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center mx-auto">
+                      <div className="w-12 h-12 rounded-full bg-[#171719] border border-[#27272A] text-[#7E8B9C] flex items-center justify-center mx-auto">
                         <Boxes className="w-6 h-6" />
                       </div>
-                      <h4 className="font-extrabold text-slate-900 text-sm">No inventory items match</h4>
-                      <p className="text-xs text-slate-500 font-medium">
+                      <h4 className="font-serif font-bold text-[#F5F4F0] text-sm">No inventory items match</h4>
+                      <p className="text-xs text-[#7E8B9C]">
                         Try modifying your search query or reset the filters.
                       </p>
                       <button
@@ -269,7 +269,7 @@ export function InventoryView() {
                           setUsageFilter("All");
                           setOnlyLowStock(false);
                         }}
-                        className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs"
+                        className="px-3.5 py-1.5 bg-[#F5C928] hover:bg-[#f7d348] text-[#080809] rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
                       >
                         Reset All Filters
                       </button>
@@ -280,21 +280,21 @@ export function InventoryView() {
                 filteredInventory.map((item) => {
                   const isLow = item.currentStock <= item.minThreshold;
                   return (
-                    <tr key={item.id} className="hover:bg-slate-50/70 transition-colors">
+                    <tr key={item.id} className="hover:bg-[#171719] transition-colors">
                       <td className="py-4 px-4">
-                        <div className="font-extrabold text-slate-900 text-xs sm:text-sm">{item.name}</div>
+                        <div className="font-bold text-[#F5F4F0] text-xs sm:text-sm">{item.name}</div>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-[11px] text-blue-600 font-bold">{item.brand}</span>
-                          <span className="text-[11px] text-slate-500 font-mono font-medium">SKU: {item.sku}</span>
+                          <span className="text-[11px] text-[#F5C928] font-bold">{item.brand}</span>
+                          <span className="text-[11px] text-[#7E8B9C] font-mono">SKU: {item.sku}</span>
                         </div>
                       </td>
 
                       <td className="py-4 px-4">
                         <span
-                          className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase tracking-wider ${
+                          className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider ${
                             item.usageType === "Retail Sale"
-                              ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                              : "bg-purple-50 text-purple-800 border border-purple-200"
+                              ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                              : "bg-[#171719] text-[#F5C928] border border-[#27272A]"
                           }`}
                         >
                           {item.usageType}
@@ -304,31 +304,31 @@ export function InventoryView() {
                       <td className="py-4 px-4">
                         <div className="flex items-center gap-2">
                           <span
-                            className={`text-sm font-black font-mono ${
-                              isLow ? "text-rose-600" : "text-slate-800"
+                            className={`text-sm font-mono font-bold ${
+                              isLow ? "text-rose-400" : "text-[#F5F4F0]"
                             }`}
                           >
                             {item.currentStock} {item.unit}
                           </span>
                           {isLow && (
-                            <span className="px-2 py-0.5 rounded text-[11px] font-black bg-rose-100 text-rose-700 flex items-center gap-1 animate-pulse">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center gap-1 animate-pulse">
                               <AlertTriangle className="w-3 h-3" /> REORDER
                             </span>
                           )}
                         </div>
                       </td>
 
-                      <td className="py-4 px-4 text-slate-600 font-medium text-xs">
+                      <td className="py-4 px-4 text-[#A3A3AD] font-mono text-xs">
                         Min: {item.minThreshold} {item.unit}
                       </td>
 
-                      <td className="py-4 px-4 font-bold text-slate-800 font-mono text-xs">{formatCurrency(item.costPrice)}</td>
+                      <td className="py-4 px-4 font-bold text-[#F5F4F0] font-mono text-xs">{formatCurrency(item.costPrice)}</td>
 
-                      <td className="py-4 px-4 font-black text-emerald-700 font-mono text-xs">
+                      <td className="py-4 px-4 font-bold text-[#F5C928] font-mono text-xs">
                         {item.retailPrice ? formatCurrency(item.retailPrice) : "—"}
                       </td>
 
-                      <td className="py-4 px-4 text-slate-600 font-mono text-xs">{item.lastRestocked}</td>
+                      <td className="py-4 px-4 text-[#7E8B9C] font-mono text-xs">{item.lastRestocked}</td>
 
                       <td className="py-4 px-4">
                         <div className="flex items-center justify-center gap-2">
@@ -336,7 +336,7 @@ export function InventoryView() {
                           <button
                             onClick={() => updateStock(item.id, -1, "Floor consumption")}
                             title="Log 1 Unit Consumed in Treatment"
-                            className="p-1.5 text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors border border-slate-200"
+                            className="p-1.5 text-[#7E8B9C] hover:text-rose-400 hover:bg-[#27272A] rounded-lg transition-colors border border-[#27272A] cursor-pointer"
                           >
                             <Minus className="w-3.5 h-3.5" />
                           </button>
@@ -347,7 +347,7 @@ export function InventoryView() {
                               setRestockModalItem(item);
                               setRestockQuantity(10);
                             }}
-                            className="px-3 py-1.5 text-xs font-bold bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-xl transition-colors flex items-center gap-1"
+                            className="px-3 py-1.5 text-xs font-bold bg-[#171719] text-[#F5C928] hover:bg-[#27272A] border border-[#27272A] rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
                           >
                             <RotateCcw className="w-3 h-3" /> Restock Batch
                           </button>
@@ -364,33 +364,33 @@ export function InventoryView() {
 
       {/* Restock Modal */}
       {restockModalItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 p-6 w-full max-w-sm animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="font-extrabold text-slate-900 text-sm">Replenish Product Batch</h3>
-              <button onClick={() => setRestockModalItem(null)} className="text-slate-400 hover:text-slate-600">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
+          <div className="bg-[#0D0D0F] border border-[#27272A] rounded-2xl shadow-2xl p-6 w-full max-w-sm animate-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-[#27272A]">
+              <h3 className="font-serif font-bold text-[#F5F4F0] text-sm">Replenish Product Batch</h3>
+              <button onClick={() => setRestockModalItem(null)} className="text-[#7E8B9C] hover:text-[#F5F4F0] cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleRestockSubmit} className="mt-4 space-y-3 text-xs">
               <div>
-                <span className="text-[11px] text-slate-400 uppercase font-bold tracking-wider">Item:</span>
-                <p className="font-extrabold text-slate-900 text-sm">{restockModalItem.name}</p>
-                <p className="text-[11px] text-slate-500 font-medium">
-                  Current Floor Stock: <b className="text-blue-600">{restockModalItem.currentStock} {restockModalItem.unit}</b>
+                <span className="text-[10px] text-[#7E8B9C] font-mono uppercase tracking-wider">Item:</span>
+                <p className="font-bold text-[#F5F4F0] text-sm">{restockModalItem.name}</p>
+                <p className="text-[11px] text-[#A3A3AD] font-mono mt-0.5">
+                  Current Floor Stock: <b className="text-[#F5C928]">{restockModalItem.currentStock} {restockModalItem.unit}</b>
                 </p>
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Add Units ({restockModalItem.unit})</label>
+                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Add Units ({restockModalItem.unit})</label>
                 <input
                   type="number"
                   min={1}
                   required
                   value={restockQuantity}
                   onChange={(e) => setRestockQuantity(Number(e.target.value))}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-base font-black text-blue-600 focus:bg-white focus:outline-none font-mono"
+                  className="w-full px-3.5 py-2.5 bg-[#111113] border border-[#27272A] rounded-xl text-base font-bold text-[#F5C928] focus:outline-none focus:border-[#F5C928] font-mono"
                 />
               </div>
 
@@ -398,13 +398,13 @@ export function InventoryView() {
                 <button
                   type="button"
                   onClick={() => setRestockModalItem(null)}
-                  className="flex-1 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-xl"
+                  className="flex-1 py-2.5 bg-[#171719] text-[#A3A3AD] hover:text-[#F5F4F0] font-bold rounded-xl border border-[#27272A] cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 bg-blue-600 text-white font-extrabold rounded-xl shadow-md shadow-blue-500/20"
+                  className="flex-1 py-2.5 bg-[#F5C928] hover:bg-[#f7d348] text-[#080809] font-bold rounded-xl shadow-md shadow-[#F5C928]/10 cursor-pointer"
                 >
                   Confirm Restock
                 </button>
@@ -416,117 +416,117 @@ export function InventoryView() {
 
       {/* Add Inventory Product Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 p-6 w-full max-w-md animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="font-extrabold text-slate-900 text-base">Register New Beauty SKU</h3>
-              <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-slate-600">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
+          <div className="bg-[#0D0D0F] border border-[#27272A] rounded-2xl shadow-2xl p-6 w-full max-w-md animate-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-[#27272A]">
+              <h3 className="font-serif font-bold text-[#F5F4F0] text-base">Register New Beauty SKU</h3>
+              <button onClick={() => setShowAddModal(false)} className="text-[#7E8B9C] hover:text-[#F5F4F0] cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleAddNewItem} className="mt-4 space-y-3 text-xs">
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Product Title</label>
+                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Product Title</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Kérastase Chronologiste Hair Mask (200ml)"
                   value={newItemName}
                   onChange={(e) => setNewItemName(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-bold"
+                  className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-bold"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Brand</label>
+                  <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Brand</label>
                   <input
                     type="text"
                     placeholder="e.g. Kérastase"
                     value={newItemBrand}
                     onChange={(e) => setNewItemBrand(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-medium"
+                    className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-medium"
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Category</label>
+                  <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Category</label>
                   <select
                     value={newItemCategory}
                     onChange={(e: any) => setNewItemCategory(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none font-bold"
+                    className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-bold"
                   >
-                    <option value="Hair Care">Hair Care</option>
-                    <option value="Color & Chemical">Color & Chemical</option>
-                    <option value="Skin & Facial">Skin & Facial</option>
-                    <option value="Tools & Disposables">Tools & Disposables</option>
+                    <option value="Hair Care" className="bg-[#111113] text-[#F5F4F0]">Hair Care</option>
+                    <option value="Color & Chemical" className="bg-[#111113] text-[#F5F4F0]">Color & Chemical</option>
+                    <option value="Skin & Facial" className="bg-[#111113] text-[#F5F4F0]">Skin & Facial</option>
+                    <option value="Tools & Disposables" className="bg-[#111113] text-[#F5F4F0]">Tools & Disposables</option>
                   </select>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Usage Type</label>
+                  <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Usage Type</label>
                   <select
                     value={newItemUsage}
                     onChange={(e: any) => setNewItemUsage(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none font-bold"
+                    className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-bold"
                   >
-                    <option value="Salon Professional">Salon Backbar (Pro)</option>
-                    <option value="Retail Sale">Retail Sale Shelf</option>
+                    <option value="Salon Professional" className="bg-[#111113] text-[#F5F4F0]">Salon Backbar (Pro)</option>
+                    <option value="Retail Sale" className="bg-[#111113] text-[#F5F4F0]">Retail Sale Shelf</option>
                   </select>
                 </div>
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Unit of Measure</label>
+                  <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Unit of Measure</label>
                   <input
                     type="text"
                     value={newItemUnit}
                     onChange={(e) => setNewItemUnit(e.target.value)}
                     placeholder="Bottles / Tubs / Packs"
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none"
+                    className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Initial Stock</label>
+                  <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Initial Stock</label>
                   <input
                     type="number"
                     value={newItemCurrentStock}
                     onChange={(e) => setNewItemCurrentStock(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-bold font-mono"
+                    className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-bold font-mono"
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Min Alert Threshold</label>
+                  <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Min Alert Threshold</label>
                   <input
                     type="number"
                     value={newItemMinThreshold}
                     onChange={(e) => setNewItemMinThreshold(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-bold font-mono"
+                    className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-bold font-mono"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Cost Price (₹)</label>
+                  <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Cost Price (₹)</label>
                   <input
                     type="number"
                     value={newItemCostPrice}
                     onChange={(e) => setNewItemCostPrice(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-bold font-mono"
+                    className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-bold font-mono"
                   />
                 </div>
                 {newItemUsage === "Retail Sale" && (
                   <div>
-                    <label className="font-bold text-slate-700 block mb-1">Retail Shelf Price (₹)</label>
+                    <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Retail Shelf Price (₹)</label>
                     <input
                       type="number"
                       value={newItemRetailPrice}
                       onChange={(e) => setNewItemRetailPrice(Number(e.target.value))}
-                      className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-bold font-mono"
+                      className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5C928] focus:outline-none focus:border-[#F5C928] font-bold font-mono"
                     />
                   </div>
                 )}
@@ -536,13 +536,13 @@ export function InventoryView() {
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="flex-1 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-xl"
+                  className="flex-1 py-2.5 bg-[#171719] text-[#A3A3AD] hover:text-[#F5F4F0] font-bold rounded-xl border border-[#27272A] cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 bg-blue-600 text-white font-extrabold rounded-xl shadow-md shadow-blue-500/20"
+                  className="flex-1 py-2.5 bg-[#F5C928] hover:bg-[#f7d348] text-[#080809] font-bold rounded-xl shadow-md shadow-[#F5C928]/10 cursor-pointer"
                 >
                   Register SKU
                 </button>

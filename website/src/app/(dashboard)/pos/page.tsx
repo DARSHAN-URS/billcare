@@ -1,7 +1,7 @@
 "use client";
 
-import { DemoShell } from "@/components/demo-shell";
+import { DashboardShell } from "@/components/dashboard-shell";
 
 export default function PosPage() {
-  return <DemoShell initialTab="pos" />;
+  return <DashboardShell initialTab="pos" />;
 }

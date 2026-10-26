@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useDemo } from "@/lib/demo-context";
+import { useBillCare } from "@/lib/billcare-context";
 import { formatCurrency } from "@/lib/utils";
 import {
   Users,
@@ -23,10 +23,12 @@ import {
   Crown,
   ShieldCheck,
   Scissors,
+  Lock,
 } from "lucide-react";
 
 export function StaffView() {
-  const { staff, toggleStaffStatus, updateStaffCommission, addStaffMember } = useDemo();
+  const { user, staff, toggleStaffStatus, updateStaffCommission, addStaffMember } = useBillCare();
+  const isOwner = user?.role === "owner" || user?.role === "admin";
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingCommissionId, setEditingCommissionId] = useState<string | null>(null);
@@ -43,9 +45,9 @@ export function StaffView() {
   );
 
   // Aggregated totals
-  const totalTodayRevenue = staff.reduce((acc, s) => acc + s.todayRevenue, 0);
-  const totalCommissionPayout = staff.reduce((acc, s) => acc + s.todayCommission, 0);
-  const clockedInCount = staff.filter((s) => s.status === "clocked_in").length;
+  const totalTodayRevenue = staff.reduce((acc, s) => acc + (s.todayRevenue || s.todayEarnings || 0), 0);
+  const totalCommissionPayout = staff.reduce((acc, s) => acc + (s.todayCommission || 0), 0);
+  const clockedInCount = staff.filter((s) => s.status === "clocked_in" || s.isClockedIn).length;
   const onBreakCount = staff.filter((s) => s.status === "on_break").length;
 
   const handleAddStaff = (e: React.FormEvent) => {
@@ -76,19 +78,19 @@ export function StaffView() {
   return (
     <div className="space-y-6">
       {/* Top Banner & Metrics */}
-      <div className="luxury-card p-6 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-[#0D0D0F] border border-[#27272A] p-5 sm:p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-700 flex items-center justify-center text-white shadow-lg shadow-indigo-600/25 border border-white/20">
+          <div className="w-12 h-12 rounded-xl bg-[#F5C928]/10 border border-[#F5C928]/30 flex items-center justify-center text-[#F5C928] shadow-lg shadow-[#F5C928]/5 shrink-0">
             <Users className="w-6 h-6" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">Staff & Stylists</h1>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-xl font-serif font-bold text-[#F5F4F0] tracking-tight">Staff & Stylists</h1>
+              <span className="text-[10px] font-mono uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-[#171719] text-[#F5C928] border border-[#27272A]">
                 Attendance & Earnings
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-[#7E8B9C] mt-0.5">
               Who is working today • Commission earnings • 1-tap clock in / out
             </p>
           </div>
@@ -96,7 +98,7 @@ export function StaffView() {
 
         <button
           onClick={() => setShowAddModal(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-md shadow-blue-500/20 transition-all self-start sm:self-auto"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#F5C928] hover:bg-[#f7d348] text-[#080809] font-bold text-xs rounded-xl shadow-lg shadow-[#F5C928]/10 transition-all self-start sm:self-auto cursor-pointer"
         >
           <UserPlus className="w-4 h-4" /> Add Stylist
         </button>
@@ -104,52 +106,52 @@ export function StaffView() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="luxury-card p-5 rounded-3xl">
+        <div className="bg-[#111113] border border-[#27272A] p-5 rounded-xl">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Working Right Now</span>
-            <span className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl">
+            <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-wider">Working Right Now</span>
+            <span className="p-2 bg-[#171719] text-emerald-400 rounded-lg border border-[#27272A]">
               <Clock className="w-4 h-4" />
             </span>
           </div>
-          <div className="text-2xl font-black text-slate-900 mt-2">
-            {clockedInCount} <span className="text-xs font-bold text-slate-400">/ {staff.length} Present</span>
+          <div className="text-2xl font-mono font-bold text-[#F5F4F0] mt-2">
+            {clockedInCount} <span className="text-xs text-[#7E8B9C]">/ {staff.length} Present</span>
           </div>
-          <p className="text-[11px] text-emerald-600 font-bold mt-1">
+          <p className="text-[11px] text-emerald-400 font-mono mt-1">
             {onBreakCount} on break • {staff.length - clockedInCount - onBreakCount} off shift
           </p>
         </div>
 
-        <div className="luxury-card p-5 rounded-3xl">
+        <div className="bg-[#111113] border border-[#27272A] p-5 rounded-xl">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Today's Stylist Sales</span>
-            <span className="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
+            <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-wider">Today's Stylist Sales</span>
+            <span className="p-2 bg-[#171719] text-[#F5C928] rounded-lg border border-[#27272A]">
               <DollarSign className="w-4 h-4" />
             </span>
           </div>
-          <div className="text-2xl font-black text-slate-900 mt-2 font-mono">{formatCurrency(totalTodayRevenue)}</div>
-          <p className="text-[11px] text-blue-600 font-bold mt-1">Services & products sold today</p>
+          <div className="text-2xl font-mono font-bold text-[#F5C928] mt-2">{formatCurrency(totalTodayRevenue)}</div>
+          <p className="text-[11px] text-[#A3A3AD] mt-1 font-mono">Services & products sold today</p>
         </div>
 
-        <div className="luxury-card p-5 rounded-3xl">
+        <div className="bg-[#111113] border border-[#27272A] p-5 rounded-xl">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Total Commission</span>
-            <span className="p-2.5 bg-purple-50 text-purple-600 rounded-xl">
+            <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-wider">Total Commission</span>
+            <span className="p-2 bg-[#171719] text-[#F5C928] rounded-lg border border-[#27272A]">
               <Percent className="w-4 h-4" />
             </span>
           </div>
-          <div className="text-2xl font-black text-purple-700 mt-2 font-mono">{formatCurrency(totalCommissionPayout)}</div>
-          <p className="text-[11px] text-slate-500 font-medium mt-1">Calculated automatically from today's bills</p>
+          <div className="text-2xl font-mono font-bold text-[#F5C928] mt-2">{formatCurrency(totalCommissionPayout)}</div>
+          <p className="text-[11px] text-[#7E8B9C] mt-1 font-mono">Calculated from today's bills</p>
         </div>
 
-        <div className="luxury-card p-5 rounded-3xl">
+        <div className="bg-[#111113] border border-[#27272A] p-5 rounded-xl">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Client Reviews</span>
-            <span className="p-2.5 bg-amber-50 text-amber-600 rounded-xl">
-              <Star className="w-4 h-4 fill-amber-500" />
+            <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-wider">Client Reviews</span>
+            <span className="p-2 bg-[#171719] text-[#F5C928] rounded-lg border border-[#27272A]">
+              <Star className="w-4 h-4 fill-[#F5C928]" />
             </span>
           </div>
-          <div className="text-2xl font-black text-slate-900 mt-2 font-mono">4.88 ★</div>
-          <p className="text-[11px] text-slate-500 font-medium mt-1">100% verified customer feedbacks</p>
+          <div className="text-2xl font-mono font-bold text-[#F5F4F0] mt-2">4.88 ★</div>
+          <p className="text-[11px] text-[#7E8B9C] mt-1 font-mono">100% verified customer feedbacks</p>
         </div>
       </div>
 
@@ -158,7 +160,7 @@ export function StaffView() {
         {staff.map((member) => (
           <div
             key={member.id}
-            className="luxury-card rounded-3xl p-6 flex flex-col justify-between hover:border-indigo-400 hover:shadow-xl transition-all"
+            className="bg-[#111113] border border-[#27272A] rounded-xl p-5 flex flex-col justify-between hover:border-[#F5C928]/50 hover:bg-[#171719] transition-all shadow-lg"
           >
             <div>
               {/* Member Top Bar */}
@@ -166,19 +168,19 @@ export function StaffView() {
                 <img
                   src={member.avatar}
                   alt={member.name}
-                  className="w-16 h-16 rounded-2xl object-cover border-2 border-slate-100 shadow-md"
+                  className="w-16 h-16 rounded-xl object-cover border border-[#27272A] shadow-md"
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <h3 className="text-base font-extrabold text-slate-900 truncate">{member.name}</h3>
+                    <h3 className="text-base font-bold text-[#F5F4F0] truncate">{member.name}</h3>
                     {/* Status Badge */}
                     <span
-                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-wider ${
                         member.status === "clocked_in"
-                          ? "bg-emerald-100 text-emerald-800"
+                          ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
                           : member.status === "on_break"
-                          ? "bg-amber-100 text-amber-800"
-                          : "bg-slate-100 text-slate-600"
+                          ? "bg-[#F5C928]/20 text-[#F5C928] border border-[#F5C928]/30"
+                          : "bg-[#171719] text-[#7E8B9C] border border-[#27272A]"
                       }`}
                     >
                       {member.status === "clocked_in" && <CheckCircle2 className="w-3.5 h-3.5" />}
@@ -191,11 +193,11 @@ export function StaffView() {
                         : "Clocked Out"}
                     </span>
                   </div>
-                  <p className="text-xs text-indigo-700 font-bold mt-0.5">{member.role}</p>
-                  <p className="text-[11px] text-slate-500 font-mono flex items-center gap-2 mt-1">
-                    <Phone className="w-3 h-3 text-slate-400" /> {member.phone} •{" "}
-                    <span className="text-amber-600 font-bold flex items-center gap-0.5">
-                      <Star className="w-3 h-3 fill-amber-500 text-amber-500" /> {member.rating}
+                  <p className="text-xs text-[#F5C928] font-bold mt-0.5">{member.role}</p>
+                  <p className="text-[11px] text-[#7E8B9C] font-mono flex items-center gap-2 mt-1">
+                    <Phone className="w-3 h-3 text-[#7E8B9C]" /> {member.phone} •{" "}
+                    <span className="text-[#F5C928] font-bold flex items-center gap-0.5">
+                      <Star className="w-3 h-3 fill-[#F5C928] text-[#F5C928]" /> {member.rating}
                     </span>
                   </p>
                 </div>
@@ -203,10 +205,10 @@ export function StaffView() {
 
               {/* Specialties */}
               <div className="flex flex-wrap gap-1.5 mt-4">
-                {member.specialty.map((spec, i) => (
+                {(member.specialty || []).map((spec: any, i: number) => (
                   <span
                     key={i}
-                    className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-lg border border-slate-200/60"
+                    className="text-[10px] font-mono font-medium bg-[#171719] text-[#A3A3AD] px-2.5 py-0.5 rounded-lg border border-[#27272A]"
                   >
                     {spec}
                   </span>
@@ -214,49 +216,49 @@ export function StaffView() {
               </div>
 
               {/* Performance Stats Box */}
-              <div className="grid grid-cols-3 gap-2 mt-5 p-3.5 bg-slate-50/90 rounded-2xl border border-slate-100 text-center">
+              <div className="grid grid-cols-3 gap-2 mt-5 p-3.5 bg-[#0D0D0F] rounded-xl border border-[#27272A] text-center">
                 <div>
-                  <span className="text-[10px] uppercase font-black text-slate-400 block tracking-wider">
+                  <span className="text-[10px] uppercase font-mono font-bold text-[#7E8B9C] block tracking-wider">
                     Completed
                   </span>
-                  <span className="text-xs font-extrabold text-slate-900 mt-0.5 block">
-                    {member.todayServicesCount} sessions
+                  <span className="text-xs font-mono font-bold text-[#F5F4F0] mt-0.5 block">
+                    {member.todayServicesCount || member.totalServicesCompleted || 0} sessions
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-black text-slate-400 block tracking-wider">
-                    Sales Attributed
+                  <span className="text-[10px] uppercase font-mono font-bold text-[#7E8B9C] block tracking-wider">
+                    Attributed
                   </span>
-                  <span className="text-xs font-black text-blue-600 font-mono mt-0.5 block">
-                    {formatCurrency(member.todayRevenue)}
+                  <span className="text-xs font-mono font-bold text-[#F5C928] mt-0.5 block">
+                    {formatCurrency(member.todayRevenue || member.todayEarnings || 0)}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-black text-slate-400 block tracking-wider">
+                  <span className="text-[10px] uppercase font-mono font-bold text-[#7E8B9C] block tracking-wider">
                     Commission
                   </span>
-                  <span className="text-xs font-black text-emerald-600 font-mono mt-0.5 block">
-                    {formatCurrency(member.todayCommission)}
+                  <span className="text-xs font-mono font-bold text-emerald-400 mt-0.5 block">
+                    {formatCurrency(member.todayCommission || 0)}
                   </span>
                 </div>
               </div>
             </div>
 
             {/* Bottom Actions: Shift Toggle & Commission Edit */}
-            <div className="mt-5 pt-3.5 border-t border-slate-100 flex items-center justify-between gap-3">
+            <div className="mt-5 pt-3.5 border-t border-[#27272A] flex items-center justify-between gap-3">
               <div className="flex items-center gap-1.5">
                 {editingCommissionId === member.id ? (
-                  <div className="flex items-center gap-1.5 bg-white border border-slate-300 rounded-xl p-1">
+                  <div className="flex items-center gap-1.5 bg-[#171719] border border-[#F5C928] rounded-xl p-1">
                     <input
                       type="number"
                       value={newCommissionRate}
                       onChange={(e) => setNewCommissionRate(Number(e.target.value))}
-                      className="w-12 text-xs font-black text-slate-900 text-center focus:outline-none"
+                      className="w-12 text-xs font-mono font-bold text-[#F5F4F0] bg-transparent text-center focus:outline-none"
                     />
-                    <span className="text-xs font-bold text-slate-500">%</span>
+                    <span className="text-xs font-bold text-[#7E8B9C]">%</span>
                     <button
                       onClick={() => handleSaveCommission(member.id)}
-                      className="px-2.5 py-1 text-[10px] font-black bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                      className="px-2.5 py-1 text-[10px] font-bold bg-[#F5C928] text-[#080809] rounded-lg cursor-pointer"
                     >
                       Save
                     </button>
@@ -267,12 +269,12 @@ export function StaffView() {
                       setEditingCommissionId(member.id);
                       setNewCommissionRate(member.commissionRate);
                     }}
-                    className="inline-flex items-center gap-1.5 text-xs text-slate-600 hover:text-blue-600 font-bold bg-slate-50 px-2.5 py-1.5 rounded-xl border border-slate-200 transition-all"
+                    className="inline-flex items-center gap-1.5 text-xs text-[#A3A3AD] hover:text-[#F5F4F0] font-mono font-bold bg-[#171719] px-2.5 py-1.5 rounded-xl border border-[#27272A] transition-all cursor-pointer"
                     title="Click to modify commission rate rule"
                   >
-                    <Percent className="w-3.5 h-3.5 text-blue-500" />
-                    <span>Rate: <b className="text-slate-900">{member.commissionRate}%</b></span>
-                    <Edit2 className="w-3 h-3 text-slate-400" />
+                    <Percent className="w-3.5 h-3.5 text-[#F5C928]" />
+                    <span>Rate: <b className="text-[#F5C928]">{member.commissionRate}%</b></span>
+                    <Edit2 className="w-3 h-3 text-[#7E8B9C]" />
                   </button>
                 )}
               </div>
@@ -280,10 +282,10 @@ export function StaffView() {
               {/* Status Switcher Button */}
               <button
                 onClick={() => toggleStaffStatus(member.id)}
-                className="px-3.5 py-1.5 text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-all flex items-center gap-1.5 shadow-sm"
+                className="px-3.5 py-1.5 text-xs font-bold bg-[#171719] hover:bg-[#27272A] border border-[#27272A] text-[#F5F4F0] rounded-xl transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
               >
-                <Clock className="w-3.5 h-3.5 text-slate-300" />
-                Toggle Shift Status
+                <Clock className="w-3.5 h-3.5 text-[#7E8B9C]" />
+                Toggle Shift
               </button>
             </div>
           </div>
@@ -292,76 +294,76 @@ export function StaffView() {
 
       {/* Add Staff Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 p-6 w-full max-w-md animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="font-extrabold text-slate-900 text-base">Add New Team Specialist</h3>
-              <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-slate-600">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
+          <div className="bg-[#0D0D0F] border border-[#27272A] rounded-2xl shadow-2xl p-6 w-full max-w-md animate-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-[#27272A]">
+              <h3 className="font-serif font-bold text-[#F5F4F0] text-base">Add New Team Specialist</h3>
+              <button onClick={() => setShowAddModal(false)} className="text-[#7E8B9C] hover:text-[#F5F4F0] cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleAddStaff} className="mt-4 space-y-3.5 text-xs">
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Full Name</label>
+                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Full Name</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Radhika Menon"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-bold"
+                  className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-bold"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Role / Designation</label>
+                  <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Role / Designation</label>
                   <select
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none font-bold text-slate-800"
+                    className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-bold"
                   >
-                    <option value="Senior Hair Stylist">Senior Hair Stylist</option>
-                    <option value="Master Colorist">Master Colorist</option>
-                    <option value="Senior Barber">Senior Barber</option>
-                    <option value="Clinical Aesthetician">Clinical Aesthetician</option>
-                    <option value="Nail Artiste">Nail Artiste</option>
-                    <option value="Salon Receptionist">Salon Receptionist</option>
+                    <option value="Senior Hair Stylist" className="bg-[#111113] text-[#F5F4F0]">Senior Hair Stylist</option>
+                    <option value="Master Colorist" className="bg-[#111113] text-[#F5F4F0]">Master Colorist</option>
+                    <option value="Senior Barber" className="bg-[#111113] text-[#F5F4F0]">Senior Barber</option>
+                    <option value="Clinical Aesthetician" className="bg-[#111113] text-[#F5F4F0]">Clinical Aesthetician</option>
+                    <option value="Nail Artiste" className="bg-[#111113] text-[#F5F4F0]">Nail Artiste</option>
+                    <option value="Salon Receptionist" className="bg-[#111113] text-[#F5F4F0]">Salon Receptionist</option>
                   </select>
                 </div>
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Commission Rate (%)</label>
+                  <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Commission Rate (%)</label>
                   <input
                     type="number"
                     min={0}
                     max={50}
                     value={commissionRate}
                     onChange={(e) => setCommissionRate(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none font-extrabold text-blue-600"
+                    className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5C928] focus:outline-none focus:border-[#F5C928] font-mono font-bold"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Phone Number</label>
+                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Phone Number</label>
                 <input
                   type="tel"
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none font-mono font-medium"
+                  className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-mono font-medium"
                 />
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Specialties (comma-separated)</label>
+                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Specialties (comma-separated)</label>
                 <input
                   type="text"
                   placeholder="e.g. Keratin, Balayage, Scalp Treatment"
                   value={specialties}
                   onChange={(e) => setSpecialties(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none"
+                  className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928]"
                 />
               </div>
 
@@ -369,13 +371,13 @@ export function StaffView() {
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="flex-1 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-xl"
+                  className="flex-1 py-2.5 bg-[#171719] text-[#A3A3AD] hover:text-[#F5F4F0] font-bold rounded-xl border border-[#27272A] cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-xl shadow-md shadow-blue-500/20"
+                  className="flex-1 py-2.5 bg-[#F5C928] hover:bg-[#f7d348] text-[#080809] font-bold rounded-xl shadow-md shadow-[#F5C928]/10 cursor-pointer"
                 >
                   Confirm Registration
                 </button>

@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { useDemo } from "@/lib/demo-context";
+import { useBillCare } from "@/lib/billcare-context";
 import { formatCurrency } from "@/lib/utils";
-import { Appointment, CustomerProfile, ServiceItem } from "@/lib/demo-data";
+import { Appointment, CustomerProfile, ServiceItem } from "@/lib/types";
 import {
   Calendar,
   Clock,
@@ -49,7 +49,7 @@ export function FrontDeskView({ onNavigateTab, onGoToPosBilling }: FrontDeskView
     bookAppointment,
     createInvoice,
     showToast,
-  } = useDemo();
+  } = useBillCare();
 
   // Active status filter for appointments
   const [filterStatus, setFilterStatus] = useState<"All" | "Confirmed" | "In-Service" | "Completed">("All");
@@ -58,7 +58,7 @@ export function FrontDeskView({ onNavigateTab, onGoToPosBilling }: FrontDeskView
   // Step 1: Customer Enters Salon Modal (Old vs New Auto-Detect)
   const [showWalkInModal, setShowWalkInModal] = useState(false);
   const [lookupInput, setLookupInput] = useState("");
-  const [detectedCustomer, setDetectedCustomer] = useState<CustomerProfile | null>(null);
+  const [detectedCustomer, setDetectedCustomer] = useState<any>(null);
   const [isNewCustomer, setIsNewCustomer] = useState(false);
 
   // Form Fields
@@ -68,11 +68,11 @@ export function FrontDeskView({ onNavigateTab, onGoToPosBilling }: FrontDeskView
   const [walkInStaff, setWalkInStaff] = useState(staff[0]?.name || "Priya Sharma");
 
   // Step 2 & 3: Fill Services Taken for In-Chair Client Modal
-  const [serviceModalApt, setServiceModalApt] = useState<Appointment | null>(null);
+  const [serviceModalApt, setServiceModalApt] = useState<any>(null);
   const [selectedServiceList, setSelectedServiceList] = useState<string[]>([]);
 
   // Step 4: Billing with QR & Split Pay Modal
-  const [billingApt, setBillingApt] = useState<Appointment | null>(null);
+  const [billingApt, setBillingApt] = useState<any>(null);
   const [payMethod, setPayMethod] = useState<"UPI" | "Cash" | "Split">("UPI");
   const [cashAmount, setCashAmount] = useState<number>(0);
   const [upiAmount, setUpiAmount] = useState<number>(0);
@@ -175,7 +175,7 @@ export function FrontDeskView({ onNavigateTab, onGoToPosBilling }: FrontDeskView
   };
 
   // Open "Fill / Edit Services" modal for in-chair client
-  const handleOpenServicesModal = (apt: Appointment) => {
+  const handleOpenServicesModal = (apt: any) => {
     setServiceModalApt(apt);
     setSelectedServiceList([apt.serviceName]);
   };
@@ -209,7 +209,7 @@ export function FrontDeskView({ onNavigateTab, onGoToPosBilling }: FrontDeskView
   };
 
   // Open Billing Modal
-  const handleOpenBillingModal = (apt: Appointment) => {
+  const handleOpenBillingModal = (apt: any) => {
     setBillingApt(apt);
     setFinalBillAmount(apt.price);
     setUpiAmount(apt.price);
@@ -262,7 +262,7 @@ export function FrontDeskView({ onNavigateTab, onGoToPosBilling }: FrontDeskView
 
     // Prepare friendly WhatsApp message with instant Feedback link
     const cleanPhone = billingApt.customerPhone.replace(/[^0-9]/g, "");
-    const feedbackUrl = `https://ruvexi.com/feedback?name=${encodeURIComponent(
+    const feedbackUrl = `https://billcare.io/feedback?name=${encodeURIComponent(
       billingApt.customerName
     )}&phone=${encodeURIComponent(cleanPhone)}&staff=${encodeURIComponent(
       billingApt.staffName
@@ -292,22 +292,26 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-[#F5F4F0]">
       {/* ============================================================ */}
       {/* FRONT DESK RECEPTIONIST HEADER */}
       {/* ============================================================ */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-800">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-400/30">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>Receptionist Counter • Front Desk</span>
+      <div className="relative overflow-hidden bg-[#0D0D0F] border border-[#27272A] p-7 sm:p-8 rounded-2xl shadow-2xl">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-[#F5C928]/5 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2.5">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#171719] border border-[#27272A] text-xs font-mono tracking-wider">
+              <span className="w-2 h-2 rounded-full bg-[#35C995] animate-pulse" />
+              <span className="text-[#35C995] font-semibold">Receptionist Floor Terminal</span>
+              <span className="text-[#7E8B9C]">•</span>
+              <span className="text-[#A3A3AD]">Live Front Desk</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+            <h1 className="font-serif text-2xl sm:text-3xl font-normal text-[#F5F4F0] tracking-tight">
               Customer Enters Salon Workflow
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 font-medium max-w-xl">
-              1-Tap Customer Check-in (autodetects old customers), Allot free chairs, Fill services taken, QR / Cash Billing, and instant WhatsApp Thank-You.
+            <p className="text-xs sm:text-sm text-[#A3A3AD] font-light max-w-xl leading-relaxed">
+              1-Tap client check-in with automatic returning customer detection, stylist chair allotment, technical service records, and instant WhatsApp billing.
             </p>
           </div>
 
@@ -320,7 +324,7 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
                 setDetectedCustomer(null);
                 setIsNewCustomer(false);
               }}
-              className="px-5 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs sm:text-sm rounded-2xl shadow-lg shadow-emerald-600/30 transition-all flex items-center gap-2 tactile-btn"
+              className="px-5 py-3 bg-[#F5C928] hover:bg-[#FFDA50] text-[#080809] font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg transition-all flex items-center gap-2 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>+ Customer Enters Salon</span>
@@ -328,9 +332,9 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
 
             <button
               onClick={() => onNavigateTab("pos")}
-              className="px-5 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs sm:text-sm rounded-2xl shadow-lg shadow-blue-600/30 transition-all flex items-center gap-2 tactile-btn"
+              className="px-5 py-3 bg-[#171719] hover:bg-[#1D1D20] text-[#F5F4F0] font-semibold text-xs rounded-xl border border-[#27272A] hover:border-[#F5C928]/50 transition-all flex items-center gap-2 cursor-pointer"
             >
-              <Receipt className="w-4 h-4" />
+              <Receipt className="w-4 h-4 text-[#F5C928]" />
               <span>Direct POS Bill</span>
             </button>
           </div>
@@ -343,92 +347,98 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div
           onClick={() => setFilterStatus("Confirmed")}
-          className={`luxury-card p-5 rounded-3xl cursor-pointer border-2 transition-all ${
-            filterStatus === "Confirmed" ? "border-blue-500 bg-blue-50/20" : "hover:border-slate-300"
+          className={`bg-[#111113] p-5 rounded-2xl cursor-pointer border transition-all ${
+            filterStatus === "Confirmed"
+              ? "border-[#87B8E8] bg-[#171719]"
+              : "border-[#27272A] hover:border-[#343438]"
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <span className="text-[11px] font-mono uppercase tracking-wider text-[#7E8B9C]">
               Waiting in Lounge
             </span>
-            <span className="w-3 h-3 rounded-full bg-blue-500"></span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#87B8E8]" />
           </div>
-          <div className="text-3xl font-extrabold text-slate-900 mt-2 font-mono">
-            {confirmedCount} Clients
+          <div className="font-serif text-3xl font-medium text-[#F5F4F0] mt-2">
+            {confirmedCount} <span className="text-sm font-sans font-light text-[#7E8B9C]">Clients</span>
           </div>
-          <p className="text-xs text-blue-600 font-bold mt-1">Ready to be seated →</p>
+          <p className="text-xs text-[#87B8E8] font-mono mt-1">Ready to be seated →</p>
         </div>
 
         <div
           onClick={() => setFilterStatus("In-Service")}
-          className={`luxury-card p-5 rounded-3xl cursor-pointer border-2 transition-all ${
-            filterStatus === "In-Service" ? "border-amber-500 bg-amber-50/20" : "hover:border-slate-300"
+          className={`bg-[#111113] p-5 rounded-2xl cursor-pointer border transition-all ${
+            filterStatus === "In-Service"
+              ? "border-[#F5C928] bg-[#171719]"
+              : "border-[#27272A] hover:border-[#343438]"
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <span className="text-[11px] font-mono uppercase tracking-wider text-[#7E8B9C]">
               Currently in Chair
             </span>
-            <span className="w-3 h-3 rounded-full bg-amber-500 animate-pulse"></span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#F5C928] animate-pulse" />
           </div>
-          <div className="text-3xl font-extrabold text-amber-700 mt-2 font-mono">
-            {inServiceCount} Clients
+          <div className="font-serif text-3xl font-medium text-[#F5C928] mt-2">
+            {inServiceCount} <span className="text-sm font-sans font-light text-[#7E8B9C]">Clients</span>
           </div>
-          <p className="text-xs text-amber-700 font-bold mt-1">Services being done →</p>
+          <p className="text-xs text-[#F5C928] font-mono mt-1">Services being rendered →</p>
         </div>
 
         <div
           onClick={() => setFilterStatus("Completed")}
-          className={`luxury-card p-5 rounded-3xl cursor-pointer border-2 transition-all ${
-            filterStatus === "Completed" ? "border-emerald-500 bg-emerald-50/20" : "hover:border-slate-300"
+          className={`bg-[#111113] p-5 rounded-2xl cursor-pointer border transition-all ${
+            filterStatus === "Completed"
+              ? "border-[#35C995] bg-[#171719]"
+              : "border-[#27272A] hover:border-[#343438]"
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <span className="text-[11px] font-mono uppercase tracking-wider text-[#7E8B9C]">
               Finished & Billed Today
             </span>
-            <span className="w-3 h-3 rounded-full bg-emerald-500"></span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#35C995]" />
           </div>
-          <div className="text-3xl font-extrabold text-emerald-700 mt-2 font-mono">
-            {completedCount} Clients
+          <div className="font-serif text-3xl font-medium text-[#35C995] mt-2">
+            {completedCount} <span className="text-sm font-sans font-light text-[#7E8B9C]">Clients</span>
           </div>
-          <p className="text-xs text-emerald-700 font-bold mt-1">WhatsApp bill sent →</p>
+          <p className="text-xs text-[#35C995] font-mono mt-1">WhatsApp receipt sent →</p>
         </div>
       </div>
 
       {/* ============================================================ */}
       {/* MAIN DESK SPLIT: CLIENT QUEUE (LEFT) + CHAIR BOARD (RIGHT) */}
       {/* ============================================================ */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left 8 Cols: Live Appointments & Queue */}
         <div className="lg:col-span-8 space-y-4">
-          <div className="luxury-card p-5 rounded-3xl space-y-4 border-slate-200">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+          <div className="bg-[#111113] border border-[#27272A] p-6 rounded-2xl space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#27272A]">
               <div>
-                <h2 className="text-base font-extrabold text-slate-950">
+                <h2 className="font-serif text-lg font-normal text-[#F5F4F0] tracking-tight">
                   Salon Floor Queue & Chairs
                 </h2>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-[#7E8B9C] font-light">
                   Step 1: Seat Client → Step 2: Fill Services Taken → Step 3: QR Bill & WhatsApp
                 </p>
               </div>
 
               {/* Search in queue */}
               <div className="relative max-w-xs w-full">
-                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#7E8B9C]" />
                 <input
                   type="text"
                   placeholder="Search by client or stylist..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-slate-900 font-medium"
+                  className="w-full pl-9 pr-3 py-2 text-xs bg-[#171719] border border-[#27272A] rounded-xl text-[#F5F4F0] placeholder-[#7E8B9C] focus:outline-none focus:border-[#F5C928] font-sans"
                 />
               </div>
             </div>
 
             {/* List of Clients */}
             {filteredAppointments.length === 0 ? (
-              <div className="text-center py-12 text-slate-400 text-xs">
+              <div className="text-center py-12 text-[#7E8B9C] text-xs font-mono">
                 No clients in this list. Click '+ Customer Enters Salon' to add one!
               </div>
             ) : (
@@ -441,64 +451,64 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
                   return (
                     <div
                       key={apt.id}
-                      className={`p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+                      className={`p-4 rounded-xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
                         isInChair
-                          ? "bg-amber-50/30 border-amber-200 shadow-xs"
+                          ? "bg-[#171719] border-[#F5C928]/40 shadow-sm"
                           : isWaiting
-                          ? "bg-blue-50/30 border-blue-200 shadow-xs"
-                          : "bg-slate-50/50 border-slate-200 opacity-80"
+                          ? "bg-[#171719] border-[#87B8E8]/40 shadow-sm"
+                          : "bg-[#111113] border-[#27272A] opacity-75"
                       }`}
                     >
                       {/* Left client details */}
                       <div className="flex items-start gap-3.5">
                         <div
-                          className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-xs shrink-0 ${
+                          className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 ${
                             isInChair
-                              ? "bg-amber-500 text-white"
+                              ? "bg-[#F5C928]/20 text-[#F5C928] border border-[#F5C928]/30"
                               : isWaiting
-                              ? "bg-blue-600 text-white"
-                              : "bg-emerald-600 text-white"
+                              ? "bg-[#87B8E8]/20 text-[#87B8E8] border border-[#87B8E8]/30"
+                              : "bg-[#35C995]/20 text-[#35C995] border border-[#35C995]/30"
                           }`}
                         >
                           {isInChair ? (
-                            <Scissors className="w-5 h-5 animate-bounce" />
+                            <Scissors className="w-5 h-5 text-[#F5C928]" />
                           ) : isWaiting ? (
-                            <Clock className="w-5 h-5" />
+                            <Clock className="w-5 h-5 text-[#87B8E8]" />
                           ) : (
-                            <Check className="w-5 h-5" />
+                            <Check className="w-5 h-5 text-[#35C995]" />
                           )}
                         </div>
 
                         <div>
                           <div className="flex items-center gap-2">
-                            <h3 className="font-extrabold text-sm text-slate-950">
+                            <h3 className="font-sans font-medium text-sm text-[#F5F4F0]">
                               {apt.customerName}
                             </h3>
                             <span
-                              className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase ${
+                              className={`text-[9px] font-mono px-2 py-0.5 rounded-full uppercase tracking-wider ${
                                 isInChair
-                                  ? "bg-amber-100 text-amber-800"
+                                  ? "bg-[#F5C928]/15 text-[#F5C928] border border-[#F5C928]/30"
                                   : isWaiting
-                                  ? "bg-blue-100 text-blue-800"
-                                  : "bg-emerald-100 text-emerald-800"
+                                  ? "bg-[#87B8E8]/15 text-[#87B8E8] border border-[#87B8E8]/30"
+                                  : "bg-[#35C995]/15 text-[#35C995] border border-[#35C995]/30"
                               }`}
                             >
                               {isInChair ? "In Chair" : isWaiting ? "Waiting" : "Billed & Done"}
                             </span>
                           </div>
 
-                          <div className="text-xs text-slate-600 mt-1 flex flex-wrap items-center gap-2 font-medium">
-                            <span className="font-bold text-slate-800">{apt.serviceName}</span>
+                          <div className="text-xs text-[#A3A3AD] mt-1 flex flex-wrap items-center gap-2 font-light">
+                            <span className="font-normal text-[#F5F4F0]">{apt.serviceName}</span>
                             <span>•</span>
-                            <span>Stylist: {apt.staffName}</span>
+                            <span>Stylist: <span className="text-[#F5C928]">{apt.staffName}</span></span>
                             <span>•</span>
-                            <span className="font-mono font-bold text-slate-900">
+                            <span className="font-mono font-medium text-[#F5C928]">
                               {formatCurrency(apt.price)}
                             </span>
                           </div>
 
-                          <div className="text-[11px] text-slate-400 mt-0.5 flex items-center gap-2">
-                            <Phone className="w-3 h-3 text-slate-400" />
+                          <div className="text-[11px] text-[#7E8B9C] mt-0.5 flex items-center gap-2 font-mono">
+                            <Phone className="w-3 h-3 text-[#7E8B9C]" />
                             <span>{apt.customerPhone}</span>
                             <span>•</span>
                             <span>Time: {apt.time}</span>
@@ -515,7 +525,7 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
                               updateAppointmentStatus(apt.id, "In-Service");
                               showToast(`${apt.customerName} seated in chair with ${apt.staffName}!`);
                             }}
-                            className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 tactile-btn"
+                            className="px-4 py-2 bg-[#F5C928] hover:bg-[#FFDA50] text-[#080809] font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
                           >
                             <PlayCircle className="w-4 h-4" />
                             <span>Allot & Seat</span>
@@ -527,16 +537,16 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
                           <>
                             <button
                               onClick={() => handleOpenServicesModal(apt)}
-                              className="px-3 py-2 bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5"
+                              className="px-3 py-2 bg-[#171719] hover:bg-[#1D1D20] text-[#F5F4F0] border border-[#27272A] font-medium text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
                               title="Add or change services customer took"
                             >
-                              <Scissors className="w-3.5 h-3.5 text-slate-600" />
+                              <Scissors className="w-3.5 h-3.5 text-[#F5C928]" />
                               <span>Fill Services</span>
                             </button>
 
                             <button
                               onClick={() => handleOpenBillingModal(apt)}
-                              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 tactile-btn"
+                              className="px-4 py-2 bg-[#35C995] hover:bg-[#2EB885] text-[#080809] font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
                             >
                               <QrCode className="w-4 h-4" />
                               <span>QR Bill & Done</span>
@@ -557,10 +567,10 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
                                 "_blank"
                               );
                             }}
-                            className="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-xs rounded-xl border border-emerald-200 transition-all flex items-center gap-1.5"
+                            className="px-3 py-2 bg-[#171719] hover:bg-[#1D1D20] text-[#35C995] font-mono text-xs rounded-xl border border-[#27272A] hover:border-[#35C995]/40 transition-all flex items-center gap-1.5 cursor-pointer"
                           >
                             <MessageSquare className="w-3.5 h-3.5" />
-                            <span>Send WhatsApp Again</span>
+                            <span>WhatsApp Again</span>
                           </button>
                         )}
                       </div>
@@ -574,14 +584,16 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
 
         {/* Right 4 Cols: Real-Time Stylist Chair Availability Board */}
         <div className="lg:col-span-4 space-y-4">
-          <div className="luxury-card p-5 rounded-3xl space-y-4 border-slate-200">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div className="bg-[#111113] border border-[#27272A] p-6 rounded-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#27272A]">
               <div>
-                <h3 className="font-extrabold text-sm text-slate-950">Chair Availability</h3>
-                <p className="text-[11px] text-slate-500">Live chair & stylist board</p>
+                <h3 className="font-serif text-lg font-normal text-[#F5F4F0]">Chair Availability</h3>
+                <p className="text-[11px] text-[#7E8B9C] font-mono">
+                  {freeStaff.length} Free • {busyStaffNames.length} In-Service
+                </p>
               </div>
-              <span className="text-[11px] font-black text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                {freeStaff.length} Chairs Free
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#171719] text-[#35C995] border border-[#27272A]">
+                Floor Matrix
               </span>
             </div>
 
@@ -589,29 +601,31 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
             <div className="space-y-2.5">
               {staff.map((s) => {
                 const isBusy = busyStaffNames.includes(s.name);
-                const isClockedIn = s.status === "clocked_in";
+                const isClockedIn = s.status === "clocked_in" || s.isClockedIn;
 
                 return (
                   <div
                     key={s.id}
-                    className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-3"
+                    className="p-3 rounded-xl bg-[#171719] border border-[#27272A] flex items-center justify-between gap-3 text-xs"
                   >
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-2.5 min-w-0">
                       <img
                         src={s.avatar}
                         alt={s.name}
-                        className="w-8 h-8 rounded-xl object-cover border border-slate-200"
+                        className="w-8 h-8 rounded-lg object-cover border border-[#27272A] shrink-0"
                       />
-                      <div>
-                        <div className="font-bold text-xs text-slate-950">{s.name}</div>
-                        <div className="text-[10px] text-slate-500">{s.specialty[0]}</div>
+                      <div className="min-w-0">
+                        <div className="font-medium text-[#F5F4F0] truncate">{s.name}</div>
+                        <div className="text-[10px] text-[#7E8B9C] truncate">
+                          {s.specialty?.[0] || s.role}
+                        </div>
                       </div>
                     </div>
 
                     <div>
                       {isBusy ? (
-                        <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 text-[10px] font-extrabold flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                        <span className="px-2.5 py-1 rounded-full bg-[#F5C928]/15 text-[#F5C928] border border-[#F5C928]/30 text-[10px] font-mono font-medium flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#F5C928] animate-pulse" />
                           In Chair
                         </span>
                       ) : isClockedIn ? (
@@ -620,13 +634,13 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
                             setWalkInStaff(s.name);
                             setShowWalkInModal(true);
                           }}
-                          className="px-2.5 py-1 rounded-full bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-[10px] font-extrabold transition-all flex items-center gap-1"
+                          className="px-2.5 py-1 rounded-full bg-[#35C995]/15 hover:bg-[#35C995]/25 text-[#35C995] border border-[#35C995]/30 text-[10px] font-mono font-medium transition-all flex items-center gap-1 cursor-pointer"
                         >
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#35C995]" />
                           Free • Allot
                         </button>
                       ) : (
-                        <span className="px-2 py-0.5 rounded-full bg-slate-200 text-slate-600 text-[10px] font-bold">
+                        <span className="px-2 py-0.5 rounded-full bg-[#27272A] text-[#7E8B9C] text-[10px] font-mono">
                           Off Shift
                         </span>
                       )}
@@ -643,21 +657,21 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
       {/* MODAL 1: CUSTOMER ENTERS SALON (OLD VS NEW AUTO-DETECT) */}
       {/* ============================================================ */}
       {showWalkInModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#111113] border border-[#27272A] text-[#F5F4F0] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="flex items-center justify-between pb-3 border-b border-[#27272A]">
               <div>
-                <h3 className="text-base sm:text-lg font-black text-slate-950">
+                <h3 className="font-serif text-lg font-normal text-[#F5F4F0]">
                   Customer Enters Salon
                 </h3>
-                <p className="text-xs text-slate-500">
-                  Type phone or name — old customers are auto-filled automatically!
+                <p className="text-xs text-[#7E8B9C] font-light">
+                  Type phone or name — returning customers are automatically recognized.
                 </p>
               </div>
               <button
                 onClick={() => setShowWalkInModal(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-xl bg-[#171719] hover:bg-[#1D1D20] text-[#7E8B9C] hover:text-[#F5F4F0] border border-[#27272A] flex items-center justify-center transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -665,84 +679,84 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
 
             {/* Smart Search Box */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700">
+              <label className="text-xs font-mono text-[#A3A3AD]">
                 Search Customer Phone Number or Name
               </label>
               <div className="relative">
-                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#7E8B9C]" />
                 <input
                   type="text"
                   placeholder="e.g. 9845012890 or Ananya..."
                   value={lookupInput}
                   onChange={(e) => handleLookupChange(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full pl-10 pr-4 py-2.5 bg-[#171719] border border-[#27272A] rounded-xl text-xs font-medium text-[#F5F4F0] placeholder-[#7E8B9C] focus:outline-none focus:border-[#F5C928]"
                   autoFocus
                 />
               </div>
             </div>
 
-            {/* CASE A: OLD CUSTOMER FOUND! (Zero data entry required) */}
+            {/* CASE A: OLD CUSTOMER FOUND! */}
             {detectedCustomer && (
-              <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-2.5 animate-in fade-in">
+              <div className="p-4 rounded-xl bg-[#171719] border border-[#35C995]/40 space-y-2.5 animate-in fade-in">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-emerald-800 font-extrabold text-xs">
-                    <Sparkles className="w-4 h-4 text-emerald-600" />
-                    <span>Returning Customer Found! (No need to re-enter details)</span>
+                  <div className="flex items-center gap-1.5 text-[#35C995] font-mono text-xs">
+                    <Sparkles className="w-4 h-4 text-[#35C995]" />
+                    <span>Returning Client Recognized</span>
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-200 text-emerald-900">
-                    {detectedCustomer.visitsCount} Past Visits
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#35C995]/15 text-[#35C995] border border-[#35C995]/30">
+                    {detectedCustomer.visitsCount || detectedCustomer.totalVisits || 1} Past Visits
                   </span>
                 </div>
 
-                <div className="text-xs text-slate-700 font-medium space-y-1">
+                <div className="text-xs text-[#A3A3AD] space-y-1">
                   <div>
-                    <span className="font-bold text-slate-900">{detectedCustomer.name}</span> •{" "}
-                    <span>{detectedCustomer.phone}</span>
+                    <span className="font-medium text-[#F5F4F0]">{detectedCustomer.name}</span> •{" "}
+                    <span className="font-mono">{detectedCustomer.phone}</span>
                   </div>
-                  <div className="text-[11px] text-slate-600">
+                  <div className="text-[11px] text-[#7E8B9C]">
                     Preferred Stylist:{" "}
-                    <strong className="text-slate-900">
+                    <span className="text-[#F5C928]">
                       {detectedCustomer.preferredStaff || "Priya Sharma"}
-                    </strong>{" "}
-                    • Last Service: {detectedCustomer.lastService}
+                    </span>{" "}
+                    • Last Service: {detectedCustomer.lastService || "Consultation"}
                   </div>
                   {detectedCustomer.formulaNotes && (
-                    <div className="text-[11px] text-amber-900 font-semibold bg-amber-100/60 p-1.5 rounded-lg">
-                      Hair Formula Notes: {detectedCustomer.formulaNotes}
+                    <div className="text-[11px] text-[#F5C928] bg-[#F5C928]/10 p-2 rounded-lg border border-[#F5C928]/20 font-mono">
+                      Technical Formula: {detectedCustomer.formulaNotes}
                     </div>
                   )}
                 </div>
               </div>
             )}
 
-            {/* CASE B: NEW CUSTOMER DETECTED (Ask only Name & WhatsApp) */}
+            {/* CASE B: NEW CUSTOMER DETECTED */}
             {isNewCustomer && (
-              <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-200 space-y-3 animate-in fade-in">
-                <div className="flex items-center gap-1.5 text-blue-900 font-extrabold text-xs">
-                  <User className="w-4 h-4 text-blue-600" />
-                  <span>New Customer! Enter only Name and WhatsApp number:</span>
+              <div className="p-4 rounded-xl bg-[#171719] border border-[#87B8E8]/40 space-y-3 animate-in fade-in">
+                <div className="flex items-center gap-1.5 text-[#87B8E8] font-mono text-xs">
+                  <User className="w-4 h-4 text-[#87B8E8]" />
+                  <span>New Client Entry</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-700">Customer Name *</label>
+                    <label className="text-[11px] font-mono text-[#A3A3AD]">Client Name *</label>
                     <input
                       type="text"
                       placeholder="e.g. Rahul Mehta"
                       value={walkInName}
                       onChange={(e) => setWalkInName(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-xs text-[#F5F4F0] focus:outline-none focus:border-[#F5C928]"
                       required
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-700">WhatsApp Number *</label>
+                    <label className="text-[11px] font-mono text-[#A3A3AD]">WhatsApp Number *</label>
                     <input
                       type="text"
                       placeholder="+91 98..."
                       value={walkInPhone}
                       onChange={(e) => setWalkInPhone(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-xs text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-mono"
                       required
                     />
                   </div>
@@ -755,14 +769,14 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* Initial Service */}
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">Service Expected</label>
+                  <label className="text-xs font-mono text-[#A3A3AD]">Service Expected</label>
                   <select
                     value={walkInService}
                     onChange={(e) => setWalkInService(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-slate-900"
+                    className="w-full px-3 py-2 bg-[#171719] border border-[#27272A] rounded-xl text-xs text-[#F5F4F0] focus:outline-none focus:border-[#F5C928]"
                   >
                     {services.map((s) => (
-                      <option key={s.id} value={s.name}>
+                      <option key={s.id} value={s.name} className="bg-[#111113]">
                         {s.name} ({formatCurrency(s.price)})
                       </option>
                     ))}
@@ -771,18 +785,18 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
 
                 {/* Available Stylist / Chair */}
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">
-                    Assign Stylist / Chair ({freeStaff.length} Free)
+                  <label className="text-xs font-mono text-[#A3A3AD]">
+                    Assign Stylist ({freeStaff.length} Free)
                   </label>
                   <select
                     value={walkInStaff}
                     onChange={(e) => setWalkInStaff(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-slate-900"
+                    className="w-full px-3 py-2 bg-[#171719] border border-[#27272A] rounded-xl text-xs text-[#F5F4F0] focus:outline-none focus:border-[#F5C928]"
                   >
                     {staff.map((s) => {
                       const isFree = freeStaff.some((f) => f.id === s.id);
                       return (
-                        <option key={s.id} value={s.name}>
+                        <option key={s.id} value={s.name} className="bg-[#111113]">
                           {s.name} {isFree ? "• [FREE CHAIR]" : "• [Busy]"}
                         </option>
                       );
@@ -792,21 +806,21 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+              <div className="pt-2 flex items-center justify-end gap-2 border-t border-[#27272A]">
                 <button
                   type="button"
                   onClick={() => setShowWalkInModal(false)}
-                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100"
+                  className="px-4 py-2.5 rounded-xl text-xs font-medium text-[#7E8B9C] hover:text-[#F5F4F0] hover:bg-[#171719] transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={!walkInName.trim()}
-                  className="px-5 py-2.5 rounded-xl text-xs font-extrabold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/20 disabled:opacity-50 transition-all flex items-center gap-1.5"
+                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#F5C928] hover:bg-[#FFDA50] text-[#080809] uppercase tracking-wider shadow-md disabled:opacity-50 transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   <PlayCircle className="w-4 h-4" />
-                  <span>Allot Chair & Begin Service</span>
+                  <span>Allot Chair & Begin</span>
                 </button>
               </div>
             </form>
@@ -818,20 +832,20 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
       {/* MODAL 2: FILL SERVICES TAKEN (DURING / AFTER SERVICE) */}
       {/* ============================================================ */}
       {serviceModalApt && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#111113] border border-[#27272A] text-[#F5F4F0] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-3 border-b border-[#27272A]">
               <div>
-                <h3 className="text-base font-black text-slate-950">
-                  Fill Services Taken by {serviceModalApt.customerName}
+                <h3 className="font-serif text-lg font-normal text-[#F5F4F0]">
+                  Services Taken • {serviceModalApt.customerName}
                 </h3>
-                <p className="text-xs text-slate-500">
-                  Tap to add any extra services taken during this visit
+                <p className="text-xs text-[#7E8B9C] font-light">
+                  Select all services provided during this appointment session.
                 </p>
               </div>
               <button
                 onClick={() => setServiceModalApt(null)}
-                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center"
+                className="w-8 h-8 rounded-xl bg-[#171719] hover:bg-[#1D1D20] text-[#7E8B9C] hover:text-[#F5F4F0] border border-[#27272A] flex items-center justify-center cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -839,7 +853,7 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
 
             {/* Quick Service Selection Pills */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-700">Tap services to include:</label>
+              <label className="text-xs font-mono text-[#A3A3AD]">Services Performed:</label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-60 overflow-y-auto p-1">
                 {services.map((srv) => {
                   const isSelected = selectedServiceList.includes(srv.name);
@@ -848,10 +862,10 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
                       key={srv.id}
                       type="button"
                       onClick={() => handleToggleService(srv.name)}
-                      className={`p-2.5 rounded-xl text-xs font-bold text-left border transition-all flex items-center justify-between ${
+                      className={`p-2.5 rounded-xl text-xs text-left border transition-all flex items-center justify-between cursor-pointer ${
                         isSelected
-                          ? "bg-slate-900 text-white border-slate-900 shadow-xs"
-                          : "bg-slate-50 text-slate-700 border-slate-200 hover:border-slate-300"
+                          ? "bg-[#171719] text-[#F5C928] border-[#F5C928] shadow-sm font-semibold"
+                          : "bg-[#111113] text-[#A3A3AD] border-[#27272A] hover:border-[#343438]"
                       }`}
                     >
                       <span className="truncate">{srv.name}</span>
@@ -865,9 +879,9 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
             </div>
 
             {/* Total Calculation */}
-            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between font-mono">
-              <span className="text-xs font-bold text-slate-600">Updated Bill Total:</span>
-              <span className="text-lg font-black text-slate-950">
+            <div className="p-3.5 rounded-xl bg-[#171719] border border-[#27272A] flex items-center justify-between font-mono">
+              <span className="text-xs text-[#7E8B9C]">Updated Session Total:</span>
+              <span className="text-lg font-serif text-[#F5C928] font-medium">
                 {formatCurrency(
                   selectedServiceList.reduce((acc, sName) => {
                     const match = services.find((s) => s.name === sName);
@@ -878,16 +892,16 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
             </div>
 
             {/* Action buttons */}
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#27272A]">
               <button
                 onClick={() => setServiceModalApt(null)}
-                className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl"
+                className="px-4 py-2 text-xs font-medium text-[#7E8B9C] hover:text-[#F5F4F0] hover:bg-[#171719] rounded-xl cursor-pointer"
               >
                 Close
               </button>
               <button
                 onClick={handleSaveServicesAndProceedToBill}
-                className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl shadow-md flex items-center gap-1.5"
+                className="px-5 py-2.5 bg-[#F5C928] hover:bg-[#FFDA50] text-[#080809] font-bold text-xs uppercase tracking-wider rounded-xl shadow-md flex items-center gap-1.5 cursor-pointer"
               >
                 <Receipt className="w-4 h-4" />
                 <span>Save & Proceed to Billing</span>
@@ -901,160 +915,140 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
       {/* MODAL 3: BILLING WITH SALON SHOP QR CODE & CASH/UPI SPLIT */}
       {/* ============================================================ */}
       {billingApt && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#111113] border border-[#27272A] text-[#F5F4F0] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             {/* Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="flex items-center justify-between pb-3 border-b border-[#27272A]">
               <div>
-                <h3 className="text-base font-black text-slate-950">
-                  Billing & Payment • {billingApt.customerName}
+                <h3 className="font-serif text-lg font-normal text-[#F5F4F0]">
+                  Billing & Settlement • {billingApt.customerName}
                 </h3>
-                <p className="text-xs text-slate-500">{billingApt.serviceName}</p>
+                <p className="text-xs text-[#7E8B9C] font-mono">{billingApt.serviceName}</p>
               </div>
               <button
                 onClick={() => setBillingApt(null)}
-                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center"
+                className="w-8 h-8 rounded-xl bg-[#171719] hover:bg-[#1D1D20] text-[#7E8B9C] hover:text-[#F5F4F0] border border-[#27272A] flex items-center justify-center cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Total to pay banner */}
-            <div className="p-4 rounded-2xl bg-slate-950 text-white flex items-center justify-between">
+            <div className="p-4 rounded-xl bg-[#171719] border border-[#27272A] flex items-center justify-between">
               <div>
-                <span className="text-[11px] text-slate-400 block uppercase font-bold">
-                  Total Bill to Pay
+                <span className="text-[10px] text-[#7E8B9C] block uppercase font-mono tracking-wider">
+                  Payable Amount
                 </span>
-                <span className="text-2xl font-black font-mono">
+                <span className="text-2xl font-serif text-[#F5C928] font-medium">
                   {formatCurrency(finalBillAmount)}
                 </span>
               </div>
-              <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-400/30">
-                GST 5% Included
+              <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-[#35C995] text-xs font-mono border border-emerald-500/20">
+                GST Included
               </span>
             </div>
 
-            {/* Shop QR Display (For UPI payments) */}
-            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center gap-4">
-              {/* Simulated QR Code SVG */}
-              <div className="w-28 h-28 bg-white p-2 rounded-2xl border border-slate-300 shadow-sm flex flex-col items-center justify-center shrink-0">
-                <QrCode className="w-20 h-20 text-slate-950" />
-                <span className="text-[8px] font-black uppercase text-slate-600 mt-1">BHIM UPI QR</span>
+            {/* Shop QR Display */}
+            <div className="p-4 rounded-xl bg-[#171719] border border-[#27272A] flex flex-col sm:flex-row items-center gap-4">
+              <div className="w-24 h-24 bg-white p-2 rounded-xl flex flex-col items-center justify-center shrink-0">
+                <QrCode className="w-16 h-16 text-black" />
+                <span className="text-[7px] font-mono uppercase text-slate-800 font-bold mt-0.5">UPI QR</span>
               </div>
 
               <div className="space-y-1 text-center sm:text-left">
-                <div className="font-extrabold text-xs text-slate-900">
-                  {salon.name} Shop QR Code
+                <div className="font-serif text-sm text-[#F5F4F0]">
+                  {salon.name} Counter QR
                 </div>
-                <div className="text-[11px] text-slate-500 font-mono">
-                  UPI ID: luxehaven@okhdfcbank
+                <div className="text-[11px] text-[#A3A3AD] font-mono">
+                  UPI ID: billcare.{salon.slug || "demo"}@axisbank
                 </div>
-                <p className="text-[11px] text-emerald-700 font-medium">
-                  Client can scan with Google Pay, PhonePe, or Paytm on counter.
+                <p className="text-[11px] text-[#35C995] font-light">
+                  Customer can scan instantly via Google Pay, PhonePe, or Paytm.
                 </p>
               </div>
             </div>
 
             {/* Payment Method Selector */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-700">How did the client pay?</label>
+              <label className="text-xs font-mono text-[#A3A3AD]">Tender Type:</label>
               <div className="grid grid-cols-3 gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPayMethod("UPI");
-                    setUpiAmount(finalBillAmount);
-                    setCashAmount(0);
-                  }}
-                  className={`py-2.5 px-3 rounded-xl text-xs font-extrabold border transition-all ${
-                    payMethod === "UPI"
-                      ? "bg-slate-950 text-white border-slate-950 shadow-xs"
-                      : "bg-slate-50 text-slate-700 border-slate-200"
-                  }`}
-                >
-                  Shop QR / UPI
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPayMethod("Cash");
-                    setCashAmount(finalBillAmount);
-                    setUpiAmount(0);
-                  }}
-                  className={`py-2.5 px-3 rounded-xl text-xs font-extrabold border transition-all ${
-                    payMethod === "Cash"
-                      ? "bg-slate-950 text-white border-slate-950 shadow-xs"
-                      : "bg-slate-50 text-slate-700 border-slate-200"
-                  }`}
-                >
-                  Cash Only
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPayMethod("Split");
-                    setCashAmount(Math.round(finalBillAmount / 2));
-                    setUpiAmount(finalBillAmount - Math.round(finalBillAmount / 2));
-                  }}
-                  className={`py-2.5 px-3 rounded-xl text-xs font-extrabold border transition-all ${
-                    payMethod === "Split"
-                      ? "bg-slate-950 text-white border-slate-950 shadow-xs"
-                      : "bg-slate-50 text-slate-700 border-slate-200"
-                  }`}
-                >
-                  Both (Split)
-                </button>
+                {(["UPI", "Cash", "Split"] as const).map((method) => (
+                  <button
+                    key={method}
+                    type="button"
+                    onClick={() => {
+                      setPayMethod(method);
+                      if (method === "UPI") {
+                        setUpiAmount(finalBillAmount);
+                        setCashAmount(0);
+                      } else if (method === "Cash") {
+                        setCashAmount(finalBillAmount);
+                        setUpiAmount(0);
+                      } else {
+                        setCashAmount(Math.round(finalBillAmount / 2));
+                        setUpiAmount(finalBillAmount - Math.round(finalBillAmount / 2));
+                      }
+                    }}
+                    className={`py-2 px-3 rounded-xl text-xs font-mono uppercase transition-all cursor-pointer border ${
+                      payMethod === method
+                        ? "bg-[#F5C928] text-[#080809] border-[#F5C928] font-bold"
+                        : "bg-[#171719] text-[#A3A3AD] border-[#27272A] hover:border-[#343438]"
+                    }`}
+                  >
+                    {method}
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* Split input fields (Just type it in!) */}
+            {/* Split input fields */}
             {payMethod === "Split" && (
-              <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-3">
-                <span className="text-xs font-extrabold text-amber-900 block">
-                  Split Payment: Just type in the numbers
+              <div className="p-3.5 rounded-xl bg-[#171719] border border-[#F5C928]/30 space-y-3">
+                <span className="text-xs font-mono text-[#F5C928] block">
+                  Split Payment Breakdown
                 </span>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-700">Cash Amount (₹)</label>
+                    <label className="text-[11px] font-mono text-[#A3A3AD]">Cash (₹)</label>
                     <input
                       type="number"
                       value={cashAmount}
                       onChange={(e) => handleCashChange(Number(e.target.value))}
-                      className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold font-mono focus:outline-none"
+                      className="w-full px-3 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-xs font-mono text-[#F5F4F0] focus:outline-none focus:border-[#F5C928]"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-700">UPI / QR Amount (₹)</label>
+                    <label className="text-[11px] font-mono text-[#A3A3AD]">UPI (₹)</label>
                     <input
                       type="number"
                       value={upiAmount}
                       onChange={(e) => handleUpiChange(Number(e.target.value))}
-                      className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold font-mono focus:outline-none"
+                      className="w-full px-3 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-xs font-mono text-[#F5F4F0] focus:outline-none focus:border-[#F5C928]"
                     />
                   </div>
                 </div>
-                <div className="text-[11px] text-amber-800 font-medium">
-                  Total matches: {formatCurrency(cashAmount + upiAmount)} / {formatCurrency(finalBillAmount)}
+                <div className="text-[11px] text-[#A3A3AD] font-mono">
+                  Allocated: {formatCurrency(cashAmount + upiAmount)} / {formatCurrency(finalBillAmount)}
                 </div>
               </div>
             )}
 
             {/* Submit Button */}
-            <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+            <div className="pt-2 flex items-center justify-end gap-2 border-t border-[#27272A]">
               <button
                 type="button"
                 onClick={() => setBillingApt(null)}
-                className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100"
+                className="px-4 py-2.5 rounded-xl text-xs font-medium text-[#7E8B9C] hover:text-[#F5F4F0] hover:bg-[#171719] cursor-pointer"
               >
                 Back
               </button>
               <button
                 type="button"
                 onClick={handleCompleteBillAndSendWhatsApp}
-                className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl shadow-md flex items-center gap-1.5 tactile-btn"
+                className="px-5 py-2.5 bg-[#35C995] hover:bg-[#2EB885] text-[#080809] font-bold text-xs uppercase tracking-wider rounded-xl shadow-md flex items-center gap-1.5 cursor-pointer"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                <span>Complete Bill & Send WhatsApp Thank-You</span>
+                <span>Complete & Send WhatsApp Bill</span>
               </button>
             </div>
           </div>
@@ -1065,45 +1059,45 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
       {/* MODAL 4: WHATSAPP THANK YOU SENT CONFIRMATION */}
       {/* ============================================================ */}
       {whatsappSentModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
-                  <Check className="w-5 h-5" />
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#111113] border border-[#27272A] text-[#F5F4F0] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-3 border-b border-[#27272A]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-[#35C995] border border-emerald-500/20 flex items-center justify-center font-bold">
+                  <Check className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-slate-950">Service Complete!</h3>
-                  <p className="text-xs text-slate-500">
-                    Chair freed for next client • WhatsApp message ready
+                  <h3 className="font-serif text-lg font-normal text-[#F5F4F0]">Service Finalized</h3>
+                  <p className="text-xs text-[#7E8B9C] font-light">
+                    Chair released for next client • WhatsApp message prepared
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setWhatsappSentModal(null)}
-                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center"
+                className="w-8 h-8 rounded-xl bg-[#171719] hover:bg-[#1D1D20] text-[#7E8B9C] hover:text-[#F5F4F0] border border-[#27272A] flex items-center justify-center cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* WhatsApp Message Preview Card */}
-            <div className="p-4 rounded-2xl bg-[#e7f7ed] border border-emerald-300/80 space-y-2">
-              <div className="flex items-center gap-2 text-emerald-900 font-extrabold text-xs">
-                <MessageSquare className="w-4 h-4 text-emerald-600" />
-                <span>WhatsApp Thank-You Message Preview:</span>
+            <div className="p-4 rounded-xl bg-[#171719] border border-[#35C995]/30 space-y-2">
+              <div className="flex items-center gap-2 text-[#35C995] font-mono text-xs">
+                <MessageSquare className="w-4 h-4" />
+                <span>WhatsApp Message Content:</span>
               </div>
 
-              <div className="p-3 bg-white rounded-xl text-xs text-slate-800 font-sans leading-relaxed shadow-2xs whitespace-pre-line border border-emerald-200">
+              <div className="p-3 bg-[#111113] rounded-xl text-xs text-[#F5F4F0] font-sans leading-relaxed whitespace-pre-line border border-[#27272A]">
                 {whatsappSentModal.messageText}
               </div>
             </div>
 
             {/* Buttons */}
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#27272A]">
               <button
                 onClick={() => setWhatsappSentModal(null)}
-                className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl"
+                className="px-4 py-2 text-xs font-medium text-[#7E8B9C] hover:text-[#F5F4F0] hover:bg-[#171719] rounded-xl cursor-pointer"
               >
                 Done / Next Client
               </button>
@@ -1117,7 +1111,7 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
                   );
                   setWhatsappSentModal(null);
                 }}
-                className="px-5 py-2.5 bg-[#25D366] hover:bg-[#20ba59] text-white font-extrabold text-xs rounded-xl shadow-md flex items-center gap-1.5"
+                className="px-5 py-2.5 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md flex items-center gap-1.5 cursor-pointer"
               >
                 <Smartphone className="w-4 h-4" />
                 <span>Open in WhatsApp Web</span>

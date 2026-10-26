@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useDemo } from "@/lib/demo-context";
+import { useBillCare } from "@/lib/billcare-context";
 import { formatCurrency } from "@/lib/utils";
 import {
   Calendar,
@@ -12,22 +12,114 @@ import {
   Boxes,
   ShieldCheck,
   TrendingUp,
-  CheckCircle2,
   ArrowRight,
   ChevronDown,
   Clock,
   Check,
-  Building2,
   Scissors,
   Globe,
   DollarSign,
   Send,
   HelpCircle,
-  Sparkles,
+  QrCode,
+  CreditCard,
+  MapPin,
+  Quote,
 } from "lucide-react";
+import { BillCareLogo } from "@/components/brand/billcare-logo";
+
+type StudioType = "hair" | "spa" | "barber" | "nail";
+
+interface StudioProfile {
+  id: StudioType;
+  index: string;
+  label: string;
+  salonName: string;
+  location: string;
+  activeService: string;
+  stylist: string;
+  duration: string;
+  amount: number;
+  retailItem: string;
+  retailAmount: number;
+  image: string;
+  chairs: number;
+  curation: string;
+}
+
+const STUDIO_PROFILES: Record<StudioType, StudioProfile> = {
+  hair: {
+    id: "hair",
+    index: "01",
+    label: "Hair Atelier",
+    salonName: "Maison Luxe Hair Atelier",
+    location: "Indiranagar, Bengaluru",
+    activeService: "Signature Balayage & Olaplex Gloss",
+    stylist: "Priya Sharma · Creative Director",
+    duration: "90 min",
+    amount: 6500,
+    retailItem: "Moroccanoil Treatment (100ml)",
+    retailAmount: 3400,
+    image: "/images/hero-showcase.jpg",
+    chairs: 8,
+    curation: "Precision foil placement & multi-stage glossing",
+  },
+  spa: {
+    id: "spa",
+    index: "02",
+    label: "Day Spa & Wellness",
+    salonName: "Aura Holistic Ayurveda & Spa",
+    location: "Juhu Tara Road, Mumbai",
+    activeService: "Deep Tissue & Herbal Potli Ritual",
+    stylist: "Sunita Verma · Master Therapist",
+    duration: "75 min",
+    amount: 4800,
+    retailItem: "Forest Essentials Botanical Mist (200ml)",
+    retailAmount: 2200,
+    image: "/images/spa-wellness.jpg",
+    chairs: 6,
+    curation: "Synchronized private suites with aroma cadence",
+  },
+  barber: {
+    id: "barber",
+    index: "03",
+    label: "Barber Club",
+    salonName: "The Blade & Comb Grooming Club",
+    location: "Bandra West, Mumbai",
+    activeService: "Royal Hot Towel Shave & Skin Fade",
+    stylist: "Vikram Mehta · Lead Barber",
+    duration: "45 min",
+    amount: 1800,
+    retailItem: "Matte Clay Pomade & Beard Elixir",
+    retailAmount: 1600,
+    image: "/images/checkout-pos.jpg",
+    chairs: 10,
+    curation: "Traditional straight-edge craft & club memberships",
+  },
+  nail: {
+    id: "nail",
+    index: "04",
+    label: "Nail Lounge",
+    salonName: "Luxe Sculpted Nails & Lashes",
+    location: "South Extension, New Delhi",
+    activeService: "Sculpted Gel Extensions & Chrome Art",
+    stylist: "Rohit Malhotra · Master Artist",
+    duration: "60 min",
+    amount: 2800,
+    retailItem: "Botanical Cuticle Recovery Serum",
+    retailAmount: 1200,
+    image: "/images/stylist-consultation.jpg",
+    chairs: 6,
+    curation: "Custom hand-painted chrome & Russian manicure",
+  },
+};
 
 export function LandingPage() {
-  const { salon, showToast } = useDemo();
+  const { salon, showToast } = useBillCare();
+
+  // Active Interactive Studio Selector
+  const [activeStudio, setActiveStudio] = useState<StudioType>("hair");
+  const studio = STUDIO_PROFILES[activeStudio];
 
   // Interactive Sandbox Tab State
   const [activePreviewTab, setActivePreviewTab] = useState<"pos" | "calendar" | "whatsapp" | "formula">("pos");
@@ -41,8 +133,8 @@ export function LandingPage() {
   const [waSent, setWaSent] = useState<boolean>(false);
 
   // ROI Calculator State
-  const [chairsCount, setChairsCount] = useState<number>(6);
-  const [avgTicket, setAvgTicket] = useState<number>(1850);
+  const [chairsCount, setChairsCount] = useState<number>(8);
+  const [avgTicket, setAvgTicket] = useState<number>(2200);
   const [clientsPerChairDay, setClientsPerChairDay] = useState<number>(5);
 
   // Pricing Interval
@@ -59,81 +151,66 @@ export function LandingPage() {
 
   const handleSendWhatsAppTest = () => {
     setWaSent(true);
-    showToast("Sent simulated WhatsApp booking reminder to client Ananya");
+    showToast("Dispatched simulated VIP WhatsApp booking reminder to client Ananya");
     setTimeout(() => setWaSent(false), 5000);
   };
 
   const faqs = [
     {
-      q: "How does RUVEXI differ from marketplace aggregators like Fresha?",
-      a: "Marketplace platforms charge up to 20% commission on repeat clients and display competitor salons when customers search for you. RUVEXI operates on a pure software model with 0% transaction fees. You receive your own dedicated booking domain, direct customer relationships, and complete data privacy.",
+      q: "How does BillCare differ from aggregators like Fresha or Zenoti?",
+      a: "Marketplace aggregators take up to 20% cut per client booking and display rival salons right next to your brand. BillCare is a sovereign operating system: 0% transaction fees, 100% private client database, and your own custom branded booking portal.",
     },
     {
-      q: "Can stylists access their own chairs without viewing salon financials?",
-      a: "Yes. Role-based permissions allow master stylists and assistants to view only their personal schedule, client formulas, and commission earnings. Financial statements, gross revenue, and inventory costs remain restricted to salon owners and managers.",
+      q: "Can receptionists handle checkout without seeing owner profits or tax filings?",
+      a: "Yes. Granular role-based security allows receptionists and stylists to manage daily calendars, seat walk-ins, and ring up sales while strictly restricting gross margins, staff payouts, and tax ledgers to salon owners.",
     },
     {
-      q: "Does the Point of Sale integrate with thermal printers and barcode scanners?",
-      a: "Yes. The POS works with standard 80mm and 58mm ESC/POS thermal printers, USB and Bluetooth barcode scanners, and can automatically dispatch digital WhatsApp receipts with full GST details directly to client phones.",
+      q: "Does BillCare connect with thermal receipt printers and barcode scanners?",
+      a: "Yes. Works out of the box with standard 80mm & 58mm ESC/POS thermal printers (Epson, TVS, Star Micronics), USB/Bluetooth barcode scanners, and sends automated paperless WhatsApp tax receipts.",
     },
     {
-      q: "How does automated WhatsApp client retention work?",
-      a: "RUVEXI integrates directly with the Meta WhatsApp Cloud API. The platform tracks service intervals and automatically schedules reminders for 28-day root touch-ups, seasonal keratin refreshers, and birthday loyalty benefits without manual staff effort.",
+      q: "How does automated WhatsApp retention recover lapsed clients?",
+      a: "Integrated directly with the official Meta Cloud API. BillCare monitors client service history and automatically dispatches personalized 28-day color refreshers, birthday VIP passes, and review requests with zero manual staff effort.",
     },
     {
-      q: "Can we migrate our existing customer data, formulas, and service menu?",
-      a: "Yes. You can import client history, notes, and inventory via Excel or CSV. Our onboarding concierge also assists with hands-on migration to ensure zero downtime for your studio.",
+      q: "Can we migrate our existing client formulas, inventory, and phone directory?",
+      a: "Yes. Import client history, custom color formulas, and product catalog via CSV or Excel in 1 click. Our white-glove onboarding concierge ensures zero downtime during your switch.",
     },
     {
-      q: "What happens if our salon loses internet connectivity temporarily?",
-      a: "RUVEXI is built as an offline-resilient Progressive Web App. You can continue creating appointments, ringing up cash checkouts, and viewing client cards. All records synchronize automatically once your connection resumes.",
+      q: "What happens if our salon loses WiFi connectivity during rush hours?",
+      a: "BillCare is built as an offline-resilient Progressive Web App (PWA). You can continue ringing up cash sales, viewing formulas, and booking chairs uninterrupted. Everything auto-synchronizes the second your connection returns.",
     },
   ];
 
   return (
-    <div className="min-h-screen bg-[#faf9f6] text-slate-800 font-sans selection:bg-slate-900 selection:text-white">
-      {/* Main Luxury Header */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="bg-[#09090b] text-slate-100 font-sans selection:bg-amber-200 selection:text-slate-950 min-h-screen">
+      {/* Main Header */}
+      <header className="sticky top-0 z-50 bg-[#09090b]/90 backdrop-blur-2xl border-b border-white/[0.08] transition-all">
+        <div className="w-full px-6 sm:px-8 lg:px-12">
           <div className="flex items-center justify-between h-20">
             {/* Brand Logo */}
-            <Link href="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-slate-950 text-white flex items-center justify-center font-bold text-lg shadow-sm">
-                R
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-extrabold text-lg tracking-tight text-slate-950">
-                    RUVEXI
-                  </span>
-                  <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-slate-950 text-white uppercase tracking-wider shadow-xs">
-                    SALON OS
-                  </span>
-                </div>
-                <p className="text-xs text-slate-600 font-semibold">
-                  The Management System for Modern Studios
-                </p>
-              </div>
+            <Link href="/" className="flex items-center gap-3">
+              <BillCareLogo size="md" variant="light" showSubtitle={true} />
             </Link>
 
-            {/* Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center gap-8 text-xs font-semibold text-slate-600">
-              <a href="#features" className="hover:text-slate-950 transition-colors">
-                Platform
+            {/* Desktop Navigation Links with Simple Words */}
+            <nav className="hidden lg:flex items-center gap-8 text-xs tracking-wider uppercase font-medium text-slate-400">
+              <a href="#studio-selector" className="hover:text-white transition-colors">
+                Salons
               </a>
-              <a href="#sandbox" className="hover:text-slate-950 transition-colors">
-                Live Preview
+              <a href="#sandbox" className="hover:text-white transition-colors">
+                Live POS
               </a>
-              <a href="#roi-calculator" className="hover:text-slate-950 transition-colors">
-                Revenue Model
+              <a href="#workflows" className="hover:text-white transition-colors">
+                Features
               </a>
-              <a href="#comparison" className="hover:text-slate-950 transition-colors">
-                Why RUVEXI
+              <a href="#comparison" className="hover:text-white transition-colors">
+                Why Us
               </a>
-              <a href="#pricing" className="hover:text-slate-950 transition-colors">
+              <a href="#pricing" className="hover:text-white transition-colors">
                 Pricing
               </a>
-              <a href="#faq" className="hover:text-slate-950 transition-colors">
+              <a href="#faq" className="hover:text-white transition-colors">
                 FAQ
               </a>
             </nav>
@@ -142,21 +219,21 @@ export function LandingPage() {
             <div className="flex items-center gap-3">
               <Link
                 href="/login"
-                className="text-xs font-bold text-slate-700 hover:text-slate-950 px-3 py-2 rounded-xl hover:bg-slate-100 transition-colors"
+                className="px-3.5 py-2 text-xs tracking-wider uppercase font-medium text-slate-300 hover:text-white rounded hover:bg-white/5 transition-colors"
               >
                 Sign In
               </Link>
               <Link
                 href="/dashboard"
-                className="hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all hover:scale-[1.01] active:scale-[0.99]"
+                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 border border-white/15 hover:border-white/30 text-white font-medium text-xs tracking-wider uppercase rounded hover:bg-white/5 transition-colors"
               >
-                <span>Launch Live Demo</span>
+                <span>Salon Console</span>
               </Link>
               <Link
                 href="/signup"
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all"
+                className="px-4 py-2 bg-white hover:bg-slate-100 text-slate-950 font-semibold text-xs tracking-wider uppercase rounded transition-all shadow-sm"
               >
-                Start Free Trial
+                Start Trial
               </Link>
             </div>
           </div>
@@ -164,231 +241,316 @@ export function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative pt-16 pb-20 md:pt-24 md:pb-28 px-4 sm:px-6 lg:px-8 border-b border-slate-200/70">
-        <div className="max-w-4xl mx-auto text-center space-y-6">
-          {/* Eyebrow Pill */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold tracking-wide">
-            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span>Easy for Receptionists & Stylists</span>
-            <span className="text-slate-300">•</span>
-            <span>Zero Training Needed</span>
-            <span className="text-slate-300">•</span>
-            <span>0% Commission Fees</span>
+      <section className="relative pt-8 pb-16 md:pt-12 md:pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        {/* Full Architectural Salon Background Image - Clearly Visible */}
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+          <img
+            src="/images/hero-bg.jpg"
+            alt="Luxury salon interior atmosphere"
+            className="w-full h-full object-cover object-center scale-105"
+          />
+          {/* Balanced dark scrim: salon mirrors and warm lights are clearly visible while text pops */}
+          <div className="absolute inset-0 bg-black/50" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-transparent to-black/20" />
+        </div>
+
+        {/* Hero Content with z-10 */}
+        <div className="relative z-10 max-w-5xl mx-auto text-center space-y-6">
+          {/* Eyebrow Label with Simple Words */}
+          <div className="text-xs font-mono uppercase tracking-[0.25em] text-amber-300 font-medium">
+            All-in-one software for salons and spas
           </div>
 
-          {/* Master Headline */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-slate-950 leading-[1.12]">
-            Simple Salon Software for Modern Salons & Spas
+          {/* Simple, Powerful Headline */}
+          <h1 className="font-serif text-5xl sm:text-7xl md:text-8xl font-normal text-white tracking-tight leading-[1.05]">
+            Run your salon <br />
+            with <span className="italic font-light text-amber-200">ease</span>.
           </h1>
 
-          {/* Subheading */}
-          <p className="max-w-2xl mx-auto text-base sm:text-lg text-slate-600 font-normal leading-relaxed">
-            Manage your daily appointments, seat walk-ins, create fast bills, and send WhatsApp receipts — all in one simple, easy screen that anyone can learn in minutes.
+          {/* Simple, Clear Subheading */}
+          <p className="max-w-2xl mx-auto text-base sm:text-lg text-slate-300 font-light leading-relaxed">
+            Fast billing, chair booking, automated WhatsApp reminders, and staff commissions. Everything you need to manage daily salon rush — with zero booking fees.
           </p>
 
           {/* Hero CTAs */}
-          <div className="flex flex-wrap items-center justify-center gap-3.5 pt-3">
+          <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
             <Link
               href="/dashboard"
-              className="px-6 py-3.5 bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition-all flex items-center gap-2"
+              className="px-8 py-3.5 bg-slate-100 hover:bg-white text-slate-950 font-semibold text-xs uppercase tracking-wider rounded transition-all flex items-center gap-2 group shadow-xl"
             >
-              <span>Try Receptionist Counter</span>
-              <ArrowRight className="w-4 h-4" />
+              <span>Open Salon POS</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </Link>
 
             <Link
               href="/signup"
-              className="px-6 py-3.5 bg-white hover:bg-slate-50 text-slate-900 font-bold text-xs sm:text-sm rounded-xl border border-slate-300 shadow-2xs transition-all"
+              className="px-7 py-3.5 bg-transparent hover:bg-white/5 text-slate-200 font-medium text-xs uppercase tracking-wider rounded border border-white/20 transition-all"
             >
-              Start Free 14-Day Trial
+              Start Free Trial
             </Link>
 
             <Link
               href="/book"
-              className="px-5 py-3.5 text-slate-700 hover:text-slate-950 font-bold text-xs sm:text-sm rounded-xl hover:bg-slate-100 transition-all flex items-center gap-1.5"
+              className="px-6 py-3.5 text-slate-400 hover:text-white font-medium text-xs uppercase tracking-wider transition-all flex items-center gap-2"
             >
-              <Globe className="w-4 h-4 text-slate-500" />
-              <span>Client Booking Page</span>
+              <Globe className="w-3.5 h-3.5 text-slate-400" />
+              <span>Online Booking Link</span>
             </Link>
           </div>
+        </div>
+      </section>
 
-          {/* Proof Numbers */}
-          <div className="pt-10 grid grid-cols-2 sm:grid-cols-4 gap-3.5 max-w-3xl mx-auto text-left">
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs hover:border-slate-300 transition-colors">
-              <div className="text-2xl font-black text-slate-950 font-mono">₹4.85 Lakhs</div>
-              <div className="text-xs text-slate-600 font-semibold mt-1 flex items-center gap-1.5">
-                <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Billed Today on POS</span>
+      {/* Studio Showcase & Preview Section - On clean dark background */}
+      <section className="relative px-4 sm:px-6 lg:px-8 pt-4 pb-20 bg-[#09090b]">
+        <div className="max-w-5xl mx-auto text-center space-y-8">
+          {/* Interactive Studio Archetype Switcher */}
+          <div id="studio-selector" className="max-w-4xl mx-auto">
+            <div className="text-xs font-mono uppercase tracking-[0.2em] text-slate-400 mb-4">
+              Choose your salon type:
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-6 border-b border-white/[0.08] pb-4">
+              {(Object.keys(STUDIO_PROFILES) as StudioType[]).map((key) => {
+                const item = STUDIO_PROFILES[key];
+                const isSelected = activeStudio === key;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => setActiveStudio(key)}
+                    className={`pb-2 text-xs tracking-wider transition-all cursor-pointer flex items-center gap-2 border-b-2 -mb-[18px] ${
+                      isSelected
+                        ? "border-amber-400 text-amber-200 font-medium"
+                        : "border-transparent text-slate-400 hover:text-slate-200"
+                    }`}
+                  >
+                    <span className="font-mono text-[10px] text-slate-400">{item.index}</span>
+                    <span className="uppercase tracking-widest">{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Hero Visual Mockup Frame */}
+          <div className="pt-6 max-w-5xl mx-auto text-left">
+            <div className="rounded-2xl overflow-hidden border border-white/[0.12] bg-[#0c0c0e] shadow-2xl">
+              {/* Minimal Top Studio Bar */}
+              <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/[0.08] text-xs">
+                <div className="flex items-center gap-3">
+                  <div className="font-serif italic text-base text-white">{studio.salonName}</div>
+                  <span className="text-white/20">/</span>
+                  <div className="font-mono text-[11px] text-slate-400">{studio.location}</div>
+                </div>
+                <div className="font-mono text-[11px] text-slate-400 hidden sm:block">
+                  {studio.chairs} Styling Chairs Active
+                </div>
+              </div>
+
+              {/* Main Showcase Image */}
+              <div className="relative aspect-[16/9] sm:aspect-[21/10] bg-slate-900 overflow-hidden">
+                <img
+                  src={studio.image}
+                  alt={studio.salonName}
+                  className="w-full h-full object-cover object-center"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0e] via-transparent to-transparent pointer-events-none" />
+
+                {/* Minimalist Understated Operational Strip */}
+                <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 bg-[#09090b]/90 backdrop-blur-xl border border-white/10 p-4 rounded-xl flex flex-wrap items-center justify-between gap-4">
+                  <div className="space-y-0.5">
+                    <div className="text-[10px] font-mono uppercase tracking-widest text-slate-400">Current Service</div>
+                    <div className="text-sm font-medium text-white">{studio.activeService}</div>
+                    <div className="text-xs text-slate-400">{studio.stylist} · {studio.duration}</div>
+                  </div>
+
+                  <div className="flex items-center gap-6">
+                    <div>
+                      <div className="text-[10px] font-mono uppercase tracking-widest text-slate-400">Bill Amount</div>
+                      <div className="font-mono text-base font-semibold text-amber-300">{formatCurrency(studio.amount)}</div>
+                    </div>
+                    <div className="hidden md:block">
+                      <div className="text-[10px] font-mono uppercase tracking-widest text-slate-400">Retail Product</div>
+                      <div className="text-xs text-slate-200">{studio.retailItem}</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
+          </div>
 
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs hover:border-slate-300 transition-colors">
-              <div className="text-2xl font-black text-slate-950 font-mono">140+ Salons</div>
-              <div className="text-xs text-slate-600 font-semibold mt-1 flex items-center gap-1.5">
-                <Building2 className="w-3.5 h-3.5 text-blue-600" />
-                <span>Happy Salons & Studios</span>
-              </div>
+          {/* Metrics Row in Simple Words */}
+          <div className="pt-6 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto text-left border-t border-white/[0.08]">
+            <div className="space-y-1">
+              <div className="font-serif text-3xl font-normal text-white">0%</div>
+              <div className="text-xs text-slate-400 font-light">Zero commission. You keep 100% of your sales.</div>
             </div>
-
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs hover:border-slate-300 transition-colors">
-              <div className="text-2xl font-black text-slate-950 font-mono">0% Extra Fees</div>
-              <div className="text-xs text-slate-600 font-semibold mt-1 flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Keep 100% of Sales</span>
-              </div>
+            <div className="space-y-1">
+              <div className="font-serif text-3xl font-normal text-white">5 Sec</div>
+              <div className="text-xs text-slate-400 font-light">Fast checkout. Ring up bills in 5 seconds.</div>
             </div>
-
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs hover:border-slate-300 transition-colors">
-              <div className="text-2xl font-black text-slate-950 font-mono">100% Safe</div>
-              <div className="text-xs text-slate-600 font-semibold mt-1 flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-indigo-600" />
-                <span>Private & Secure Data</span>
-              </div>
+            <div className="space-y-1">
+              <div className="font-serif text-3xl font-normal text-white">100%</div>
+              <div className="text-xs text-slate-400 font-light">Your client list stays private to your salon.</div>
+            </div>
+            <div className="space-y-1">
+              <div className="font-serif text-3xl font-normal text-white">WhatsApp</div>
+              <div className="text-xs text-slate-400 font-light">Digital bills and appointment reminders.</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Interactive Live Preview Sandbox Section */}
-      <section id="sandbox" className="py-16 md:py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto space-y-10">
-          <div className="text-center max-w-2xl mx-auto space-y-2.5">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold uppercase tracking-wider">
-              <span>Interactive Interface Sandbox</span>
+      {/* Integrations & Standards */}
+      <section className="py-12 border-b border-white/[0.08] bg-[#09090b]">
+        <div className="max-w-6xl mx-auto px-4 text-center space-y-4">
+          <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-slate-400">
+            Engineered Standards & Bank-Grade Payment Rails
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-slate-400 font-mono">
+            <span className="text-slate-300">Meta WhatsApp Cloud API</span>
+            <span className="text-white/20">·</span>
+            <span className="text-slate-300">UPI Dynamic QR Auto-Sync</span>
+            <span className="text-white/20">·</span>
+            <span className="text-slate-300">Visa / Mastercard / RuPay</span>
+            <span className="text-white/20">·</span>
+            <span className="text-slate-300">ESC/POS Thermal Standard</span>
+            <span className="text-white/20">·</span>
+            <span className="text-slate-300">PostgreSQL Row-Level Security</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Interactive Operational Sandbox */}
+      <section id="sandbox" className="py-24 md:py-32 px-4 sm:px-6 lg:px-8 border-b border-white/[0.08] bg-[#0b0b0e]">
+        <div className="max-w-6xl mx-auto space-y-12">
+          <div className="text-center max-w-2xl mx-auto space-y-3">
+            <div className="text-[11px] font-mono uppercase tracking-[0.25em] text-amber-400/90 font-medium">
+              01 / Operational Sandbox
             </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight">
-              Test Core Operations Right Here
+            <h2 className="font-serif text-3xl sm:text-5xl font-normal text-white tracking-tight">
+              Test core front-desk mechanics
             </h2>
-            <p className="text-sm text-slate-600">
-              Click through the operational modules below to test real system interactions.
+            <p className="text-sm text-slate-400 font-light">
+              Interact with real checkout calculations, chair scheduling matrices, and automated retention dispatches.
             </p>
           </div>
 
           {/* Sandbox Frame */}
-          <div className="bg-white border border-slate-200/90 rounded-3xl shadow-[0_4px_24px_-4px_rgba(15,23,42,0.06)] overflow-hidden">
-            {/* Tab Header */}
-            <div className="flex flex-wrap items-center justify-between border-b border-slate-200 p-2 sm:p-3 bg-slate-50/70 gap-2">
-              <div className="flex items-center gap-1.5 overflow-x-auto">
+          <div className="bg-[#09090b] border border-white/[0.12] rounded-2xl shadow-2xl overflow-hidden">
+            {/* Minimalist Tab Bar */}
+            <div className="flex flex-wrap items-center justify-between border-b border-white/[0.08] px-4 py-3 bg-[#0c0c0e] gap-3">
+              <div className="flex items-center gap-2 overflow-x-auto">
                 <button
                   onClick={() => setActivePreviewTab("pos")}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                  className={`px-3.5 py-1.5 text-xs font-mono tracking-wider transition-all cursor-pointer rounded ${
                     activePreviewTab === "pos"
-                      ? "bg-slate-950 text-white shadow-xs"
-                      : "text-slate-600 hover:text-slate-950 hover:bg-slate-200/60"
+                      ? "bg-white/10 text-white font-medium"
+                      : "text-slate-400 hover:text-white"
                   }`}
                 >
-                  <Receipt className="w-3.5 h-3.5" />
-                  <span>1. Fast POS & Billing</span>
+                  01. POS Billing
                 </button>
 
                 <button
                   onClick={() => setActivePreviewTab("calendar")}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                  className={`px-3.5 py-1.5 text-xs font-mono tracking-wider transition-all cursor-pointer rounded ${
                     activePreviewTab === "calendar"
-                      ? "bg-slate-950 text-white shadow-xs"
-                      : "text-slate-600 hover:text-slate-950 hover:bg-slate-200/60"
+                      ? "bg-white/10 text-white font-medium"
+                      : "text-slate-400 hover:text-white"
                   }`}
                 >
-                  <Calendar className="w-3.5 h-3.5" />
-                  <span>2. Chair Schedule Matrix</span>
+                  02. Chair Schedule
                 </button>
 
                 <button
                   onClick={() => setActivePreviewTab("whatsapp")}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                  className={`px-3.5 py-1.5 text-xs font-mono tracking-wider transition-all cursor-pointer rounded ${
                     activePreviewTab === "whatsapp"
-                      ? "bg-slate-950 text-white shadow-xs"
-                      : "text-slate-600 hover:text-slate-950 hover:bg-slate-200/60"
+                      ? "bg-white/10 text-white font-medium"
+                      : "text-slate-400 hover:text-white"
                   }`}
                 >
-                  <MessageSquare className="w-3.5 h-3.5" />
-                  <span>3. WhatsApp Automation</span>
+                  03. WhatsApp Pass
                 </button>
 
                 <button
                   onClick={() => setActivePreviewTab("formula")}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                  className={`px-3.5 py-1.5 text-xs font-mono tracking-wider transition-all cursor-pointer rounded ${
                     activePreviewTab === "formula"
-                      ? "bg-slate-950 text-white shadow-xs"
-                      : "text-slate-600 hover:text-slate-950 hover:bg-slate-200/60"
+                      ? "bg-white/10 text-white font-medium"
+                      : "text-slate-400 hover:text-white"
                   }`}
                 >
-                  <Scissors className="w-3.5 h-3.5" />
-                  <span>4. Client Formula Vault</span>
+                  04. Formula Vault
                 </button>
               </div>
 
               <div>
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs border border-slate-200 shadow-2xs transition-all"
+                  className="text-xs font-mono tracking-wider text-slate-300 hover:text-white flex items-center gap-1.5"
                 >
-                  <span>Open Full Suite</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Launch Live Terminal</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
             </div>
 
             {/* Tab Contents */}
-            <div className="p-5 sm:p-8">
+            <div className="p-6 sm:p-8">
               {/* TAB 1: POS Billing */}
               {activePreviewTab === "pos" && (
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-200">
-                  <div className="lg:col-span-7 space-y-4">
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                  <div className="lg:col-span-7 space-y-5">
+                    <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
                       <div>
-                        <h3 className="font-extrabold text-base text-slate-950">Active Checkout Register</h3>
-                        <p className="text-xs text-slate-500">Chair #01 • Client: Ananya Deshmukh (Platinum VIP)</p>
+                        <h3 className="font-serif text-lg text-white font-normal">Active Checkout Folio</h3>
+                        <p className="text-xs text-slate-400 font-mono mt-0.5">Station 01 · Client: Ananya Deshmukh</p>
                       </div>
-                      <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 font-mono text-xs font-bold border border-slate-200">
-                        LIVE TERMINAL
+                      <span className="font-mono text-[10px] uppercase tracking-widest text-slate-400">
+                        Live Transaction
                       </span>
                     </div>
 
                     {/* Cart Items */}
-                    <div className="space-y-2.5">
-                      <div className="flex items-center justify-between bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between bg-white/[0.03] p-3.5 rounded-lg border border-white/[0.06]">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-xl bg-slate-200 text-slate-800 flex items-center justify-center font-bold text-xs">
-                            <Scissors className="w-4 h-4" />
-                          </div>
+                          <Scissors className="w-4 h-4 text-slate-400 shrink-0" />
                           <div>
-                            <div className="font-bold text-xs text-slate-900">Signature Balayage & Olaplex Gloss</div>
-                            <div className="text-[11px] text-slate-500">Stylist: Priya Sharma • 90 mins</div>
+                            <div className="text-xs font-medium text-white">Signature Balayage & Olaplex Gloss</div>
+                            <div className="text-[11px] text-slate-400">Stylist: Priya Sharma · 90 min</div>
                           </div>
                         </div>
-                        <div className="font-mono font-bold text-xs text-slate-900">₹6,500</div>
+                        <div className="font-mono text-xs text-amber-300">₹6,500</div>
                       </div>
 
-                      <div className="flex items-center justify-between bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80">
+                      <div className="flex items-center justify-between bg-white/[0.03] p-3.5 rounded-lg border border-white/[0.06]">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-xl bg-slate-200 text-slate-800 flex items-center justify-center font-bold text-xs">
-                            <Boxes className="w-4 h-4" />
-                          </div>
+                          <Boxes className="w-4 h-4 text-slate-400 shrink-0" />
                           <div>
-                            <div className="font-bold text-xs text-slate-900">Moroccanoil Treatment Original (100ml)</div>
-                            <div className="text-[11px] text-slate-500">Retail Take-home • Qty: 1</div>
+                            <div className="text-xs font-medium text-white">Moroccanoil Treatment Original (100ml)</div>
+                            <div className="text-[11px] text-slate-400">Retail Take-home · Qty: 1</div>
                           </div>
                         </div>
-                        <div className="font-mono font-bold text-xs text-slate-900">₹3,400</div>
+                        <div className="font-mono text-xs text-amber-300">₹3,400</div>
                       </div>
                     </div>
 
                     {/* Discount Selector */}
-                    <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2">
-                      <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                        <span>VIP Membership Discount</span>
-                        <span className="text-amber-700 font-mono">{posDiscount}% OFF applied</span>
+                    <div className="bg-white/[0.03] p-3.5 rounded-lg border border-white/[0.06] space-y-2">
+                      <div className="flex items-center justify-between text-xs text-slate-300">
+                        <span>VIP Membership Privilege</span>
+                        <span className="font-mono text-amber-300">{posDiscount}% applied</span>
                       </div>
                       <div className="flex items-center gap-2">
                         {[0, 10, 15, 20].map((d) => (
                           <button
                             key={d}
                             onClick={() => setPosDiscount(d)}
-                            className={`flex-1 py-1.5 rounded-xl font-bold text-xs transition-all ${
+                            className={`flex-1 py-1.5 rounded font-mono text-xs transition-all cursor-pointer ${
                               posDiscount === d
-                                ? "bg-slate-950 text-white font-extrabold shadow-xs"
-                                : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-100"
+                                ? "bg-white text-slate-950 font-bold"
+                                : "bg-white/[0.04] text-slate-300 hover:bg-white/[0.08]"
                             }`}
                           >
                             {d === 0 ? "None" : `${d}%`}
@@ -399,21 +561,21 @@ export function LandingPage() {
 
                     {/* Payment Tender */}
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-600">Payment Tender</label>
+                      <label className="text-[11px] font-mono uppercase tracking-wider text-slate-400">Tender Rail</label>
                       <div className="grid grid-cols-3 gap-2">
                         {(["UPI", "Card", "Cash"] as const).map((method) => (
                           <button
                             key={method}
                             onClick={() => setPosPaymentMethod(method)}
-                            className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all ${
+                            className={`py-2 px-3 rounded text-xs font-mono transition-all border cursor-pointer ${
                               posPaymentMethod === method
-                                ? "bg-slate-950 border-slate-950 text-white"
-                                : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+                                ? "border-amber-400/80 bg-amber-400/10 text-amber-200"
+                                : "border-white/[0.08] bg-white/[0.02] text-slate-400 hover:text-white"
                             }`}
                           >
-                            {method === "UPI" && "⚡ UPI / QR"}
-                            {method === "Card" && "💳 POS Terminal"}
-                            {method === "Cash" && "💵 Cash Drawer"}
+                            {method === "UPI" && "Dynamic UPI QR"}
+                            {method === "Card" && "POS Card Terminal"}
+                            {method === "Cash" && "Cash Tender"}
                           </button>
                         ))}
                       </div>
@@ -421,13 +583,11 @@ export function LandingPage() {
                   </div>
 
                   {/* Right Receipt & Total */}
-                  <div className="lg:col-span-5 bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col justify-between">
+                  <div className="lg:col-span-5 bg-white/[0.02] p-5 rounded-xl border border-white/[0.08] flex flex-col justify-between">
                     <div>
-                      <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-                        <span className="text-xs font-mono font-bold text-slate-600">INVOICE BREAKDOWN</span>
-                        <span className="text-[10px] text-emerald-700 font-bold bg-emerald-100 px-2 py-0.5 rounded-full">
-                          18% GST COMPLIANT
-                        </span>
+                      <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+                        <span className="text-[11px] font-mono text-slate-400">INVOICE BREAKDOWN</span>
+                        <span className="text-[10px] font-mono text-slate-400">GST 18% INCLUSIVE</span>
                       </div>
 
                       {(() => {
@@ -438,23 +598,23 @@ export function LandingPage() {
                         const total = taxable + gst;
 
                         return (
-                          <div className="py-4 space-y-2.5 text-xs font-medium">
-                            <div className="flex justify-between text-slate-600">
-                              <span>Service & Retail Subtotal</span>
-                              <span className="font-mono text-slate-900">{formatCurrency(sub)}</span>
+                          <div className="py-4 space-y-2 text-xs font-light">
+                            <div className="flex justify-between text-slate-400">
+                              <span>Service & Retail Gross</span>
+                              <span className="font-mono text-slate-200">{formatCurrency(sub)}</span>
                             </div>
-                            <div className="flex justify-between text-amber-700">
-                              <span>VIP Tier Savings ({posDiscount}%)</span>
+                            <div className="flex justify-between text-amber-300">
+                              <span>Privilege Reduction ({posDiscount}%)</span>
                               <span className="font-mono">-{formatCurrency(disc)}</span>
                             </div>
-                            <div className="flex justify-between text-slate-600">
-                              <span>GST @ 18% (CGST 9% + SGST 9%)</span>
-                              <span className="font-mono text-slate-900">+{formatCurrency(gst)}</span>
+                            <div className="flex justify-between text-slate-400">
+                              <span>GST @ 18%</span>
+                              <span className="font-mono text-slate-200">+{formatCurrency(gst)}</span>
                             </div>
-                            <div className="h-px bg-slate-200 my-2"></div>
+                            <div className="h-px bg-white/[0.08] my-2"></div>
                             <div className="flex justify-between items-baseline pt-1">
-                              <span className="text-sm font-extrabold text-slate-950">Net Total</span>
-                              <span className="text-2xl font-black text-slate-950 font-mono">
+                              <span className="text-sm font-medium text-white">Net Settled</span>
+                              <span className="font-serif text-2xl text-white">
                                 {formatCurrency(total)}
                               </span>
                             </div>
@@ -463,24 +623,32 @@ export function LandingPage() {
                       })()}
                     </div>
 
-                    <div className="space-y-2 pt-4 border-t border-slate-200">
+                    <div className="space-y-3 pt-4 border-t border-white/[0.08]">
                       <button
                         onClick={() => {
                           setPosReceiptShown(true);
-                          showToast("Payment recorded. Paperless receipt sent via WhatsApp.");
+                          showToast("Payment recorded. Paperless invoice dispatched via WhatsApp.");
                         }}
-                        className="w-full py-3 bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2"
+                        className="w-full py-3 bg-slate-100 hover:bg-white text-slate-950 font-medium text-xs uppercase tracking-wider rounded transition-all cursor-pointer"
                       >
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                        <span>Complete {posPaymentMethod} Settlement</span>
+                        Complete Settlement ({posPaymentMethod})
                       </button>
 
                       {posReceiptShown && (
-                        <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 animate-in fade-in duration-150">
-                          <Check className="w-3.5 h-3.5" />
-                          <span>Digital GST invoice sent to client's WhatsApp</span>
+                        <div className="p-2.5 rounded bg-white/[0.04] border border-white/10 text-slate-300 text-xs font-mono flex items-center gap-2 animate-in fade-in duration-150">
+                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>Digital tax invoice delivered to client WhatsApp</span>
                         </div>
                       )}
+                    </div>
+
+                    {/* Front Desk Snapshot */}
+                    <div className="mt-4 rounded-lg overflow-hidden border border-white/10 relative aspect-[16/9]">
+                      <img
+                        src="/images/checkout-pos.jpg"
+                        alt="Front Desk Checkout & WhatsApp E-Receipt"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                   </div>
                 </div>
@@ -488,113 +656,93 @@ export function LandingPage() {
 
               {/* TAB 2: Calendar Matrix */}
               {activePreviewTab === "calendar" && (
-                <div className="space-y-4 animate-in fade-in duration-200">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+                <div className="space-y-5 animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
                     <div>
-                      <h3 className="font-extrabold text-base text-slate-950">Live Chair Scheduling Matrix</h3>
-                      <p className="text-xs text-slate-500">Multi-chair occupancy tracking • Concurrency lock prevents overbooking</p>
+                      <h3 className="font-serif text-lg text-white font-normal">Station Schedule Matrix</h3>
+                      <p className="text-xs text-slate-400 font-mono mt-0.5">Concurrency lock prevents duplicate chair allocations</p>
                     </div>
-                    <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 font-mono text-xs font-bold border border-slate-200">
-                      TODAY: 10:00 AM - 08:00 PM
+                    <span className="font-mono text-[11px] text-slate-400">
+                      SCHEDULE: 10:00 - 20:00
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3.5">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     {/* Chair 1 */}
-                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <div className="bg-white/[0.02] p-4 rounded-lg border border-white/[0.08] space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-black text-slate-900">CHAIR 01</span>
-                        <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span className="font-mono text-xs text-amber-200">STATION 01</span>
+                        <span className="text-[10px] font-mono text-slate-400">OCCUPIED</span>
                       </div>
-                      <div className="text-xs text-slate-500 font-medium">Stylist: Priya S. (Director)</div>
+                      <div className="text-xs text-slate-400">Priya Sharma · Creative Director</div>
 
-                      <div className="p-3 bg-white border border-blue-200 rounded-xl space-y-1 shadow-2xs">
-                        <div className="text-[10px] font-bold text-blue-700">11:00 AM - 12:30 PM</div>
-                        <div className="font-bold text-xs text-slate-900">Balayage & Olaplex Gloss</div>
-                        <div className="text-[11px] text-slate-500">Ananya D. • ₹6,500</div>
-                        <span className="inline-block px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                          In-Service
-                        </span>
+                      <div className="p-3 bg-white/[0.04] border border-white/[0.08] rounded space-y-1">
+                        <div className="font-mono text-[10px] text-amber-300">11:00 - 12:30</div>
+                        <div className="text-xs font-medium text-white">Balayage & Olaplex Gloss</div>
+                        <div className="text-[11px] text-slate-400">Ananya D. · ₹6,500</div>
                       </div>
 
-                      <div className="p-3 bg-white border border-slate-200 rounded-xl space-y-1 shadow-2xs">
-                        <div className="text-[10px] font-bold text-slate-600">02:00 PM - 03:00 PM</div>
-                        <div className="font-bold text-xs text-slate-900">K-Gloss Smoothing</div>
-                        <div className="text-[11px] text-slate-500">Rhea Sen • ₹4,200</div>
-                        <span className="inline-block px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold">
-                          Confirmed
-                        </span>
+                      <div className="p-3 bg-white/[0.02] border border-white/[0.06] rounded space-y-1">
+                        <div className="font-mono text-[10px] text-slate-400">14:00 - 15:00</div>
+                        <div className="text-xs font-medium text-white">K-Gloss Smoothing</div>
+                        <div className="text-[11px] text-slate-400">Rhea Sen · ₹4,200</div>
                       </div>
                     </div>
 
                     {/* Chair 2 */}
-                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <div className="bg-white/[0.02] p-4 rounded-lg border border-white/[0.08] space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-black text-slate-900">CHAIR 02</span>
-                        <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span className="font-mono text-xs text-amber-200">STATION 02</span>
+                        <span className="text-[10px] font-mono text-slate-400">COMPLETED</span>
                       </div>
-                      <div className="text-xs text-slate-500 font-medium">Barber: Arjun V. (Senior)</div>
+                      <div className="text-xs text-slate-400">Rahul M. · Master Colorist</div>
 
-                      <div className="p-3 bg-white border border-purple-200 rounded-xl space-y-1 shadow-2xs">
-                        <div className="text-[10px] font-bold text-purple-700">11:30 AM - 12:15 PM</div>
-                        <div className="font-bold text-xs text-slate-900">Beard Sculpt & Fade</div>
-                        <div className="text-[11px] text-slate-500">Karan S. • ₹1,200</div>
-                        <span className="inline-block px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                          In-Service
-                        </span>
+                      <div className="p-3 bg-white/[0.04] border border-white/[0.08] rounded space-y-1">
+                        <div className="font-mono text-[10px] text-slate-400">10:30 - 11:45</div>
+                        <div className="text-xs font-medium text-white">Root Retouch & Cut</div>
+                        <div className="text-[11px] text-slate-400">Kavita S. · ₹3,200</div>
                       </div>
 
-                      <div className="p-3 bg-white border border-slate-200 rounded-xl space-y-1 shadow-2xs">
-                        <div className="text-[10px] font-bold text-slate-600">01:00 PM - 01:45 PM</div>
-                        <div className="font-bold text-xs text-slate-900">Executive Hot Towel Shave</div>
-                        <div className="text-[11px] text-slate-500">Vikram R. • ₹1,500</div>
-                        <span className="inline-block px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold">
-                          Confirmed
-                        </span>
+                      <div className="p-3 border border-dashed border-white/20 rounded text-center py-4">
+                        <span className="font-mono text-[11px] text-slate-400">Available · 13:15</span>
                       </div>
                     </div>
 
                     {/* Chair 3 */}
-                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <div className="bg-white/[0.02] p-4 rounded-lg border border-white/[0.08] space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-black text-slate-900">CHAIR 03</span>
-                        <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span className="font-mono text-xs text-amber-200">SUITE 03</span>
+                        <span className="text-[10px] font-mono text-slate-400">ACTIVE</span>
                       </div>
-                      <div className="text-xs text-slate-500 font-medium">Esthetician: Sneha N.</div>
+                      <div className="text-xs text-slate-400">Sunita V. · Master Therapist</div>
 
-                      <div className="p-3 bg-white border border-emerald-200 rounded-xl space-y-1 shadow-2xs">
-                        <div className="text-[10px] font-bold text-emerald-700">11:00 AM - 12:15 PM</div>
-                        <div className="font-bold text-xs text-slate-900">Hydra-Infusion Facial</div>
-                        <div className="text-[11px] text-slate-500">Meera K. • ₹3,800</div>
-                        <span className="inline-block px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 text-[10px] font-bold">
-                          Completed
-                        </span>
+                      <div className="p-3 bg-white/[0.04] border border-white/[0.08] rounded space-y-1">
+                        <div className="font-mono text-[10px] text-slate-400">11:00 - 12:15</div>
+                        <div className="text-xs font-medium text-white">Hydra-Infusion Facial</div>
+                        <div className="text-[11px] text-slate-400">Meera K. · ₹3,800</div>
                       </div>
 
-                      <div className="p-3 border border-dashed border-slate-300 rounded-xl text-center py-5">
-                        <span className="text-[11px] text-slate-500 font-bold">+ Open Slot (01:00 PM)</span>
+                      <div className="p-3 border border-dashed border-white/20 rounded text-center py-4">
+                        <span className="font-mono text-[11px] text-slate-400">Available · 13:00</span>
                       </div>
                     </div>
 
                     {/* Chair 4 */}
-                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <div className="bg-white/[0.02] p-4 rounded-lg border border-white/[0.08] space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-black text-slate-900">CHAIR 04</span>
-                        <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                        <span className="font-mono text-xs text-amber-200">STATION 04</span>
+                        <span className="text-[10px] font-mono text-slate-400">OCCUPIED</span>
                       </div>
-                      <div className="text-xs text-slate-500 font-medium">Nail Artist: Rohit M.</div>
+                      <div className="text-xs text-slate-400">Rohit M. · Nail Artist</div>
 
-                      <div className="p-3 bg-white border border-amber-200 rounded-xl space-y-1 shadow-2xs">
-                        <div className="text-[10px] font-bold text-amber-800">11:00 AM - 12:00 PM</div>
-                        <div className="font-bold text-xs text-slate-900">Sculpted Gel Extensions</div>
-                        <div className="text-[11px] text-slate-500">Divya Sen • ₹2,400</div>
-                        <span className="inline-block px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                          In-Service
-                        </span>
+                      <div className="p-3 bg-white/[0.04] border border-white/[0.08] rounded space-y-1">
+                        <div className="font-mono text-[10px] text-amber-300">11:00 - 12:00</div>
+                        <div className="text-xs font-medium text-white">Sculpted Extensions</div>
+                        <div className="text-[11px] text-slate-400">Divya Sen · ₹2,400</div>
                       </div>
 
-                      <div className="p-3 border border-dashed border-slate-300 rounded-xl text-center py-5">
-                        <span className="text-[11px] text-slate-500 font-bold">+ Open Slot (02:30 PM)</span>
+                      <div className="p-3 border border-dashed border-white/20 rounded text-center py-4">
+                        <span className="font-mono text-[11px] text-slate-400">Available · 14:30</span>
                       </div>
                     </div>
                   </div>
@@ -604,84 +752,79 @@ export function LandingPage() {
               {/* TAB 3: WhatsApp Retention */}
               {activePreviewTab === "whatsapp" && (
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-8 animate-in fade-in duration-200">
-                  <div className="md:col-span-5 space-y-4">
-                    <div className="pb-2 border-b border-slate-200">
-                      <h3 className="font-extrabold text-base text-slate-950">Automated Retention Campaign</h3>
-                      <p className="text-xs text-slate-500">Meta WhatsApp Cloud API • Zero manual staff messages</p>
+                  <div className="md:col-span-5 space-y-5">
+                    <div className="pb-3 border-b border-white/[0.08]">
+                      <h3 className="font-serif text-lg text-white font-normal">Automated Client Retention</h3>
+                      <p className="text-xs text-slate-400 font-mono mt-0.5">Meta Cloud API · 0 manual intervention</p>
                     </div>
 
-                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3 text-xs">
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-500">Trigger Cadence</span>
-                        <span className="font-bold text-slate-900">28 Days Post-Color</span>
+                    <div className="bg-white/[0.02] p-4 rounded-lg border border-white/[0.08] space-y-2.5 text-xs font-mono">
+                      <div className="flex justify-between items-center text-slate-400">
+                        <span>Trigger Cadence</span>
+                        <span className="text-slate-200">28 Days Post-Color</span>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-500">Client</span>
-                        <span className="font-bold text-slate-900">Ananya Deshmukh (+91 99201...)</span>
+                      <div className="flex justify-between items-center text-slate-400">
+                        <span>Client</span>
+                        <span className="text-slate-200">Ananya Deshmukh</span>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-500">Stylist</span>
-                        <span className="font-bold text-slate-900">Priya Sharma</span>
+                      <div className="flex justify-between items-center text-slate-400">
+                        <span>Stylist</span>
+                        <span className="text-slate-200">Priya Sharma</span>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-500">Incentive Code</span>
-                        <span className="font-mono font-bold text-emerald-700">GLOW15 (15% OFF)</span>
+                      <div className="flex justify-between items-center text-slate-400">
+                        <span>Pass Code</span>
+                        <span className="text-amber-300">GLOW15 (15% Privileged)</span>
                       </div>
                     </div>
 
                     <button
                       onClick={handleSendWhatsAppTest}
-                      className="w-full py-3 bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2"
+                      className="w-full py-3 bg-slate-100 hover:bg-white text-slate-950 font-medium text-xs uppercase tracking-wider rounded transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <Send className="w-3.5 h-3.5" />
-                      <span>{waSent ? "Dispatched" : "Simulate Automated WhatsApp Dispatch"}</span>
+                      <span>{waSent ? "Dispatched Successfully" : "Trigger Simulated Notification"}</span>
                     </button>
                   </div>
 
                   {/* Clean WhatsApp Mockup */}
-                  <div className="md:col-span-7 bg-[#f0f2f5] p-5 rounded-3xl border border-slate-300 flex flex-col justify-between">
-                    <div className="flex items-center gap-3 pb-3 border-b border-slate-200">
-                      <div className="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center text-white font-bold text-xs">
-                        R
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                          <span>{salon.name}</span>
-                          <span className="w-3.5 h-3.5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[8px]">
-                            ✓
-                          </span>
+                  <div className="md:col-span-7 bg-[#11141a] p-5 rounded-xl border border-white/[0.08] flex flex-col justify-between">
+                    <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white font-serif text-sm">
+                          {salon.name.charAt(0)}
                         </div>
-                        <div className="text-[10px] text-slate-500">Official WhatsApp Business Account</div>
+                        <div>
+                          <div className="text-xs font-medium text-white">{salon.name}</div>
+                          <div className="text-[10px] font-mono text-slate-400">Official Business Verification</div>
+                        </div>
                       </div>
+                      <span className="text-[10px] font-mono text-slate-400">Delivered</span>
                     </div>
 
                     {/* Chat Bubble */}
-                    <div className="py-6 space-y-3">
-                      <div className="max-w-[85%] bg-white text-slate-800 p-4 rounded-2xl rounded-tl-none border border-slate-200 text-xs space-y-2 shadow-xs">
-                        <p className="leading-relaxed">
-                          Hello <span className="font-bold text-slate-950">Ananya</span>, it has been 4 weeks since your
-                          signature Balayage & Olaplex gloss with <span className="font-bold">Priya</span> at {salon.name}.
+                    <div className="py-6">
+                      <div className="max-w-[85%] bg-slate-900 text-slate-200 p-4 rounded-xl border border-white/[0.08] text-xs space-y-2 leading-relaxed font-light">
+                        <p>
+                          Good morning Ananya, it has been 4 weeks since your signature Balayage and Olaplex treatment with Priya at {salon.name}.
                         </p>
-                        <p className="leading-relaxed">
-                          To maintain your luminous tone, your root touch-up is due this week.
+                        <p className="text-slate-400">
+                          To maintain your blonde gloss without brassiness, your root retouch is recommended this week.
                         </p>
-                        <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 font-mono text-[11px] text-emerald-800 flex items-center justify-between">
-                          <span>VIP Code: GLOW15</span>
+                        <div className="p-2.5 bg-black/40 rounded border border-white/10 font-mono text-[11px] text-amber-200 flex items-center justify-between">
+                          <span>VIP Pass: GLOW15</span>
                           <span>15% SAVINGS</span>
                         </div>
-                        <div className="pt-1 flex items-center justify-between text-[10px] text-slate-500">
-                          <span className="text-blue-600 font-bold hover:underline cursor-pointer">
+                        <div className="pt-1 flex items-center justify-between text-[10px] text-slate-400 font-mono">
+                          <span className="text-amber-300 underline cursor-pointer">
                             Reserve Preferred Station →
                           </span>
-                          <span className="flex items-center gap-1">
-                            10:30 AM <span className="text-blue-600">✓✓</span>
-                          </span>
+                          <span>10:30</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="text-[10px] text-slate-500 text-center border-t border-slate-200 pt-2">
-                      End-to-end encrypted via Meta Cloud API • Zero spam rate
+                    <div className="text-[10px] font-mono text-slate-400 text-center border-t border-white/[0.08] pt-2">
+                      Official Meta Cloud Infrastructure · Zero Spam Architecture
                     </div>
                   </div>
                 </div>
@@ -689,60 +832,56 @@ export function LandingPage() {
 
               {/* TAB 4: Formula Vault */}
               {activePreviewTab === "formula" && (
-                <div className="space-y-4 animate-in fade-in duration-200">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+                <div className="space-y-5 animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
                     <div>
-                      <h3 className="font-extrabold text-base text-slate-950">Client Consultation & Color Vault</h3>
-                      <p className="text-xs text-slate-500">Exact gram formulation history • Allergy patch test safety tracking</p>
+                      <h3 className="font-serif text-lg text-white font-normal">Technical Formulation History</h3>
+                      <p className="text-xs text-slate-400 font-mono mt-0.5">Gram-level tint records · Patch-test validity ledger</p>
                     </div>
-                    <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-800 font-mono text-xs font-bold border border-slate-200">
-                      SAFETY CERTIFIED
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-slate-400">
+                      SAFETY RECORD VERIFIED
                     </span>
                   </div>
 
-                  <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-slate-900 text-white font-bold text-sm flex items-center justify-center">
-                          MK
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-sm text-slate-950">Meera Kapoor</h4>
-                          <p className="text-xs text-slate-500">+91 98112 55432 • 18 Total Visits • Total Spent: ₹48,500</p>
-                        </div>
+                  <div className="bg-white/[0.02] p-5 rounded-lg border border-white/[0.08] space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <h4 className="font-serif text-base text-white">Meera Kapoor</h4>
+                        <p className="text-xs text-slate-400 font-mono mt-0.5">Client #1042 · 18 Lifetime Visits · Total Spend: ₹48,500</p>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 font-bold text-xs border border-amber-200">
-                          Platinum VIP Tier
-                        </span>
-                        <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-900 font-bold text-xs border border-emerald-200">
-                          Patch Test: Valid (Oct 2026)
-                        </span>
+                      <div className="font-mono text-xs text-slate-400">
+                        Patch Test: Valid (Oct 2026)
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                      <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-2 shadow-2xs">
-                        <div className="text-xs font-bold text-slate-900">Current Hair Formula Record:</div>
-                        <div className="font-mono text-xs text-slate-800 bg-slate-50 p-3 rounded-lg border border-slate-200 leading-relaxed">
-                          Schwarzkopf Igora Royal 7-1 (30g) + 8-4 (15g)<br />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                      <div className="bg-white/[0.03] p-4 rounded border border-white/[0.08] space-y-2">
+                        <div className="text-xs font-mono uppercase tracking-wider text-amber-200">Formulation Entry:</div>
+                        <div className="font-mono text-xs text-slate-300 bg-black/40 p-3 rounded border border-white/[0.06] leading-relaxed">
+                          Schwarzkopf Igora 7-1 (30g) + 8-4 (15g)<br />
                           + 20 Vol Developer (45g)<br />
-                          Toner: Olaplex 4-in-1 Moisture Mask (15 min)
+                          Gloss: Olaplex 4-in-1 (15 min)
                         </div>
-                        <div className="text-[10px] text-slate-500">Logged by Priya Sharma on 18 Sep 2026</div>
+                        <div className="text-[10px] font-mono text-slate-400">Logged by Priya Sharma on 18 Sep 2026</div>
                       </div>
 
-                      <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-2 shadow-2xs">
-                        <div className="text-xs font-bold text-slate-900">Consultation Notes & Preferences:</div>
-                        <p className="text-xs text-slate-600 leading-relaxed">
-                          Sensitive scalp to high volume bleach. Prefers low-heat blowout with Moroccan Argan oil.
-                          Enjoys cold brew coffee during long appointments.
+                      <div className="bg-white/[0.03] p-4 rounded border border-white/[0.08] space-y-2">
+                        <div className="text-xs font-mono uppercase tracking-wider text-amber-200">Technical Notes:</div>
+                        <p className="text-xs text-slate-300 leading-relaxed font-light">
+                          Scalp sensitivity to high volume bleach. Prefers low-heat blowout with Moroccan Argan oil.
+                          Cold brew coffee during extended foils.
                         </p>
-                        <div className="pt-2 flex items-center gap-2">
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
-                            Rebooking Cadence: Every 28 Days
-                          </span>
+                        <div className="pt-2 text-[10px] font-mono text-slate-400">
+                          Revisit Cycle: Every 28 Days
                         </div>
+                      </div>
+
+                      <div className="rounded overflow-hidden border border-white/10 relative min-h-[140px] md:min-h-full">
+                        <img
+                          src="/images/stylist-consultation.jpg"
+                          alt="Stylist table-side consultation"
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                     </div>
                   </div>
@@ -753,250 +892,283 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Interactive Salon ROI & Revenue Model */}
-      <section id="roi-calculator" className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-white border-y border-slate-200/80">
-        <div className="max-w-5xl mx-auto space-y-12">
-          <div className="text-center max-w-2xl mx-auto space-y-2.5">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold uppercase tracking-wider">
-              <DollarSign className="w-3.5 h-3.5" />
-              <span>Financial Impact Model</span>
+      {/* Visual Workflow Stories */}
+      <section id="workflows" className="py-24 md:py-36 px-4 sm:px-6 lg:px-8 border-b border-white/[0.08] bg-[#09090b]">
+        <div className="max-w-6xl mx-auto space-y-28">
+          <div className="text-center max-w-2xl mx-auto space-y-3">
+            <div className="text-[11px] font-mono uppercase tracking-[0.25em] text-amber-400/90 font-medium">
+              02 / Workflows
             </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight">
-              Calculate Your Salon Revenue Model
+            <h2 className="font-serif text-3xl sm:text-5xl font-normal text-white tracking-tight">
+              Built for salon precision
             </h2>
-            <p className="text-sm text-slate-600">
-              Calculate projected monthly turnover and the direct revenue recovered by automated client retention.
+            <p className="text-sm text-slate-400 font-light">
+              Eliminate front-desk bottlenecks, protect custom color formulas, and maximize chair utilization.
             </p>
           </div>
 
-          <div className="bg-[#faf9f6] border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-xs grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            {/* Left Controls */}
-            <div className="lg:col-span-7 space-y-6">
-              {/* Slider 1: Chairs */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center text-sm font-bold">
-                  <span className="text-slate-800">Styling Chairs</span>
-                  <span className="text-slate-950 font-mono font-black text-base">{chairsCount} Chairs</span>
-                </div>
-                <input
-                  type="range"
-                  min="2"
-                  max="20"
-                  value={chairsCount}
-                  onChange={(e) => setChairsCount(Number(e.target.value))}
-                  className="w-full accent-slate-950 h-2 bg-slate-200 rounded-lg cursor-pointer"
+          {/* Story 1 */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+            <div className="lg:col-span-6">
+              <div className="rounded-2xl overflow-hidden border border-white/[0.12] shadow-2xl bg-slate-900">
+                <img
+                  src="/images/checkout-pos.jpg"
+                  alt="Modern salon front-desk checkout and WhatsApp receipt dispatch"
+                  className="w-full h-[380px] object-cover"
                 />
-                <div className="flex justify-between text-[10px] text-slate-500 font-mono">
-                  <span>2 Chairs</span>
-                  <span>10 Chairs</span>
-                  <span>20 Chairs</span>
+              </div>
+            </div>
+
+            <div className="lg:col-span-6 space-y-5">
+              <div className="text-xs font-mono uppercase tracking-widest text-slate-400">
+                Front-Desk Velocity
+              </div>
+              <h3 className="font-serif text-3xl sm:text-4xl font-normal text-white tracking-tight leading-snug">
+                Five-second checkout. Zero paper friction.
+              </h3>
+              <p className="text-sm text-slate-300 font-light leading-relaxed">
+                Eliminate paper slip jams, misplaced tax invoices, and manual billing calculations. Receptionists ring up services, scan retail items, apply tier perks, and accept dynamic UPI QR or split payments in seconds.
+              </p>
+              <div className="space-y-3 pt-2 text-xs font-light text-slate-300">
+                <div className="flex items-start gap-3">
+                  <span className="font-mono text-slate-400">01</span>
+                  <span><strong className="text-white font-medium">Dynamic UPI QR & Card Split:</strong> Split tenders across cash, card, and UPI without arithmetic errors.</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="font-mono text-slate-400">02</span>
+                  <span><strong className="text-white font-medium">Paperless WhatsApp GST Invoices:</strong> Dispatches official PDF invoices directly to clients' phones, saving thousands in thermal paper rolls.</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="font-mono text-slate-400">03</span>
+                  <span><strong className="text-white font-medium">Offline Resilience:</strong> Ring up sales even if broadband drops — folios auto-sync the moment connectivity returns.</span>
                 </div>
               </div>
+            </div>
+          </div>
 
-              {/* Slider 2: Average Ticket */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center text-sm font-bold">
-                  <span className="text-slate-800">Average Service Ticket</span>
-                  <span className="text-slate-950 font-mono font-black text-base">{formatCurrency(avgTicket)}</span>
-                </div>
-                <input
-                  type="range"
-                  min="500"
-                  max="5000"
-                  step="100"
-                  value={avgTicket}
-                  onChange={(e) => setAvgTicket(Number(e.target.value))}
-                  className="w-full accent-slate-950 h-2 bg-slate-200 rounded-lg cursor-pointer"
-                />
-                <div className="flex justify-between text-[10px] text-slate-500 font-mono">
-                  <span>₹500</span>
-                  <span>₹2,500</span>
-                  <span>₹5,000</span>
-                </div>
+          {/* Story 2 */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+            <div className="lg:col-span-6 space-y-5 order-2 lg:order-1">
+              <div className="text-xs font-mono uppercase tracking-widest text-slate-400">
+                Technical Mastery
               </div>
-
-              {/* Slider 3: Clients per Chair Day */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center text-sm font-bold">
-                  <span className="text-slate-800">Daily Clients per Chair</span>
-                  <span className="text-slate-950 font-mono font-black text-base">{clientsPerChairDay} Clients</span>
+              <h3 className="font-serif text-3xl sm:text-4xl font-normal text-white tracking-tight leading-snug">
+                Never lose a shade formula, developer volume, or allergy note.
+              </h3>
+              <p className="text-sm text-slate-300 font-light leading-relaxed">
+                Retain client loyalty to your salon brand, not individual staff. Every shade recipe, balayage toner ratio, and patch-test countdown is securely stored in your private cloud vault. Stylists review formulas table-side on any tablet.
+              </p>
+              <div className="space-y-3 pt-2 text-xs font-light text-slate-300">
+                <div className="flex items-start gap-3">
+                  <span className="font-mono text-slate-400">01</span>
+                  <span><strong className="text-white font-medium">Gram-Level Precision:</strong> Exact tint and developer measurements with stylist timestamps ensure repeatable results.</span>
                 </div>
-                <input
-                  type="range"
-                  min="2"
-                  max="10"
-                  value={clientsPerChairDay}
-                  onChange={(e) => setClientsPerChairDay(Number(e.target.value))}
-                  className="w-full accent-slate-950 h-2 bg-slate-200 rounded-lg cursor-pointer"
-                />
-                <div className="flex justify-between text-[10px] text-slate-500 font-mono">
-                  <span>2 Clients</span>
-                  <span>5 Clients</span>
-                  <span>10 Clients</span>
+                <div className="flex items-start gap-3">
+                  <span className="font-mono text-slate-400">02</span>
+                  <span><strong className="text-white font-medium">Allergy Patch-Test Expiry:</strong> Automated alerts ensure staff re-test sensitive clients prior to high-volume chemical treatments.</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="font-mono text-slate-400">03</span>
+                  <span><strong className="text-white font-medium">Zero Stylist Dependency:</strong> When a stylist is away, colleagues can recreate exact client recipes with complete confidence.</span>
                 </div>
               </div>
             </div>
 
-            {/* Right Card Calculation */}
-            <div className="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-5">
-              <div className="text-xs font-mono text-slate-500 uppercase tracking-wider pb-2 border-b border-slate-200">
-                MONTHLY PROJECTED METRICS
+            <div className="lg:col-span-6 order-1 lg:order-2">
+              <div className="rounded-2xl overflow-hidden border border-white/[0.12] shadow-2xl bg-slate-900">
+                <img
+                  src="/images/stylist-consultation.jpg"
+                  alt="Stylist consulting with client in salon chair"
+                  className="w-full h-[380px] object-cover"
+                />
               </div>
+            </div>
+          </div>
 
-              <div className="space-y-4">
-                <div>
-                  <div className="text-xs text-slate-500">Estimated Monthly Gross Turnover</div>
-                  <div className="text-2xl font-black text-slate-950 font-mono">{formatCurrency(monthlyTurnover)}</div>
+          {/* Story 3 */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+            <div className="lg:col-span-6">
+              <div className="rounded-2xl overflow-hidden border border-white/[0.12] shadow-2xl bg-slate-900">
+                <img
+                  src="/images/spa-wellness.jpg"
+                  alt="Luxury day spa treatment suite"
+                  className="w-full h-[380px] object-cover"
+                />
+              </div>
+            </div>
+
+            <div className="lg:col-span-6 space-y-5">
+              <div className="text-xs font-mono uppercase tracking-widest text-slate-400">
+                Facility Concurrency
+              </div>
+              <h3 className="font-serif text-3xl sm:text-4xl font-normal text-white tracking-tight leading-snug">
+                Every styling station and therapy suite at maximum yield.
+              </h3>
+              <p className="text-sm text-slate-300 font-light leading-relaxed">
+                A multi-station visual diary giving reception complete clarity. Seat walk-in guests effortlessly, assign specialist therapists based on certification, and schedule multi-hour ritual packages without collisions.
+              </p>
+              <div className="space-y-3 pt-2 text-xs font-light text-slate-300">
+                <div className="flex items-start gap-3">
+                  <span className="font-mono text-slate-400">01</span>
+                  <span><strong className="text-white font-medium">Concurrency Lock:</strong> Guarantees that two receptionists cannot book the same station or therapist simultaneously.</span>
                 </div>
-
-                <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200">
-                  <div className="text-xs font-bold text-emerald-800 flex items-center gap-1.5">
-                    <TrendingUp className="w-3.5 h-3.5" />
-                    <span>Recovered via Automated Touchups (+22%)</span>
-                  </div>
-                  <div className="text-xl font-extrabold text-emerald-950 font-mono mt-0.5">
-                    +{formatCurrency(recoveredViaWhatsApp)} / month
-                  </div>
-                  <div className="text-[10px] text-emerald-700 mt-1">
-                    Via scheduled WhatsApp root-touchup & feedback cadences
-                  </div>
+                <div className="flex items-start gap-3">
+                  <span className="font-mono text-slate-400">02</span>
+                  <span><strong className="text-white font-medium">Turnover Signals:</strong> Notifies housekeeping when a treatment suite is vacated and ready for reset.</span>
                 </div>
-
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                  <div className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-slate-600" />
-                    <span>Management Time Saved</span>
-                  </div>
-                  <div className="text-xl font-extrabold text-slate-900 font-mono mt-0.5">
-                    {hoursSavedPerMonth} Hours / month
-                  </div>
-                  <div className="text-[10px] text-slate-500 mt-1">
-                    Eliminating manual billing calculation, stock counting, and shift reconciliations
-                  </div>
+                <div className="flex items-start gap-3">
+                  <span className="font-mono text-slate-400">03</span>
+                  <span><strong className="text-white font-medium">Direct Booking:</strong> Your booking portal promotes only your salon — never featuring competitor discounts.</span>
                 </div>
               </div>
-
-              <Link
-                href="/signup"
-                className="w-full py-3 bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 text-center"
-              >
-                <span>Deploy RUVEXI for Your Studio</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 6 Core Product Features Section */}
-      <section id="features" className="py-16 md:py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto space-y-12">
-          <div className="text-center max-w-2xl mx-auto space-y-2.5">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold uppercase tracking-wider">
-              <span>Platform Capabilities</span>
+      {/* Bento Grid: 6 Core Platform Pillars */}
+      <section id="features" className="py-24 md:py-32 px-4 sm:px-6 lg:px-8 border-b border-white/[0.08] bg-[#0b0b0e]">
+        <div className="max-w-6xl mx-auto space-y-16">
+          <div className="text-center max-w-2xl mx-auto space-y-3">
+            <div className="text-[11px] font-mono uppercase tracking-[0.25em] text-amber-400/90 font-medium">
+              03 / Capabilities
             </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight">
-              Architected for High-Volume Salons
+            <h2 className="font-serif text-3xl sm:text-5xl font-normal text-white tracking-tight">
+              Architected for high-volume studios
             </h2>
-            <p className="text-sm text-slate-600">
-              Built so any receptionist or stylist can pick it up in minutes with zero confusion.
+            <p className="text-sm text-slate-400 font-light">
+              Intuitive interfaces that receptionists and stylists master within their first shift.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Feature 1 */}
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-6 space-y-4 hover:border-slate-300 transition-all shadow-2xs">
-              <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-900 flex items-center justify-center border border-slate-200">
-                <Receipt className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-extrabold text-slate-950">Fast Billing & Receipts</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Make bills in under 5 seconds. Take cash, UPI, or cards, apply discount coupons easily, and send clean WhatsApp receipts directly to clients' phones.
+            <div className="p-7 rounded-xl border border-white/[0.08] bg-white/[0.02] space-y-4">
+              <div className="font-mono text-xs text-slate-400">01 / TENDER</div>
+              <h3 className="font-serif text-xl font-normal text-white">Rapid POS & E-Billing</h3>
+              <p className="text-xs text-slate-400 font-light leading-relaxed">
+                Accept cash, UPI, or cards on a unified folio. Apply privilege discounts and deliver digital GST invoices directly via WhatsApp.
               </p>
-              <div className="pt-2 flex flex-wrap gap-1.5 text-[10px] font-bold text-slate-600">
-                <span className="px-2.5 py-1 rounded-full bg-slate-100">Cash + UPI Split</span>
-                <span className="px-2.5 py-1 rounded-full bg-slate-100">WhatsApp Bill</span>
-                <span className="px-2.5 py-1 rounded-full bg-slate-100">Clean Tax Invoice</span>
+            </div>
+
+            <div className="p-7 rounded-xl border border-white/[0.08] bg-white/[0.02] space-y-4">
+              <div className="font-mono text-xs text-slate-400">02 / CALENDAR</div>
+              <h3 className="font-serif text-xl font-normal text-white">Chair Schedule Matrix</h3>
+              <p className="text-xs text-slate-400 font-light leading-relaxed">
+                Clear daily planner displaying station occupancy. Drag-and-drop service adjustments, seat walk-ins, and prevent double bookings.
+              </p>
+            </div>
+
+            <div className="p-7 rounded-xl border border-white/[0.08] bg-white/[0.02] space-y-4">
+              <div className="font-mono text-xs text-slate-400">03 / RETENTION</div>
+              <h3 className="font-serif text-xl font-normal text-white">Meta WhatsApp Cloud</h3>
+              <p className="text-xs text-slate-400 font-light leading-relaxed">
+                Automated 24h appointment reminders, birthday passes, and 28-day color refresh prompts that maintain steady repeat visits.
+              </p>
+            </div>
+
+            <div className="p-7 rounded-xl border border-white/[0.08] bg-white/[0.02] space-y-4">
+              <div className="font-mono text-xs text-slate-400">04 / PERSONNEL</div>
+              <h3 className="font-serif text-xl font-normal text-white">Attendance & Commissions</h3>
+              <p className="text-xs text-slate-400 font-light leading-relaxed">
+                One-tap staff clock-in with transparent calculation of service splits, retail incentives, and gratuities for payroll clarity.
+              </p>
+            </div>
+
+            <div className="p-7 rounded-xl border border-white/[0.08] bg-white/[0.02] space-y-4">
+              <div className="font-mono text-xs text-slate-400">05 / INVENTORY</div>
+              <h3 className="font-serif text-xl font-normal text-white">Backbar & Retail Ledger</h3>
+              <p className="text-xs text-slate-400 font-light leading-relaxed">
+                Differentiate salon backbar consumption from retail shelf stock. Depletes automatically at checkout with threshold reorder alerts.
+              </p>
+            </div>
+
+            <div className="p-7 rounded-xl border border-white/[0.08] bg-white/[0.02] space-y-4">
+              <div className="font-mono text-xs text-slate-400">06 / DOMAIN</div>
+              <h3 className="font-serif text-xl font-normal text-white">Sovereign Booking Portal</h3>
+              <p className="text-xs text-slate-400 font-light leading-relaxed">
+                Custom booking URL under your salon brand. Zero marketplace commissions and zero rival advertisements.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Customer Perspectives */}
+      <section className="py-24 md:py-32 px-4 sm:px-6 lg:px-8 border-b border-white/[0.08] bg-[#09090b]">
+        <div className="max-w-6xl mx-auto space-y-16">
+          <div className="text-center max-w-2xl mx-auto space-y-3">
+            <div className="text-[11px] font-mono uppercase tracking-[0.25em] text-amber-400/90 font-medium">
+              04 / Case Studies
+            </div>
+            <h2 className="font-serif text-3xl sm:text-5xl font-normal text-white tracking-tight">
+              Perspectives from studio founders
+            </h2>
+            <p className="text-sm text-slate-400 font-light">
+              Independent salon and clinic directors on transitioning from aggregators.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Story 1 */}
+            <div className="p-8 rounded-2xl border border-white/[0.08] bg-white/[0.02] space-y-6 flex flex-col justify-between">
+              <div className="space-y-4">
+                <div className="font-mono text-xs text-amber-300">₹1.85 Lakhs Saved in 6 Months</div>
+                <p className="text-xs text-slate-300 font-light leading-relaxed">
+                  "Transitioning from marketplace platforms to BillCare eliminated a 20% take on our repeat clientele. Our guests appreciate receiving branded WhatsApp invoices without needing a third-party app."
+                </p>
+              </div>
+              <div className="flex items-center gap-3.5 pt-4 border-t border-white/[0.08]">
+                <img
+                  src="/images/owner-priya.jpg"
+                  alt="Priya Nair"
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+                <div>
+                  <div className="text-xs font-medium text-white">Priya Nair</div>
+                  <div className="text-[11px] text-slate-400">Maison Luxe Hair Atelier · Bengaluru</div>
+                </div>
               </div>
             </div>
 
-            {/* Feature 2 */}
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-6 space-y-4 hover:border-slate-300 transition-all shadow-2xs">
-              <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-900 flex items-center justify-center border border-slate-200">
-                <Calendar className="w-5 h-5" />
+            {/* Story 2 */}
+            <div className="p-8 rounded-2xl border border-white/[0.08] bg-white/[0.02] space-y-6 flex flex-col justify-between">
+              <div className="space-y-4">
+                <div className="font-mono text-xs text-amber-300">42% Reduction in No-Shows</div>
+                <p className="text-xs text-slate-300 font-light leading-relaxed">
+                  "Front desk staff mastered the station schedule matrix within an afternoon. Stylist commission calculations went from hours of manual reconciliation to a single report."
+                </p>
               </div>
-              <h3 className="text-base font-extrabold text-slate-950">Easy Appointment Diary</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                A clear daily planner showing who is sitting where. Easy drag-and-drop to change times, seat walk-ins, and avoid double bookings.
-              </p>
-              <div className="pt-2 flex flex-wrap gap-1.5 text-[10px] font-bold text-slate-600">
-                <span className="px-2.5 py-1 rounded-full bg-slate-100">No Double Bookings</span>
-                <span className="px-2.5 py-1 rounded-full bg-slate-100">See Free Chairs</span>
-                <span className="px-2.5 py-1 rounded-full bg-slate-100">Fast Walk-ins</span>
-              </div>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-6 space-y-4 hover:border-slate-300 transition-all shadow-2xs">
-              <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-900 flex items-center justify-center border border-slate-200">
-                <MessageSquare className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-extrabold text-slate-950">Automatic WhatsApp Messages</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Remind clients before they arrive, wish them on birthdays, and send friendly follow-up reminders when it is time for their next haircut or color.
-              </p>
-              <div className="pt-2 flex flex-wrap gap-1.5 text-[10px] font-bold text-slate-600">
-                <span className="px-2.5 py-1 rounded-full bg-slate-100">Appointment Reminders</span>
-                <span className="px-2.5 py-1 rounded-full bg-slate-100">WhatsApp Direct</span>
-                <span className="px-2.5 py-1 rounded-full bg-slate-100">Happy Return Clients</span>
+              <div className="flex items-center gap-3.5 pt-4 border-t border-white/[0.08]">
+                <img
+                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80"
+                  alt="Vikram Mehta"
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+                <div>
+                  <div className="text-xs font-medium text-white">Vikram Mehta</div>
+                  <div className="text-[11px] text-slate-400">Blade & Comb Club · Mumbai</div>
+                </div>
               </div>
             </div>
 
-            {/* Feature 4 */}
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-6 space-y-4 hover:border-slate-300 transition-all shadow-2xs">
-              <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-900 flex items-center justify-center border border-slate-200">
-                <Users className="w-5 h-5" />
+            {/* Story 3 */}
+            <div className="p-8 rounded-2xl border border-white/[0.08] bg-white/[0.02] space-y-6 flex flex-col justify-between">
+              <div className="space-y-4">
+                <div className="font-mono text-xs text-amber-300">Complete Data Sovereignty</div>
+                <p className="text-xs text-slate-300 font-light leading-relaxed">
+                  "Our wellness clients require discretion. Aggregator pools share client data with competitor salons. BillCare guarantees isolation, and our patch-test ledger gives practitioners absolute certainty."
+                </p>
               </div>
-              <h3 className="text-base font-extrabold text-slate-950">Staff Attendance & Commission</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Simple 1-tap staff sign-in. Clear reports showing each stylist's services, tips, and commission so there is zero confusion on salary day.
-              </p>
-              <div className="pt-2 flex flex-wrap gap-1.5 text-[10px] font-bold text-slate-600">
-                <span className="px-2.5 py-1 rounded-full bg-slate-100">1-Tap Clock-in</span>
-                <span className="px-2.5 py-1 rounded-full bg-slate-100">Fair Commission</span>
-                <span className="px-2.5 py-1 rounded-full bg-slate-100">Daily Tip Totals</span>
-              </div>
-            </div>
-
-            {/* Feature 5 */}
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-6 space-y-4 hover:border-slate-300 transition-all shadow-2xs">
-              <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-900 flex items-center justify-center border border-slate-200">
-                <Boxes className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-extrabold text-slate-950">Products & Low Stock Warnings</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Track shampoos, hair colors, and creams. The system subtracts items automatically when sold or used, and warns you before anything runs out.
-              </p>
-              <div className="pt-2 flex flex-wrap gap-1.5 text-[10px] font-bold text-slate-600">
-                <span className="px-2.5 py-1 rounded-full bg-slate-100">Salon Use vs Retail</span>
-                <span className="px-2.5 py-1 rounded-full bg-slate-100">Barcode Scanning</span>
-                <span className="px-2.5 py-1 rounded-full bg-slate-100">Low Stock Alert</span>
-              </div>
-            </div>
-
-            {/* Feature 6 */}
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-6 space-y-4 hover:border-slate-300 transition-all shadow-2xs">
-              <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-900 flex items-center justify-center border border-slate-200">
-                <Globe className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-extrabold text-slate-950">Your Own Salon Website</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Give your customers a clean, mobile-friendly booking link with your salon name and logo. No competitor salon ads, no commission fees.
-              </p>
-              <div className="pt-2 flex flex-wrap gap-1.5 text-[10px] font-bold text-slate-600">
-                <span className="px-2.5 py-1 rounded-full bg-slate-100">Your Salon Name</span>
-                <span className="px-2.5 py-1 rounded-full bg-slate-100">0% Commission</span>
-                <span className="px-2.5 py-1 rounded-full bg-slate-100">Phone & Tablet Friendly</span>
+              <div className="flex items-center gap-3.5 pt-4 border-t border-white/[0.08]">
+                <img
+                  src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80"
+                  alt="Dr. Shweta Nair"
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+                <div>
+                  <div className="text-xs font-medium text-white">Dr. Shweta Nair</div>
+                  <div className="text-[11px] text-slate-400">Nirvana Holistic Wellness · New Delhi</div>
+                </div>
               </div>
             </div>
           </div>
@@ -1004,92 +1176,60 @@ export function LandingPage() {
       </section>
 
       {/* Comparison Matrix */}
-      <section id="comparison" className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-white border-t border-slate-200/80">
-        <div className="max-w-5xl mx-auto space-y-10">
-          <div className="text-center max-w-2xl mx-auto space-y-2.5">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold uppercase tracking-wider">
-              <span>Why We Are Different</span>
+      <section id="comparison" className="py-24 md:py-32 px-4 sm:px-6 lg:px-8 border-b border-white/[0.08] bg-[#09090b]">
+        <div className="max-w-5xl mx-auto space-y-12">
+          <div className="text-center max-w-2xl mx-auto space-y-3">
+            <div className="text-[11px] font-mono uppercase tracking-[0.25em] text-amber-400/90 font-medium">
+              06 / Sovereignty
             </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight">
-              Why Salons Choose RUVEXI
+            <h2 className="font-serif text-3xl sm:text-5xl font-normal text-white tracking-tight">
+              Sovereign software vs aggregators
             </h2>
-            <p className="text-sm text-slate-600">
-              Clear, honest comparison against other salon software and manual spreadsheets.
+            <p className="text-sm text-slate-400 font-light">
+              Why leading studios avoid giving away 20% of customer lifetime value.
             </p>
           </div>
 
-          <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-2xs">
-            <table className="w-full text-left text-xs border-collapse">
+          <div className="overflow-x-auto rounded-xl border border-white/[0.08] bg-[#0c0c0e]">
+            <table className="w-full text-left text-xs border-collapse font-light">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50/80">
-                  <th className="py-4 px-5 font-bold text-slate-600">WHAT MATTERS</th>
-                  <th className="py-4 px-5 font-black text-slate-950 bg-slate-100/70 border-x border-slate-200">
-                    RUVEXI
-                  </th>
-                  <th className="py-4 px-5 font-bold text-slate-500">FRESHA</th>
-                  <th className="py-4 px-5 font-bold text-slate-500">ZENOTI</th>
-                  <th className="py-4 px-5 font-bold text-slate-500">NOTEBOOKS / EXCEL</th>
+                <tr className="border-b border-white/[0.08] text-slate-400 font-mono text-[11px]">
+                  <th className="py-4 px-5">CAPABILITY</th>
+                  <th className="py-4 px-5 text-white bg-white/[0.03]">BILLCARE</th>
+                  <th className="py-4 px-5">FRESHA</th>
+                  <th className="py-4 px-5">ZENOTI</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200 font-medium">
+              <tbody className="divide-y divide-white/[0.06]">
                 <tr>
-                  <td className="py-3.5 px-5 text-slate-800 font-semibold">New Client Booking Fee</td>
-                  <td className="py-3.5 px-5 font-bold text-emerald-700 bg-slate-100/40 border-x border-slate-200">
-                    0% (Always Free)
-                  </td>
-                  <td className="py-3.5 px-5 text-rose-600">Takes 20% cut per client</td>
-                  <td className="py-3.5 px-5 text-slate-500">Custom Transaction Fees</td>
-                  <td className="py-3.5 px-5 text-slate-500">0%</td>
+                  <td className="py-4 px-5 text-white font-medium">New Client Booking Fee</td>
+                  <td className="py-4 px-5 text-emerald-400 font-mono bg-white/[0.03]">0% Free</td>
+                  <td className="py-4 px-5 text-slate-400">20% per booking</td>
+                  <td className="py-4 px-5 text-slate-400">Custom gateway cuts</td>
                 </tr>
-
                 <tr>
-                  <td className="py-3.5 px-5 text-slate-800 font-semibold">Your Own Website (No Rival Salon Ads)</td>
-                  <td className="py-3.5 px-5 font-bold text-emerald-700 bg-slate-100/40 border-x border-slate-200">
-                    Yes (Your Own Salon Link)
-                  </td>
-                  <td className="py-3.5 px-5 text-rose-600">No (Shows Other Salons)</td>
-                  <td className="py-3.5 px-5 text-emerald-700">Yes (High Cost)</td>
-                  <td className="py-3.5 px-5 text-rose-600">No</td>
+                  <td className="py-4 px-5 text-white font-medium">Competitor Ads on Booking Link</td>
+                  <td className="py-4 px-5 text-emerald-400 font-mono bg-white/[0.03]">Zero (Private)</td>
+                  <td className="py-4 px-5 text-slate-400">Yes (Promotes rivals)</td>
+                  <td className="py-4 px-5 text-slate-400">No</td>
                 </tr>
-
                 <tr>
-                  <td className="py-3.5 px-5 text-slate-800 font-semibold">Automatic WhatsApp Reminders</td>
-                  <td className="py-3.5 px-5 font-bold text-emerald-700 bg-slate-100/40 border-x border-slate-200">
-                    Built-in WhatsApp (Fast & Direct)
-                  </td>
-                  <td className="py-3.5 px-5 text-rose-600">SMS Only (Extra Fee)</td>
-                  <td className="py-3.5 px-5 text-slate-500">Paid Add-on</td>
-                  <td className="py-3.5 px-5 text-rose-600">Manual Copy-Paste</td>
+                  <td className="py-4 px-5 text-white font-medium">WhatsApp Cloud API Automation</td>
+                  <td className="py-4 px-5 text-emerald-400 font-mono bg-white/[0.03]">Included</td>
+                  <td className="py-4 px-5 text-slate-400">SMS with surcharge</td>
+                  <td className="py-4 px-5 text-slate-400">Paid enterprise add-on</td>
                 </tr>
-
                 <tr>
-                  <td className="py-3.5 px-5 text-slate-800 font-semibold">Client Hair Color & Allergy Notes</td>
-                  <td className="py-3.5 px-5 font-bold text-emerald-700 bg-slate-100/40 border-x border-slate-200">
-                    Client History + Color Formulas
-                  </td>
-                  <td className="py-3.5 px-5 text-slate-500">Basic Notes Only</td>
-                  <td className="py-3.5 px-5 text-emerald-700">Yes</td>
-                  <td className="py-3.5 px-5 text-rose-600">Lost on paper slips</td>
+                  <td className="py-4 px-5 text-white font-medium">Gram Formulation & Patch-Test Ledger</td>
+                  <td className="py-4 px-5 text-emerald-400 font-mono bg-white/[0.03]">Included</td>
+                  <td className="py-4 px-5 text-slate-400">Basic freeform note</td>
+                  <td className="py-4 px-5 text-slate-400">Yes</td>
                 </tr>
-
                 <tr>
-                  <td className="py-3.5 px-5 text-slate-800 font-semibold">Staff Attendance & Commission Calculator</td>
-                  <td className="py-3.5 px-5 font-bold text-emerald-700 bg-slate-100/40 border-x border-slate-200">
-                    1-Tap Clock-in & Auto Split
-                  </td>
-                  <td className="py-3.5 px-5 text-slate-500">Basic Roster</td>
-                  <td className="py-3.5 px-5 text-emerald-700">Complex Setup</td>
-                  <td className="py-3.5 px-5 text-rose-600">Hours of Manual Math</td>
-                </tr>
-
-                <tr>
-                  <td className="py-3.5 px-5 text-slate-800 font-semibold">Your Client Data Privacy</td>
-                  <td className="py-3.5 px-5 font-bold text-emerald-700 bg-slate-100/40 border-x border-slate-200">
-                    100% Private to Your Salon
-                  </td>
-                  <td className="py-3.5 px-5 text-slate-500">Shared Aggregate Pool</td>
-                  <td className="py-3.5 px-5 text-emerald-700">Private Enterprise</td>
-                  <td className="py-3.5 px-5 text-rose-600">Unprotected Sheets</td>
+                  <td className="py-4 px-5 text-white font-medium">Customer Database Ownership</td>
+                  <td className="py-4 px-5 text-emerald-400 font-mono bg-white/[0.03]">100% Sovereign</td>
+                  <td className="py-4 px-5 text-slate-400">Shared marketplace pool</td>
+                  <td className="py-4 px-5 text-slate-400">Private enterprise</td>
                 </tr>
               </tbody>
             </table>
@@ -1097,176 +1237,124 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-[#faf9f6]">
+      {/* Plans & Pricing */}
+      <section id="pricing" className="py-24 md:py-32 px-4 sm:px-6 lg:px-8 border-b border-white/[0.08] bg-[#0b0b0e]">
         <div className="max-w-5xl mx-auto space-y-12">
           <div className="text-center max-w-2xl mx-auto space-y-3">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold uppercase tracking-wider">
-              <span>Transparent Pricing</span>
+            <div className="text-[11px] font-mono uppercase tracking-[0.25em] text-amber-400/90 font-medium">
+              07 / Pricing
             </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight">
-              Straightforward Software Plans
+            <h2 className="font-serif text-3xl sm:text-5xl font-normal text-white tracking-tight">
+              Transparent monthly plans
             </h2>
-            <p className="text-sm text-slate-600">
-              No hidden fees, no per-booking cuts. Choose the tier that fits your chair count.
+            <p className="text-sm text-slate-400 font-light">
+              Zero transaction cuts. Zero commission lock-ins.
             </p>
 
-            {/* Toggle */}
-            <div className="inline-flex items-center bg-white border border-slate-200 p-1 rounded-xl shadow-2xs">
+            <div className="inline-flex items-center border border-white/[0.08] p-1 rounded bg-[#09090b] font-mono text-xs mt-2">
               <button
                 onClick={() => setBillingCycle("monthly")}
-                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-                  billingCycle === "monthly" ? "bg-slate-950 text-white shadow-xs" : "text-slate-600 hover:text-slate-950"
+                className={`px-3.5 py-1.5 rounded transition-all cursor-pointer ${
+                  billingCycle === "monthly" ? "bg-white/10 text-white" : "text-slate-400 hover:text-white"
                 }`}
               >
                 Monthly
               </button>
               <button
                 onClick={() => setBillingCycle("annual")}
-                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-                  billingCycle === "annual" ? "bg-slate-950 text-white shadow-xs" : "text-slate-600 hover:text-slate-950"
+                className={`px-3.5 py-1.5 rounded transition-all cursor-pointer flex items-center gap-1.5 ${
+                  billingCycle === "annual" ? "bg-white/10 text-white" : "text-slate-400 hover:text-white"
                 }`}
               >
                 <span>Annual</span>
-                <span className="px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-[9px]">
-                  SAVE 20%
-                </span>
+                <span className="text-[10px] text-amber-300">-20%</span>
               </button>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Starter */}
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-7 space-y-6 flex flex-col justify-between shadow-2xs">
+            {/* Plan 1 */}
+            <div className="p-7 rounded-xl border border-white/[0.08] bg-white/[0.02] space-y-6 flex flex-col justify-between">
               <div className="space-y-4">
                 <div className="space-y-1">
-                  <h3 className="font-extrabold text-base text-slate-950">Starter Studio</h3>
-                  <p className="text-xs text-slate-500">For boutique hair salons up to 3 chairs.</p>
+                  <div className="font-serif text-xl text-white">Starter Studio</div>
+                  <div className="text-xs text-slate-400 font-light">Up to 3 styling chairs.</div>
                 </div>
                 <div className="pt-2">
-                  <span className="text-3xl font-black text-slate-950 font-mono">
+                  <span className="font-serif text-3xl text-white">
                     {billingCycle === "annual" ? "₹2,399" : "₹2,999"}
                   </span>
-                  <span className="text-xs text-slate-500"> / month</span>
+                  <span className="text-xs text-slate-400 font-mono"> / month</span>
                 </div>
-
-                <div className="space-y-2.5 pt-4 text-xs text-slate-700 font-medium">
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Up to 3 Styling Chairs</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Point of Sale & GST Billing</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Chair Schedule Matrix</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Client Formula Vault</span>
-                  </div>
+                <div className="space-y-2 text-xs font-light text-slate-300 pt-3 border-t border-white/[0.08]">
+                  <div>· Up to 3 Styling Stations</div>
+                  <div>· Fast POS & GST Invoicing</div>
+                  <div>· Daily Schedule Planner</div>
+                  <div>· Client Formulation Vault</div>
                 </div>
               </div>
-
               <Link
                 href="/signup"
-                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold text-xs rounded-xl border border-slate-200 transition-all text-center block"
+                className="w-full py-2.5 border border-white/20 text-slate-200 hover:bg-white/5 font-medium text-xs uppercase tracking-wider rounded text-center block transition-all"
               >
-                Start Free Trial
+                Begin Trial
               </Link>
             </div>
 
-            {/* Growth */}
-            <div className="bg-white border-2 border-slate-950 rounded-2xl p-7 space-y-6 flex flex-col justify-between shadow-sm relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-slate-950 text-white font-extrabold text-[9px] uppercase tracking-wider">
-                RECOMMENDED
-              </div>
-
+            {/* Plan 2 */}
+            <div className="p-7 rounded-xl border border-amber-400/40 bg-white/[0.04] space-y-6 flex flex-col justify-between relative shadow-2xl">
               <div className="space-y-4">
                 <div className="space-y-1">
-                  <h3 className="font-extrabold text-base text-slate-950">Growth Salon</h3>
-                  <p className="text-xs text-slate-500">For high-traffic studios & multi-service spas.</p>
+                  <div className="font-serif text-xl text-white">Growth Studio</div>
+                  <div className="text-xs text-slate-400 font-light">For high-traffic studios & multi-chair salons.</div>
                 </div>
                 <div className="pt-2">
-                  <span className="text-3xl font-black text-slate-950 font-mono">
+                  <span className="font-serif text-3xl text-amber-200">
                     {billingCycle === "annual" ? "₹4,799" : "₹5,999"}
                   </span>
-                  <span className="text-xs text-slate-500"> / month</span>
+                  <span className="text-xs text-slate-400 font-mono"> / month</span>
                 </div>
-
-                <div className="space-y-2.5 pt-4 text-xs text-slate-800 font-medium">
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span className="font-bold">Up to 10 Styling Chairs</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span className="font-bold">Meta WhatsApp Cloud Marketing AI</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Staff Biometric Clock-in & Commissions</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Backbar & Retail Stock Ledger</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Branded Online Customer Booking Portal</span>
-                  </div>
+                <div className="space-y-2 text-xs font-light text-slate-200 pt-3 border-t border-white/[0.08]">
+                  <div>· Up to 10 Styling Stations</div>
+                  <div>· Meta WhatsApp Marketing API</div>
+                  <div>· Staff Clock-in & Split Commissions</div>
+                  <div>· Backbar & Retail Stock Ledger</div>
+                  <div>· Branded Online Booking Portal</div>
                 </div>
               </div>
-
               <Link
                 href="/signup"
-                className="w-full py-3 bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all text-center block"
+                className="w-full py-2.5 bg-slate-100 hover:bg-white text-slate-950 font-medium text-xs uppercase tracking-wider rounded text-center block transition-all"
               >
-                Start 14-Day Free Trial
+                Begin Trial
               </Link>
             </div>
 
-            {/* Enterprise */}
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-7 space-y-6 flex flex-col justify-between shadow-2xs">
+            {/* Plan 3 */}
+            <div className="p-7 rounded-xl border border-white/[0.08] bg-white/[0.02] space-y-6 flex flex-col justify-between">
               <div className="space-y-4">
                 <div className="space-y-1">
-                  <h3 className="font-extrabold text-base text-slate-950">Multi-Branch Chain</h3>
-                  <p className="text-xs text-slate-500">For franchise groups & luxury multi-outlet brands.</p>
+                  <div className="font-serif text-xl text-white">Multi-Branch Chain</div>
+                  <div className="text-xs text-slate-400 font-light">Franchise groups and multi-location brands.</div>
                 </div>
                 <div className="pt-2">
-                  <span className="text-3xl font-black text-slate-950 font-mono">
+                  <span className="font-serif text-3xl text-white">
                     {billingCycle === "annual" ? "₹10,399" : "₹12,999"}
                   </span>
-                  <span className="text-xs text-slate-500"> / month</span>
+                  <span className="text-xs text-slate-400 font-mono"> / month</span>
                 </div>
-
-                <div className="space-y-2.5 pt-4 text-xs text-slate-700 font-medium">
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Unlimited Chairs & Locations</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Cross-Branch Customer Loyalty Sync</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Centralized Multi-Outlet Stock Transfers</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Dedicated PostgreSQL Instance</span>
-                  </div>
+                <div className="space-y-2 text-xs font-light text-slate-300 pt-3 border-t border-white/[0.08]">
+                  <div>· Unlimited Stations & Outlets</div>
+                  <div>· Centralized Client Loyalty Sync</div>
+                  <div>· Inter-Branch Stock Transfers</div>
+                  <div>· Dedicated Database Instance</div>
                 </div>
               </div>
-
               <Link
                 href="/signup"
-                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold text-xs rounded-xl border border-slate-200 transition-all text-center block"
+                className="w-full py-2.5 border border-white/20 text-slate-200 hover:bg-white/5 font-medium text-xs uppercase tracking-wider rounded text-center block transition-all"
               >
-                Contact Sales
+                Contact Concierge
               </Link>
             </div>
           </div>
@@ -1274,17 +1362,15 @@ export function LandingPage() {
       </section>
 
       {/* FAQ Accordion */}
-      <section id="faq" className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-white border-t border-slate-200/80">
+      <section id="faq" className="py-24 md:py-32 px-4 sm:px-6 lg:px-8 border-b border-white/[0.08] bg-[#09090b]">
         <div className="max-w-3xl mx-auto space-y-10">
-          <div className="text-center space-y-2.5">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold uppercase tracking-wider">
-              <HelpCircle className="w-3.5 h-3.5" />
-              <span>Questions & Answers</span>
+          <div className="text-center space-y-3">
+            <div className="text-[11px] font-mono uppercase tracking-[0.25em] text-amber-400/90 font-medium">
+              08 / Inquiries
             </div>
-            <h2 className="text-3xl font-extrabold text-slate-950 tracking-tight">
-              Frequently Asked Questions
+            <h2 className="font-serif text-3xl sm:text-4xl font-normal text-white tracking-tight">
+              Frequently asked questions
             </h2>
-            <p className="text-sm text-slate-600">Everything you need to know about switching to RUVEXI.</p>
           </div>
 
           <div className="space-y-3">
@@ -1293,21 +1379,21 @@ export function LandingPage() {
               return (
                 <div
                   key={idx}
-                  className="bg-[#faf9f6] border border-slate-200 rounded-xl overflow-hidden transition-all"
+                  className="border border-white/[0.08] rounded-lg overflow-hidden bg-white/[0.02] transition-all"
                 >
                   <button
                     onClick={() => setOpenFaq(isOpen ? null : idx)}
-                    className="w-full py-4 px-5 text-left font-bold text-sm text-slate-900 flex items-center justify-between gap-4"
+                    className="w-full py-4 px-5 text-left text-sm font-medium text-white flex items-center justify-between gap-4 cursor-pointer"
                   >
                     <span>{faq.q}</span>
                     <ChevronDown
-                      className={`w-4 h-4 text-slate-500 shrink-0 transition-transform duration-200 ${
-                        isOpen ? "rotate-180 text-slate-900" : ""
+                      className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200 ${
+                        isOpen ? "rotate-180 text-white" : ""
                       }`}
                     />
                   </button>
                   {isOpen && (
-                    <div className="px-5 pb-5 pt-1 text-xs text-slate-600 leading-relaxed border-t border-slate-200/60 animate-in fade-in duration-150">
+                    <div className="px-5 pb-5 pt-1 text-xs text-slate-400 font-light leading-relaxed border-t border-white/[0.06] animate-in fade-in duration-150">
                       {faq.a}
                     </div>
                   )}
@@ -1318,89 +1404,80 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Editorial Callout Banner */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-[#faf9f6]">
-        <div className="max-w-4xl mx-auto rounded-3xl bg-slate-950 text-white p-8 sm:p-12 text-center space-y-6 shadow-md">
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-            Elevate Your Salon's Daily Operations
+      {/* Editorial Final Callout */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-[#0c0c0e] text-center border-b border-white/[0.08]">
+        <div className="max-w-3xl mx-auto space-y-6">
+          <div className="text-[11px] font-mono uppercase tracking-[0.25em] text-amber-400/90 font-medium">
+            Deployment
+          </div>
+          <h2 className="font-serif text-4xl sm:text-6xl font-normal text-white tracking-tight">
+            Elevate your studio operations.
           </h2>
-          <p className="max-w-xl mx-auto text-sm text-slate-300 font-normal leading-relaxed">
-            Join over 140 premier studios operating on RUVEXI. Zero commission lock-ins, 14 days free trial, and instant setup.
+          <p className="max-w-xl mx-auto text-sm text-slate-400 font-light leading-relaxed">
+            Fourteen days complimentary access. Zero commission lock-ins. Seamless data migration from existing spreadsheets or aggregators.
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-3.5 pt-2">
+          <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
             <Link
               href="/signup"
-              className="px-6 py-3 bg-white text-slate-950 hover:bg-slate-100 font-extrabold text-xs rounded-xl shadow-xs transition-all"
+              className="px-8 py-3.5 bg-slate-100 hover:bg-white text-slate-950 font-medium text-xs uppercase tracking-wider rounded transition-all shadow-xl"
             >
-              Start Free 14-Day Trial
+              Start 14-Day Free Trial
             </Link>
             <Link
               href="/dashboard"
-              className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl border border-slate-700 transition-all"
+              className="px-8 py-3.5 bg-transparent hover:bg-white/5 text-slate-200 font-medium text-xs uppercase tracking-wider rounded border border-white/20 transition-all"
             >
-              Launch Live Salon Demo
+              Open Reception Terminal
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Refined Light Footer */}
-      <footer className="border-t border-slate-200 bg-white py-12 px-4 sm:px-6 lg:px-8 text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-8">
+      {/* Minimal Editorial Footer */}
+      <footer className="bg-[#09090b] py-16 px-4 sm:px-6 lg:px-8 text-xs text-slate-400">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-10">
           <div className="col-span-2 space-y-3">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-slate-950 text-white flex items-center justify-center font-bold text-sm">
-                R
-              </div>
-              <span className="font-extrabold text-base text-slate-950 tracking-tight">RUVEXI</span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
-                SALON OS
-              </span>
-            </div>
-            <p className="text-slate-600 text-xs max-w-sm leading-relaxed">
-              The modern management software and multi-tenant SaaS platform for high-end salons, hair studios, and wellness spas.
+            <BillCareLogo size="sm" variant="light" showSubtitle={true} />
+            <p className="text-slate-400 text-xs max-w-sm font-light leading-relaxed">
+              Operating system for independent hair ateliers, master barber clubs, and wellness spas.
             </p>
           </div>
 
-          <div className="space-y-2.5">
-            <div className="font-bold text-slate-900">Product</div>
-            <ul className="space-y-1.5 text-slate-600">
-              <li><Link href="/dashboard" className="hover:text-slate-950 transition-colors">Point of Sale (POS)</Link></li>
-              <li><Link href="/dashboard" className="hover:text-slate-950 transition-colors">Chair Schedule Matrix</Link></li>
-              <li><Link href="/dashboard" className="hover:text-slate-950 transition-colors">WhatsApp Automation</Link></li>
-              <li><Link href="/dashboard" className="hover:text-slate-950 transition-colors">Inventory Control</Link></li>
-              <li><Link href="/dashboard" className="hover:text-slate-950 transition-colors">Staff Commissions</Link></li>
+          <div className="space-y-3">
+            <div className="font-mono text-[11px] uppercase tracking-wider text-white">System</div>
+            <ul className="space-y-2 text-slate-400 font-light">
+              <li><Link href="/dashboard" className="hover:text-white transition-colors">Point of Sale</Link></li>
+              <li><Link href="/dashboard" className="hover:text-white transition-colors">Chair Matrix</Link></li>
+              <li><Link href="/dashboard" className="hover:text-white transition-colors">WhatsApp Dispatches</Link></li>
+              <li><Link href="/dashboard" className="hover:text-white transition-colors">Formula Vault</Link></li>
             </ul>
           </div>
 
-          <div className="space-y-2.5">
-            <div className="font-bold text-slate-900">Platform</div>
-            <ul className="space-y-1.5 text-slate-600">
-              <li><Link href="/book" className="hover:text-slate-950 transition-colors">Client Booking Site</Link></li>
-              <li><Link href="/admin" className="hover:text-slate-950 transition-colors">Super Admin Console</Link></li>
-              <li><Link href="/login" className="hover:text-slate-950 transition-colors">Staff & Owner Sign In</Link></li>
-              <li><Link href="/signup" className="hover:text-slate-950 transition-colors">Salon Onboarding</Link></li>
+          <div className="space-y-3">
+            <div className="font-mono text-[11px] uppercase tracking-wider text-white">Access</div>
+            <ul className="space-y-2 text-slate-400 font-light">
+              <li><Link href="/book" className="hover:text-white transition-colors">Client Booking</Link></li>
+              <li><Link href="/login" className="hover:text-white transition-colors">Staff Terminal</Link></li>
+              <li><Link href="/admin" className="hover:text-white transition-colors">Administration</Link></li>
+              <li><Link href="/signup" className="hover:text-white transition-colors">Studio Onboarding</Link></li>
             </ul>
           </div>
 
-          <div className="space-y-2.5">
-            <div className="font-bold text-slate-900">Compliance & Trust</div>
-            <ul className="space-y-1.5 text-slate-600">
-              <li><span className="hover:text-slate-950 cursor-pointer">Privacy Policy</span></li>
-              <li><span className="hover:text-slate-950 cursor-pointer">Terms of Service</span></li>
-              <li><span className="hover:text-slate-950 cursor-pointer">PostgreSQL RLS Architecture</span></li>
-              <li><span className="hover:text-slate-950 cursor-pointer">Meta Cloud Integration</span></li>
+          <div className="space-y-3">
+            <div className="font-mono text-[11px] uppercase tracking-wider text-white">Trust</div>
+            <ul className="space-y-2 text-slate-400 font-light">
+              <li><span>PostgreSQL Isolation</span></li>
+              <li><span>Meta Cloud API</span></li>
+              <li><span>Zero Marketplace Fees</span></li>
+              <li><span>Private Client Vault</span></li>
             </ul>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto pt-8 mt-8 border-t border-slate-200 flex flex-wrap items-center justify-between gap-4 text-[11px] text-slate-500">
-          <div>© {new Date().getFullYear()} RUVEXI. All rights reserved. Zero commission guarantees.</div>
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span className="text-slate-700 font-semibold">99.98% Cloud Availability</span>
-          </div>
+        <div className="max-w-7xl mx-auto pt-10 mt-12 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-4 text-[11px] font-mono text-slate-400">
+          <div>© {new Date().getFullYear()} BillCare Solution. All rights reserved.</div>
+          <div>99.98% Cloud Availability SLA</div>
         </div>
       </footer>
     </div>

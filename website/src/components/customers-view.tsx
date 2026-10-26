@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { useDemo } from "@/lib/demo-context";
+import { useBillCare } from "@/lib/billcare-context";
 import { formatCurrency } from "@/lib/utils";
-import { CustomerProfile } from "@/lib/demo-data";
+import { CustomerProfile } from "@/lib/types";
 import { ClientFormulaModal } from "./client-formula-modal";
 import {
   Users,
@@ -31,12 +31,12 @@ interface CustomersViewProps {
 }
 
 export function CustomersView({ onGoToPos, onGoToBooking }: CustomersViewProps) {
-  const { customers, invoices, addCustomer, updateCustomer } = useDemo();
+  const { customers, invoices, addCustomer, updateCustomer } = useBillCare();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [tierFilter, setTierFilter] = useState<string>("All");
   const [selectedCustomerForModal, setSelectedCustomerForModal] =
-    useState<CustomerProfile | null>(null);
+    useState<any>(null);
   const [showAddModal, setShowAddModal] = useState(false);
 
   // New customer form state
@@ -95,9 +95,9 @@ export function CustomersView({ onGoToPos, onGoToBooking }: CustomersViewProps) 
     setNewFormula("");
   };
 
-  const handleWhatsAppClick = (c: CustomerProfile) => {
+  const handleWhatsAppClick = (c: any) => {
     const text = encodeURIComponent(
-      `Hi ${c.name}! ✨ From Luxe Haven Salon: We hope you are loving your hair! Your stylist ${c.preferredStaff} wanted to check in. Would you like to reserve a chair for your next visit?`
+      `Hi ${c.name}! ✨ From BillCare: We hope you are loving your look! Your stylist ${c.preferredStaff || "specialist"} wanted to check in. Would you like to reserve a chair for your next visit?`
     );
     const cleanPhone = c.phone.replace(/[^0-9]/g, "");
     window.open(`https://wa.me/${cleanPhone}?text=${text}`, "_blank");
@@ -106,21 +106,21 @@ export function CustomersView({ onGoToPos, onGoToBooking }: CustomersViewProps) 
   return (
     <div className="space-y-6">
       {/* Top Banner & Metrics */}
-      <div className="luxury-card p-6 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[#0D0D0F] border border-[#27272A] p-5 sm:p-6 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/25 border border-white/20">
+          <div className="w-12 h-12 rounded-xl bg-[#F5C928]/10 border border-[#F5C928]/30 flex items-center justify-center text-[#F5C928] shadow-lg shadow-[#F5C928]/5 shrink-0">
             <Users className="w-6 h-6" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
-                Client 360° CRM & Formula Registry
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-xl font-serif font-bold text-[#F5F4F0] tracking-tight">
+                Client CRM & Formula Registry
               </h1>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
+              <span className="text-[10px] font-mono uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-[#171719] text-[#F5C928] border border-[#27272A]">
                 {customers.length} Clients
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-[#7E8B9C] mt-0.5">
               Technical hair/skin formula cards • Lifetime value tracking • Patch test safety records
             </p>
           </div>
@@ -129,7 +129,7 @@ export function CustomersView({ onGoToPos, onGoToBooking }: CustomersViewProps) 
         <div className="flex items-center gap-3">
           <button
             onClick={() => setShowAddModal(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-md shadow-purple-500/20 transition-all"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#F5C928] hover:bg-[#f7d348] text-[#080809] font-bold text-xs rounded-xl shadow-lg shadow-[#F5C928]/10 transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" /> Add New Client
           </button>
@@ -138,35 +138,35 @@ export function CustomersView({ onGoToPos, onGoToBooking }: CustomersViewProps) 
 
       {/* Summary KPI Badges */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="luxury-card p-4 rounded-2xl border-slate-200/80">
-          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
+        <div className="bg-[#111113] border border-[#27272A] p-4 rounded-xl">
+          <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-wider block">
             Client Lifetime Spend
           </span>
-          <span className="text-lg font-black text-slate-900 font-mono mt-1 block">
+          <span className="text-lg font-mono font-bold text-[#F5C928] mt-1 block">
             {formatCurrency(totalLifetimeValue)}
           </span>
         </div>
-        <div className="luxury-card p-4 rounded-2xl border-slate-200/80">
-          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
+        <div className="bg-[#111113] border border-[#27272A] p-4 rounded-xl">
+          <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-wider block">
             VIP Diamond Tiers
           </span>
-          <span className="text-lg font-black text-purple-600 font-mono mt-1 block">
+          <span className="text-lg font-mono font-bold text-[#F5C928] mt-1 block">
             {vipCount} VIP Clients
           </span>
         </div>
-        <div className="luxury-card p-4 rounded-2xl border-slate-200/80">
-          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
+        <div className="bg-[#111113] border border-[#27272A] p-4 rounded-xl">
+          <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-wider block">
             Average Chair Visits
           </span>
-          <span className="text-lg font-black text-blue-600 font-mono mt-1 block">
+          <span className="text-lg font-mono font-bold text-[#F5F4F0] mt-1 block">
             {avgVisits} visits / client
           </span>
         </div>
-        <div className="luxury-card p-4 rounded-2xl border-slate-200/80">
-          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
+        <div className="bg-[#111113] border border-[#27272A] p-4 rounded-xl">
+          <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-wider block">
             Patch Test Safety Rate
           </span>
-          <span className="text-lg font-black text-emerald-600 font-mono mt-1 block">
+          <span className="text-lg font-mono font-bold text-emerald-400 mt-1 block">
             100% Certified
           </span>
         </div>
@@ -175,13 +175,13 @@ export function CustomersView({ onGoToPos, onGoToBooking }: CustomersViewProps) 
       {/* Search & Tier Filters */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#7E8B9C]" />
           <input
             type="text"
             placeholder="Search by name, phone (+91) or email..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 text-xs bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 font-medium shadow-2xs"
+            className="w-full pl-10 pr-4 py-2.5 text-xs bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] placeholder-[#7E8B9C] focus:outline-none focus:border-[#F5C928] font-medium"
           />
         </div>
 
@@ -190,10 +190,10 @@ export function CustomersView({ onGoToPos, onGoToBooking }: CustomersViewProps) 
             <button
               key={tier}
               onClick={() => setTierFilter(tier)}
-              className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all border ${
+              className={`px-3 py-1.5 rounded-lg font-bold whitespace-nowrap transition-all border ${
                 tierFilter === tier
-                  ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                  : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                  ? "bg-[#F5C928] text-[#080809] border-[#F5C928] shadow-sm"
+                  : "bg-[#111113] text-[#A3A3AD] border-[#27272A] hover:text-[#F5F4F0]"
               }`}
             >
               {tier}
@@ -204,13 +204,13 @@ export function CustomersView({ onGoToPos, onGoToBooking }: CustomersViewProps) 
 
       {/* Client Cards Grid */}
       {filteredCustomers.length === 0 ? (
-        <div className="luxury-card p-12 rounded-3xl text-center space-y-4 max-w-md mx-auto">
-          <div className="w-16 h-16 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center mx-auto">
+        <div className="bg-[#0D0D0F] border border-[#27272A] p-12 rounded-2xl text-center space-y-4 max-w-md mx-auto shadow-xl">
+          <div className="w-16 h-16 rounded-full bg-[#171719] border border-[#27272A] text-[#F5C928] flex items-center justify-center mx-auto">
             <Users className="w-8 h-8" />
           </div>
           <div>
-            <h3 className="font-extrabold text-base text-slate-900">No Clients Found</h3>
-            <p className="text-xs text-slate-500 mt-1">
+            <h3 className="font-serif font-bold text-base text-[#F5F4F0]">No Clients Found</h3>
+            <p className="text-xs text-[#7E8B9C] mt-1">
               No salon clients match "{searchQuery}" with tier filter "{tierFilter}".
             </p>
           </div>
@@ -220,13 +220,13 @@ export function CustomersView({ onGoToPos, onGoToBooking }: CustomersViewProps) 
                 setSearchQuery("");
                 setTierFilter("All");
               }}
-              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all"
+              className="px-4 py-2 bg-[#171719] hover:bg-[#27272A] border border-[#27272A] text-[#F5F4F0] font-bold text-xs rounded-xl transition-all cursor-pointer"
             >
               Reset Filters
             </button>
             <button
               onClick={() => setShowAddModal(true)}
-              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all inline-flex items-center gap-1.5"
+              className="px-4 py-2 bg-[#F5C928] hover:bg-[#f7d348] text-[#080809] font-bold text-xs rounded-xl shadow-xs transition-all inline-flex items-center gap-1.5 cursor-pointer"
             >
               <Plus className="w-4 h-4" /> Add New Client
             </button>
@@ -237,34 +237,30 @@ export function CustomersView({ onGoToPos, onGoToBooking }: CustomersViewProps) 
           {filteredCustomers.map((cust) => (
             <div
               key={cust.id}
-              className="luxury-card rounded-3xl p-5 flex flex-col justify-between hover:border-purple-300 hover:shadow-xl transition-all"
+              className="bg-[#111113] border border-[#27272A] rounded-xl p-5 flex flex-col justify-between hover:border-[#F5C928]/50 hover:bg-[#171719] transition-all shadow-lg"
             >
               <div>
                 {/* Header with VIP Pill & Initials */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-500 to-indigo-600 text-white font-black text-sm flex items-center justify-center shadow-md shadow-purple-500/20">
+                    <div className="w-12 h-12 rounded-xl bg-[#171719] border border-[#27272A] text-[#F5C928] font-bold text-sm flex items-center justify-center shadow-md font-mono">
                       {cust.name
                         .split(" ")
                         .map((n) => n[0])
                         .join("")}
                     </div>
                     <div>
-                      <h3 className="font-extrabold text-slate-900 text-sm leading-tight">
+                      <h3 className="font-bold text-[#F5F4F0] text-sm leading-tight">
                         {cust.name}
                       </h3>
-                      <p className="text-xs text-slate-500 font-mono mt-0.5 font-medium">{cust.phone}</p>
+                      <p className="text-xs text-[#7E8B9C] font-mono mt-0.5">{cust.phone}</p>
                     </div>
                   </div>
 
                   <span
-                    className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-full flex items-center gap-1 ${
-                      cust.vipTier?.includes("Platinum")
-                        ? "bg-amber-100 text-amber-900 border border-amber-200"
-                        : "bg-purple-50 text-purple-800 border border-purple-200"
-                    }`}
+                    className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 bg-[#171719] text-[#F5C928] border border-[#27272A]"
                   >
-                    <Crown className="w-3 h-3 fill-current" />
+                    <Crown className="w-3 h-3 fill-current text-[#F5C928]" />
                     {cust.vipTier || "Gold VIP"}
                   </span>
                 </div>
@@ -274,7 +270,7 @@ export function CustomersView({ onGoToPos, onGoToBooking }: CustomersViewProps) 
                   {cust.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700"
+                      className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-md bg-[#171719] text-[#A3A3AD] border border-[#27272A]"
                     >
                       #{tag}
                     </span>
@@ -282,74 +278,74 @@ export function CustomersView({ onGoToPos, onGoToBooking }: CustomersViewProps) 
                 </div>
 
                 {/* Spend Metrics & Preferred Stylist */}
-                <div className="mt-4 pt-3 border-t border-slate-100 grid grid-cols-3 gap-2 text-center text-xs">
-                  <div className="bg-slate-50 p-2 rounded-xl">
-                    <span className="text-[11px] text-slate-500 font-extrabold block">SPENT</span>
-                    <span className="font-black text-slate-900 font-mono">
+                <div className="mt-4 pt-3 border-t border-[#27272A] grid grid-cols-3 gap-2 text-center text-xs">
+                  <div className="bg-[#0D0D0F] border border-[#27272A] p-2 rounded-lg">
+                    <span className="text-[10px] text-[#7E8B9C] font-mono uppercase block">SPENT</span>
+                    <span className="font-bold text-[#F5C928] font-mono text-xs">
                       {formatCurrency(cust.totalSpent)}
                     </span>
                   </div>
-                  <div className="bg-slate-50 p-2 rounded-xl">
-                    <span className="text-[11px] text-slate-500 font-extrabold block">VISITS</span>
-                    <span className="font-black text-slate-900 font-mono">{cust.visitsCount}x</span>
+                  <div className="bg-[#0D0D0F] border border-[#27272A] p-2 rounded-lg">
+                    <span className="text-[10px] text-[#7E8B9C] font-mono uppercase block">VISITS</span>
+                    <span className="font-bold text-[#F5F4F0] font-mono text-xs">{cust.visitsCount}x</span>
                   </div>
-                  <div className="bg-slate-50 p-2 rounded-xl">
-                    <span className="text-[11px] text-slate-500 font-extrabold block">POINTS</span>
-                    <span className="font-black text-purple-700 font-mono">{cust.loyaltyPoints}</span>
+                  <div className="bg-[#0D0D0F] border border-[#27272A] p-2 rounded-lg">
+                    <span className="text-[10px] text-[#7E8B9C] font-mono uppercase block">POINTS</span>
+                    <span className="font-bold text-[#F5C928] font-mono text-xs">{cust.loyaltyPoints}</span>
                   </div>
                 </div>
 
-              {/* Technical Formula Snippet */}
-              {cust.formulaNotes && (
-                <div className="mt-3 p-2.5 bg-purple-50/50 rounded-xl border border-purple-100/70 text-[11px]">
-                  <span className="font-bold text-purple-900 flex items-center gap-1">
-                    <Sparkles className="w-3 h-3 text-purple-600" /> Technical Formula:
-                  </span>
-                  <p className="text-slate-600 line-clamp-1 mt-0.5 font-mono">{cust.formulaNotes}</p>
-                </div>
-              )}
-            </div>
-
-            {/* Actions Bar */}
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
-              <button
-                onClick={() => setSelectedCustomerForModal(cust)}
-                className="inline-flex items-center gap-1 font-extrabold text-purple-700 hover:text-purple-900 hover:underline"
-              >
-                <Sparkles className="w-3.5 h-3.5" /> Full Formula
-              </button>
-
-              <div className="flex items-center gap-1.5">
-                <button
-                  onClick={() => handleWhatsAppClick(cust)}
-                  className="p-1.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors"
-                  title="WhatsApp Client"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                </button>
-
-                {onGoToBooking && (
-                  <button
-                    onClick={() => onGoToBooking(cust.name, cust.phone)}
-                    className="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[11px] font-bold transition-all shadow-sm flex items-center gap-1"
-                  >
-                    <Calendar className="w-3 h-3" /> Book
-                  </button>
-                )}
-
-                {onGoToPos && (
-                  <button
-                    onClick={() => onGoToPos(cust.id)}
-                    className="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-[11px] font-bold transition-all shadow-sm flex items-center gap-1"
-                  >
-                    <Receipt className="w-3 h-3" /> Bill
-                  </button>
+                {/* Technical Formula Snippet */}
+                {cust.formulaNotes && (
+                  <div className="mt-3 p-2.5 bg-[#0D0D0F] rounded-lg border border-[#27272A] text-[11px]">
+                    <span className="font-mono text-[#F5C928] flex items-center gap-1 font-bold">
+                      <Sparkles className="w-3 h-3 text-[#F5C928]" /> Formula:
+                    </span>
+                    <p className="text-[#A3A3AD] line-clamp-1 mt-0.5 font-mono">{cust.formulaNotes}</p>
+                  </div>
                 )}
               </div>
+
+              {/* Actions Bar */}
+              <div className="mt-4 pt-3 border-t border-[#27272A] flex items-center justify-between gap-2 text-xs">
+                <button
+                  onClick={() => setSelectedCustomerForModal(cust)}
+                  className="inline-flex items-center gap-1 font-bold text-[#F5C928] hover:underline cursor-pointer"
+                >
+                  <Sparkles className="w-3.5 h-3.5" /> Full Formula
+                </button>
+
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => handleWhatsAppClick(cust)}
+                    className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/30 transition-colors cursor-pointer"
+                    title="WhatsApp Client"
+                  >
+                    <Send className="w-3.5 h-3.5" />
+                  </button>
+
+                  {onGoToBooking && (
+                    <button
+                      onClick={() => onGoToBooking(cust.name, cust.phone)}
+                      className="px-2.5 py-1.5 bg-[#171719] hover:bg-[#27272A] border border-[#27272A] text-[#F5F4F0] rounded-lg text-[11px] font-bold transition-all shadow-sm flex items-center gap-1 cursor-pointer"
+                    >
+                      <Calendar className="w-3 h-3" /> Book
+                    </button>
+                  )}
+
+                  {onGoToPos && (
+                    <button
+                      onClick={() => onGoToPos(cust.id)}
+                      className="px-2.5 py-1.5 bg-[#F5C928] hover:bg-[#f7d348] text-[#080809] rounded-lg text-[11px] font-bold transition-all shadow-sm flex items-center gap-1 cursor-pointer"
+                    >
+                      <Receipt className="w-3 h-3" /> Bill
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
       )}
 
       {/* 360 Client Technical Formula Modal */}
@@ -366,66 +362,66 @@ export function CustomersView({ onGoToPos, onGoToBooking }: CustomersViewProps) 
 
       {/* Add Client Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 p-6 w-full max-w-md animate-in fade-in">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="font-extrabold text-slate-900 text-base">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
+          <div className="bg-[#0D0D0F] border border-[#27272A] rounded-2xl shadow-2xl p-6 w-full max-w-md animate-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-[#27272A]">
+              <h3 className="font-serif font-bold text-[#F5F4F0] text-base">
                 Create Client Profile & Technical Record
               </h3>
-              <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-slate-600">
+              <button onClick={() => setShowAddModal(false)} className="text-[#7E8B9C] hover:text-[#F5F4F0] cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleAddSubmit} className="mt-4 space-y-3 text-xs">
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Full Client Name *</label>
+                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Full Client Name *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Shalini Roy"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-bold"
+                  className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-bold"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Phone Number *</label>
+                  <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Phone Number *</label>
                   <input
                     type="tel"
                     required
                     value={newPhone}
                     onChange={(e) => setNewPhone(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-mono"
+                    className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-mono"
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Email</label>
+                  <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Email</label>
                   <input
                     type="email"
                     placeholder="client@mail.com"
                     value={newEmail}
                     onChange={(e) => setNewEmail(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-medium"
+                    className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-medium"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Preferred Stylist</label>
+                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Preferred Stylist</label>
                 <input
                   type="text"
                   placeholder="e.g. Priya Sharma"
                   value={newPreferredStaff}
                   onChange={(e) => setNewPreferredStaff(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-medium"
+                  className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-medium"
                 />
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">
+                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">
                   Initial Technical Formula / Color Notes
                 </label>
                 <textarea
@@ -433,7 +429,7 @@ export function CustomersView({ onGoToPos, onGoToBooking }: CustomersViewProps) 
                   placeholder="e.g. Wella KP 6/1 + 20 Vol • Sensitive scalp"
                   value={newFormula}
                   onChange={(e) => setNewFormula(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-mono text-[11px]"
+                  className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-mono text-[11px]"
                 />
               </div>
 
@@ -441,13 +437,13 @@ export function CustomersView({ onGoToPos, onGoToBooking }: CustomersViewProps) 
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="flex-1 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-xl"
+                  className="flex-1 py-2.5 bg-[#171719] text-[#A3A3AD] hover:text-[#F5F4F0] font-bold rounded-xl border border-[#27272A] cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 bg-purple-600 text-white font-extrabold rounded-xl shadow-md shadow-purple-500/20"
+                  className="flex-1 py-2.5 bg-[#F5C928] hover:bg-[#f7d348] text-[#080809] font-bold rounded-xl shadow-md shadow-[#F5C928]/10 cursor-pointer"
                 >
                   Create Profile
                 </button>

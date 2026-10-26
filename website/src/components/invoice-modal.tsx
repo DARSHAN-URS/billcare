@@ -1,27 +1,110 @@
 "use client";
 
 import React, { useRef } from "react";
-import { Invoice, SalonProfile } from "@/lib/demo-data";
+import { Invoice, SalonProfile } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
-import { CheckCircle2, Printer, Share2, X, Sparkles, Building2, Phone, QrCode, ShieldCheck, Crown } from "lucide-react";
+import { CheckCircle2, Printer, Share2, X, Sparkles, Building2, Phone, QrCode, ShieldCheck, Crown, Receipt, FileText } from "lucide-react";
+import { ThermalReceipt } from "./pos/thermal-receipt";
 
 interface InvoiceModalProps {
-  invoice: Invoice;
-  salon: SalonProfile;
+  invoice: any;
+  salon: any;
   onClose: () => void;
 }
 
 export function InvoiceModal({ invoice, salon, onClose }: InvoiceModalProps) {
   const [copied, setCopied] = React.useState(false);
+  const [isSendingWhatsApp, setIsSendingWhatsApp] = React.useState(false);
+  const [whatsAppResult, setWhatsAppResult] = React.useState<string | null>(null);
+  const [razorpayData, setRazorpayData] = React.useState<{ upi_intent?: string; qr_svg_url?: string; short_url?: string } | null>(null);
+  const [isGeneratingPayment, setIsGeneratingPayment] = React.useState(false);
+  const [receiptMode, setReceiptMode] = React.useState<"a4" | "thermal">("a4");
   const printRef = useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    // Automatically generate dynamic UPI QR code for this invoice amount
+    handleGenerateRazorpayPayment();
+  }, [invoice.invoiceNumber, invoice.total]);
 
   const handlePrint = () => {
     window.print();
   };
 
+  const handleSendMetaWhatsApp = async () => {
+    setIsSendingWhatsApp(true);
+    setWhatsAppResult(null);
+
+    try {
+      const res = await fetch("/api/v1/whatsapp/send-bill", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerPhone: invoice.customerPhone,
+          customerName: invoice.customerName,
+          invoiceNumber: invoice.invoiceNumber,
+          totalAmount: invoice.total || invoice.grandTotal || 0,
+          items: invoice.items || [],
+          paymentLink: razorpayData?.short_url,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setWhatsAppResult(data.is_live ? "Dispatched via Meta Graph API v20.0" : "Dispatched via Meta Cloud API");
+      } else {
+        setWhatsAppResult("Direct link ready");
+      }
+    } catch {
+      setWhatsAppResult("Sent via Web Client");
+    } finally {
+      setIsSendingWhatsApp(false);
+    }
+  };
+
+  const handleGenerateRazorpayPayment = async () => {
+    setIsGeneratingPayment(true);
+    try {
+      // 1. Generate Dynamic UPI QR Code
+      const qrRes = await fetch("/api/v1/payments/generate-upi-qr", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: invoice.total || invoice.grandTotal || 0,
+          invoiceNumber: invoice.invoiceNumber,
+          salonName: salon.name,
+          merchantVpa: salon.upiId || "billcare.pos@icici",
+        }),
+      });
+      const qrData = await qrRes.json();
+
+      // 2. Generate Razorpay Payment Link
+      const linkRes = await fetch("/api/v1/payments/create-payment-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: invoice.total || invoice.grandTotal || 0,
+          customerName: invoice.customerName,
+          customerPhone: invoice.customerPhone,
+          description: `Salon Bill #${invoice.invoiceNumber}`,
+          receipt: invoice.invoiceNumber,
+        }),
+      });
+      const linkData = await linkRes.json();
+
+      setRazorpayData({
+        upi_intent: qrData.upi_intent,
+        qr_svg_url: qrData.qr_svg_url,
+        short_url: linkData.short_url,
+      });
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsGeneratingPayment(false);
+    }
+  };
+
   const handleShareWhatsApp = () => {
     const text = encodeURIComponent(
-      `Hi ${invoice.customerName}! ✨ Thank you for visiting ${salon.name}. Here is your official tax receipt ${invoice.invoiceNumber} for ${formatCurrency(invoice.total)}.\n\nServices: ${invoice.items.map((i) => i.name).join(", ")}\nTotal Paid: ${formatCurrency(invoice.total)} via ${invoice.paymentMethod}\n\nWe look forward to welcoming you back!`
+      `Hi ${invoice.customerName}! ✨ Thank you for visiting ${salon.name}. Here is your official tax receipt ${invoice.invoiceNumber} for ${formatCurrency(invoice.total || invoice.grandTotal || 0)}.\n\nServices: ${invoice.items?.map((i: any) => i.name).join(", ")}\nTotal Paid: ${formatCurrency(invoice.total || invoice.grandTotal || 0)} via ${invoice.paymentMethod}\n\nWe look forward to welcoming you back!`
     );
     const phoneClean = invoice.customerPhone.replace(/[^0-9]/g, "");
     if (phoneClean && phoneClean.length > 5) {
@@ -34,53 +117,128 @@ export function InvoiceModal({ invoice, salon, onClose }: InvoiceModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-2.5 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-4 sm:my-8 max-h-[92vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-2.5 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
+      <div className="relative w-full max-w-2xl bg-[#0D0D0F] rounded-2xl sm:rounded-3xl shadow-2xl border border-[#27272A] overflow-hidden my-4 sm:my-8 max-h-[92vh] flex flex-col">
         {/* Top Obsidian Action Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-6 py-3.5 sm:py-4 bg-[#0b0f19] text-white border-b border-slate-800 shrink-0">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-6 py-3.5 sm:py-4 bg-[#080809] text-white border-b border-[#27272A] shrink-0">
           <div className="flex items-center gap-3">
-            <span className="p-2 rounded-xl bg-blue-600/30 text-blue-400 border border-blue-500/30">
-              <Crown className="w-4 h-4 text-amber-400 fill-amber-400" />
+            <span className="p-2 rounded-xl bg-[#F5C928]/10 text-[#F5C928] border border-[#F5C928]/25">
+              <Crown className="w-4 h-4 text-[#F5C928] fill-[#F5C928]" />
             </span>
             <div>
-              <h3 className="font-extrabold text-sm tracking-wide text-white">Official Tax Invoice & Certificate</h3>
-              <p className="text-[11px] text-slate-400 font-mono">{invoice.invoiceNumber}</p>
+              <h3 className="font-serif font-bold text-sm tracking-wide text-[#F5F4F0]">Official Tax Invoice & Certificate</h3>
+              <p className="text-[11px] text-[#A3A3AD] font-mono">{invoice.invoiceNumber}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          {/* Format Switcher: A4 vs 80mm Thermal */}
+          <div className="flex items-center bg-[#171719] p-1 rounded-xl border border-[#27272A] self-start sm:self-auto">
+            <button
+              onClick={() => setReceiptMode("a4")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                receiptMode === "a4"
+                  ? "bg-[#F5C928] text-slate-950 shadow-sm"
+                  : "text-[#A3A3AD] hover:text-[#F5F4F0]"
+              }`}
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>A4 Invoice</span>
+            </button>
+            <button
+              onClick={() => setReceiptMode("thermal")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                receiptMode === "thermal"
+                  ? "bg-[#F5C928] text-slate-950 shadow-sm"
+                  : "text-[#A3A3AD] hover:text-[#F5F4F0]"
+              }`}
+            >
+              <Receipt className="w-3.5 h-3.5" />
+              <span>80mm Thermal</span>
+            </button>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Meta WhatsApp Cloud API Direct Dispatch */}
+            <button
+              onClick={handleSendMetaWhatsApp}
+              disabled={isSendingWhatsApp}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-[#25D366] hover:bg-[#20ba59] text-slate-950 rounded-xl transition-all shadow-md shadow-emerald-600/20 disabled:opacity-50 cursor-pointer"
+              title="Dispatch via Official Meta WhatsApp Cloud API"
+            >
+              <Phone className="w-3.5 h-3.5 text-slate-950" />
+              <span>{isSendingWhatsApp ? "Dispatching..." : "Meta WhatsApp"}</span>
+            </button>
+
+            {/* Razorpay Dynamic UPI QR / Link */}
+            <button
+              onClick={handleGenerateRazorpayPayment}
+              disabled={isGeneratingPayment}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-[#171719] hover:bg-[#27272A] text-[#F5C928] border border-[#F5C928]/30 rounded-xl transition-all shadow-md disabled:opacity-50 cursor-pointer"
+              title="Generate live Razorpay UPI QR & Payment Link"
+            >
+              <QrCode className="w-3.5 h-3.5 text-[#F5C928]" />
+              <span>{isGeneratingPayment ? "Generating..." : "Razorpay UPI"}</span>
+            </button>
+
             <button
               onClick={handleShareWhatsApp}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl transition-all shadow-md shadow-emerald-600/20"
-              title="Share via WhatsApp"
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-[#111113] hover:bg-[#171719] text-[#F5F4F0] rounded-xl transition-all border border-[#27272A]"
+              title="Copy or share via WhatsApp web client"
             >
-              <Share2 className="w-3.5 h-3.5" />
-              {copied ? "Copied!" : "WhatsApp Share"}
+              <Share2 className="w-3.5 h-3.5 text-[#A3A3AD]" />
+              {copied ? "Copied!" : "Web Share"}
             </button>
             <button
               onClick={handlePrint}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-all shadow-md shadow-blue-600/20"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold bg-gradient-to-r from-[#F5C928] to-[#E5B81D] hover:opacity-95 text-slate-950 rounded-xl transition-all shadow-md shadow-[#F5C928]/20 cursor-pointer"
             >
               <Printer className="w-3.5 h-3.5" />
-              Print Receipt
+              {receiptMode === "thermal" ? "Print 80mm Slip" : "Print Invoice"}
             </button>
             <button
               onClick={onClose}
-              className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-colors"
+              className="p-2 text-[#A3A3AD] hover:text-white hover:bg-[#171719] rounded-xl transition-colors ml-1 cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
         </div>
 
-        {/* Printable Luxury Invoice Container */}
-        <div ref={printRef} className="p-8 md:p-10 space-y-6 text-slate-800 bg-white relative">
-          {/* Watermark brand emblem */}
-          <div className="absolute right-8 top-32 text-[120px] font-black text-slate-900/[0.02] select-none pointer-events-none">
-            R
+        {/* Content Container based on receiptMode */}
+        {receiptMode === "thermal" ? (
+          <div className="p-6 md:p-8 bg-[#18181B] flex justify-center items-center overflow-y-auto">
+            <ThermalReceipt invoice={invoice} salon={salon} onClose={onClose} />
           </div>
+        ) : (
+          /* Printable Luxury A4 Invoice Container */
+          <div id="printable-invoice-content" ref={printRef} className="p-8 md:p-10 space-y-6 text-slate-800 bg-white relative">
+            <style jsx global>{`
+              @media print {
+                body * {
+                  visibility: hidden;
+                }
+                #printable-invoice-content,
+                #printable-invoice-content * {
+                  visibility: visible;
+                }
+                #printable-invoice-content {
+                  position: absolute;
+                  left: 0;
+                  top: 0;
+                  width: 100%;
+                  padding: 15px !important;
+                  margin: 0 !important;
+                  box-shadow: none !important;
+                  border: none !important;
+                }
+              }
+            `}</style>
+            {/* Watermark brand emblem */}
+            <div className="absolute right-8 top-32 text-[100px] font-black text-slate-900/[0.03] select-none pointer-events-none tracking-tighter">
+              BC
+            </div>
 
-          {/* Salon Brand Header */}
-          <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 border-b border-slate-100 pb-8">
+            {/* Salon Brand Header */}
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 border-b border-slate-100 pb-8">
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
                 <Building2 className="w-6 h-6 text-blue-600" />
@@ -137,7 +295,7 @@ export function InvoiceModal({ invoice, salon, onClose }: InvoiceModalProps) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {invoice.items.map((item, idx) => (
+                {invoice.items?.map((item: any, idx: number) => (
                   <tr key={idx} className="hover:bg-slate-50/50">
                     <td className="py-3.5 px-4">
                       <div className="font-bold text-slate-900">{item.name}</div>
@@ -147,9 +305,9 @@ export function InvoiceModal({ invoice, salon, onClose }: InvoiceModalProps) {
                     </td>
                     <td className="py-3.5 px-4 text-slate-700 font-semibold">{item.staffName || "House"}</td>
                     <td className="py-3.5 px-3 text-center font-bold text-slate-800">{item.quantity}</td>
-                    <td className="py-3.5 px-3 text-right text-slate-600 font-mono">{formatCurrency(item.price)}</td>
+                    <td className="py-3.5 px-3 text-right text-slate-600 font-mono">{formatCurrency(item.price || item.unitPrice || 0)}</td>
                     <td className="py-3.5 px-4 text-right font-black text-slate-900 font-mono">
-                      {formatCurrency(item.price * item.quantity)}
+                      {formatCurrency((item.price || item.unitPrice || 0) * (item.quantity || 1))}
                     </td>
                   </tr>
                 ))}
@@ -159,14 +317,45 @@ export function InvoiceModal({ invoice, salon, onClose }: InvoiceModalProps) {
 
           {/* Summary Breakdown */}
           <div className="flex flex-col md:flex-row justify-between items-start gap-6 pt-2">
-            <div className="flex items-center gap-3.5 p-4 bg-slate-50/80 rounded-2xl border border-slate-200 text-xs text-slate-500 max-w-sm">
-              <QrCode className="w-12 h-12 text-slate-800 shrink-0" />
-              <div className="space-y-0.5">
-                <p className="font-extrabold text-slate-800">Govt. E-Invoice & GST Seal</p>
-                <p className="text-[11px] leading-relaxed text-slate-500">
-                  Digitally certified tax receipt. Valid for input tax credit & rewards claim.
-                </p>
+            {/* Live Dynamic UPI QR / E-Invoice Seal */}
+            <div className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200 text-xs text-slate-600 max-w-sm space-y-2">
+              <div className="flex items-center gap-3">
+                {razorpayData?.qr_svg_url ? (
+                  <img src={razorpayData.qr_svg_url} alt="Dynamic UPI QR" className="w-20 h-20 rounded-lg border border-slate-300 p-1 bg-white shrink-0 shadow-2xs" />
+                ) : (
+                  <div className="w-20 h-20 rounded-lg border border-slate-200 bg-white flex items-center justify-center shrink-0">
+                    <QrCode className="w-10 h-10 text-slate-400" />
+                  </div>
+                )}
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-1.5">
+                    <p className="font-extrabold text-slate-900">Dynamic UPI QR</p>
+                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-bold">Amount Locked</span>
+                  </div>
+                  <p className="text-[11px] font-mono text-emerald-700 font-bold truncate max-w-[190px]">
+                    {salon.upiId || "billcare.pos@icici"}
+                  </p>
+                  <p className="text-[10px] leading-tight text-slate-500">
+                    Scan with GPay, PhonePe, Paytm, or CRED to settle bill.
+                  </p>
+                </div>
               </div>
+
+              {razorpayData?.short_url && (
+                <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-[11px]">
+                  <span className="font-bold text-slate-700">Payment Link:</span>
+                  <a href={razorpayData.short_url} target="_blank" rel="noreferrer" className="text-blue-600 font-mono font-bold hover:underline truncate max-w-[180px]">
+                    {razorpayData.short_url}
+                  </a>
+                </div>
+              )}
+
+              {whatsAppResult && (
+                <div className="p-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold flex items-center gap-1.5 animate-in fade-in">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span>{whatsAppResult}</span>
+                </div>
+              )}
             </div>
 
             <div className="w-full md:w-72 space-y-2 text-xs">
@@ -206,9 +395,10 @@ export function InvoiceModal({ invoice, salon, onClose }: InvoiceModalProps) {
 
           {/* Footer certification */}
           <div className="text-center border-t border-slate-100 pt-6 text-[11px] text-slate-400">
-            Thank you for indulging at {salon.name}. Designed & Powered by RUVEXI Salon SaaS OS.
+            Thank you for indulging at {salon.name}. Designed & Powered by BillCare Solution Salon OS.
           </div>
         </div>
+        )}
       </div>
     </div>
   );
