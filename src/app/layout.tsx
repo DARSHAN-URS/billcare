@@ -1,18 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Cormorant_Garamond, Plus_Jakarta_Sans } from "next/font/google";
 import "@/styles/globals.css";
-import { DemoProvider } from "@/lib/demo-context";
-import { DemoNavigationBanner } from "@/components/demo-navigation-banner";
+import { BillCareProvider } from "@/lib/billcare-context";
 
-const inter = Inter({
+const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-serif",
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-jakarta",
+  variable: "--font-sans",
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -20,13 +21,16 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor: "#0b0f19",
+  themeColor: "#090d16",
 };
 
 export const metadata: Metadata = {
-  title: "RUVEXI - The Modern Operating System for Salons & Spas",
+  title: "BillCare Solution - The Modern Salon & Spa Management Platform",
   description:
-    "End-to-end salon management SaaS platform: Point of Sale (POS) billing, staff commission tracking, salon stock inventory, automated customer follow-ups & branded booking.",
+    "End-to-end salon management SaaS platform: Point of Sale (POS) billing, appointment calendar, staff commission tracking, salon stock inventory, automated customer follow-ups & branded booking.",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({
@@ -35,12 +39,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${jakarta.variable}`}>
-      <body className="min-h-screen bg-[#faf9f6] text-slate-900 font-sans selection:bg-slate-900 selection:text-white">
-        <DemoProvider>
-          <DemoNavigationBanner />
+    <html lang="en" className={`${cormorant.variable} ${jakarta.variable}`}>
+      <body className="min-h-screen bg-[#09090b] text-slate-100 font-sans selection:bg-amber-200 selection:text-slate-950 antialiased">
+        <BillCareProvider>
           {children}
-        </DemoProvider>
+        </BillCareProvider>
       </body>
     </html>
   );

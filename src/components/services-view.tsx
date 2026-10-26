@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { useDemo } from "@/lib/demo-context";
+import { useBillCare } from "@/lib/billcare-context";
 import { formatCurrency } from "@/lib/utils";
-import { ServiceItem } from "@/lib/demo-data";
+import { ServiceItem } from "@/lib/types";
 import {
   Scissors,
   Plus,
@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 
 export function ServicesView() {
-  const { services, addService, updateService } = useDemo();
+  const { services, addService, updateService } = useBillCare();
 
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -79,21 +79,21 @@ export function ServicesView() {
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="luxury-card p-6 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[#0D0D0F] border border-[#27272A] p-5 sm:p-6 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/25 border border-white/20">
+          <div className="w-12 h-12 rounded-xl bg-[#F5C928]/10 border border-[#F5C928]/30 flex items-center justify-center text-[#F5C928] shadow-lg shadow-[#F5C928]/5 shrink-0">
             <Scissors className="w-6 h-6" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
-                Services & Price List
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-xl font-serif font-bold text-[#F5F4F0] tracking-tight">
+                Services & Menu Catalog
               </h1>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+              <span className="text-[10px] font-mono uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-[#171719] text-[#F5C928] border border-[#27272A]">
                 {services.length} Services Available
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-[#7E8B9C] mt-0.5">
               Service times • Prices with GST • Ready for front desk & online bookings
             </p>
           </div>
@@ -101,7 +101,7 @@ export function ServicesView() {
 
         <button
           onClick={() => setShowAddModal(true)}
-          className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-md shadow-blue-500/20 transition-all self-start md:self-auto"
+          className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#F5C928] hover:bg-[#f7d348] text-[#080809] font-bold text-xs rounded-xl shadow-lg shadow-[#F5C928]/10 transition-all self-start md:self-auto cursor-pointer"
         >
           <Plus className="w-4 h-4" /> Add New Service
         </button>
@@ -109,35 +109,35 @@ export function ServicesView() {
 
       {/* Metrics Row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="luxury-card p-4 rounded-2xl border-slate-200/80">
-          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
+        <div className="bg-[#111113] border border-[#27272A] p-4 rounded-xl">
+          <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-wider block">
             Total Services
           </span>
-          <span className="text-lg font-black text-slate-900 font-mono mt-1 block">
+          <span className="text-lg font-mono font-bold text-[#F5F4F0] mt-1 block">
             {services.length} Items
           </span>
         </div>
-        <div className="luxury-card p-4 rounded-2xl border-slate-200/80">
-          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
+        <div className="bg-[#111113] border border-[#27272A] p-4 rounded-xl">
+          <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-wider block">
             Average Price
           </span>
-          <span className="text-lg font-black text-blue-600 font-mono mt-1 block">
+          <span className="text-lg font-mono font-bold text-[#F5C928] mt-1 block">
             {formatCurrency(avgPrice)}
           </span>
         </div>
-        <div className="luxury-card p-4 rounded-2xl border-slate-200/80">
-          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
+        <div className="bg-[#111113] border border-[#27272A] p-4 rounded-xl">
+          <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-wider block">
             Most Popular
           </span>
-          <span className="text-lg font-black text-amber-500 font-mono mt-1 block">
+          <span className="text-lg font-mono font-bold text-[#F5C928] mt-1 block">
             {popularCount} Favorites
           </span>
         </div>
-        <div className="luxury-card p-4 rounded-2xl border-slate-200/80">
-          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
+        <div className="bg-[#111113] border border-[#27272A] p-4 rounded-xl">
+          <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-wider block">
             GST Included
           </span>
-          <span className="text-lg font-black text-emerald-600 font-mono mt-1 block">
+          <span className="text-lg font-mono font-bold text-emerald-400 mt-1 block">
             5% Standard
           </span>
         </div>
@@ -146,13 +146,13 @@ export function ServicesView() {
       {/* Search & Category Filter Pills */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#7E8B9C]" />
           <input
             type="text"
             placeholder="Search services by name or description..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 text-xs bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium shadow-2xs"
+            className="w-full pl-10 pr-4 py-2.5 text-xs bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] placeholder-[#7E8B9C] focus:outline-none focus:border-[#F5C928] font-medium"
           />
         </div>
 
@@ -161,10 +161,10 @@ export function ServicesView() {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all border ${
+              className={`px-3 py-1.5 rounded-lg font-bold whitespace-nowrap transition-all border ${
                 activeCategory === cat
-                  ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                  : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                  ? "bg-[#F5C928] text-[#080809] border-[#F5C928] shadow-sm"
+                  : "bg-[#111113] text-[#A3A3AD] border-[#27272A] hover:text-[#F5F4F0]"
               }`}
             >
               {cat}
@@ -178,67 +178,67 @@ export function ServicesView() {
         {filteredServices.map((service) => (
           <div
             key={service.id}
-            className="luxury-card rounded-3xl p-5 flex flex-col justify-between hover:border-blue-300 hover:shadow-xl transition-all"
+            className="bg-[#111113] border border-[#27272A] rounded-xl p-5 flex flex-col justify-between hover:border-[#F5C928]/50 hover:bg-[#171719] transition-all shadow-lg"
           >
             <div>
               {/* Category Pill & Popular Badge */}
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 tracking-wider">
+                <span className="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#171719] text-[#F5C928] border border-[#27272A] tracking-wider">
                   {service.category}
                 </span>
 
                 <div className="flex items-center gap-1.5">
                   {service.popular && (
-                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1">
-                      <Star className="w-3 h-3 fill-amber-400" /> Bestseller
+                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#171719] text-[#F5C928] border border-[#27272A] flex items-center gap-1">
+                      <Star className="w-3 h-3 fill-[#F5C928] text-[#F5C928]" /> Bestseller
                     </span>
                   )}
-                  <span className="text-xs font-bold text-slate-500 flex items-center gap-1 font-mono">
-                    <Clock className="w-3.5 h-3.5 text-blue-500" /> {service.durationMinutes}m
+                  <span className="text-xs font-mono text-[#7E8B9C] flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5 text-[#7E8B9C]" /> {service.durationMinutes}m
                   </span>
                 </div>
               </div>
 
               {/* Title & Description */}
               <div className="mt-3.5">
-                <h3 className="font-extrabold text-slate-900 text-base leading-snug tracking-tight">
+                <h3 className="font-serif font-bold text-[#F5F4F0] text-base leading-snug">
                   {service.name}
                 </h3>
-                <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                <p className="text-xs text-[#7E8B9C] mt-1 line-clamp-2 leading-relaxed">
                   {service.description}
                 </p>
               </div>
             </div>
 
             {/* Price & Edit Section */}
-            <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between">
+            <div className="mt-5 pt-3 border-t border-[#27272A] flex items-center justify-between">
               {editingServiceId === service.id ? (
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
                     value={editingPrice}
                     onChange={(e) => setEditingPrice(Number(e.target.value))}
-                    className="w-24 px-2 py-1 text-xs border border-blue-400 rounded-lg font-mono font-bold"
+                    className="w-24 px-2 py-1 text-xs bg-[#171719] border border-[#F5C928] text-[#F5F4F0] rounded-lg font-mono font-bold"
                   />
                   <button
                     onClick={() => handleSavePriceEdit(service.id)}
-                    className="px-2 py-1 bg-blue-600 text-white rounded-lg text-xs font-bold"
+                    className="px-2.5 py-1 bg-[#F5C928] text-[#080809] rounded-lg text-xs font-bold cursor-pointer"
                   >
                     Save
                   </button>
                   <button
                     onClick={() => setEditingServiceId(null)}
-                    className="p-1 text-slate-400 hover:text-slate-600"
+                    className="p-1 text-[#7E8B9C] hover:text-[#F5F4F0] cursor-pointer"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
               ) : (
                 <div className="flex items-baseline gap-1">
-                  <span className="font-black text-slate-900 font-mono text-lg">
+                  <span className="font-mono font-bold text-[#F5C928] text-lg">
                     {formatCurrency(service.price)}
                   </span>
-                  <span className="text-[10px] text-slate-400">+5% GST</span>
+                  <span className="text-[10px] text-[#7E8B9C] font-mono">+5% GST</span>
                 </div>
               )}
 
@@ -248,17 +248,17 @@ export function ServicesView() {
                     setEditingServiceId(service.id);
                     setEditingPrice(service.price);
                   }}
-                  className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
+                  className="p-1.5 text-[#7E8B9C] hover:text-[#F5C928] hover:bg-[#171719] rounded-lg transition-colors cursor-pointer"
                   title="Edit Price"
                 >
                   <Edit2 className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={() => updateService(service.id, { popular: !service.popular })}
-                  className={`p-1.5 rounded-xl transition-colors ${
+                  className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                     service.popular
-                      ? "text-amber-500 hover:bg-amber-50"
-                      : "text-slate-300 hover:text-amber-500"
+                      ? "text-[#F5C928] hover:bg-[#171719]"
+                      : "text-[#7E8B9C] hover:text-[#F5C928]"
                   }`}
                   title="Toggle Popular Status"
                 >
@@ -272,85 +272,85 @@ export function ServicesView() {
 
       {/* Add Treatment Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 p-6 w-full max-w-md animate-in fade-in">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="font-extrabold text-slate-900 text-base">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
+          <div className="bg-[#0D0D0F] border border-[#27272A] rounded-2xl shadow-2xl p-6 w-full max-w-md animate-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-[#27272A]">
+              <h3 className="font-serif font-bold text-[#F5F4F0] text-base">
                 Add New Salon Treatment
               </h3>
-              <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-slate-600">
+              <button onClick={() => setShowAddModal(false)} className="text-[#7E8B9C] hover:text-[#F5F4F0] cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleAddSubmit} className="mt-4 space-y-3 text-xs">
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Treatment Name *</label>
+                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Treatment Name *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Japanese Silk Keratin Infusion"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-bold"
+                  className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-bold"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Category</label>
+                  <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Category</label>
                   <select
                     value={newCategory}
                     onChange={(e: any) => setNewCategory(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none font-bold"
+                    className="w-full px-3 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-bold"
                   >
-                    <option value="Hair">Hair</option>
-                    <option value="Skin & Spa">Skin & Spa</option>
-                    <option value="Nails">Nails</option>
-                    <option value="Beard & Grooming">Beard & Grooming</option>
-                    <option value="Makeup">Makeup</option>
+                    <option value="Hair" className="bg-[#111113] text-[#F5F4F0]">Hair</option>
+                    <option value="Skin & Spa" className="bg-[#111113] text-[#F5F4F0]">Skin & Spa</option>
+                    <option value="Nails" className="bg-[#111113] text-[#F5F4F0]">Nails</option>
+                    <option value="Beard & Grooming" className="bg-[#111113] text-[#F5F4F0]">Beard & Grooming</option>
+                    <option value="Makeup" className="bg-[#111113] text-[#F5F4F0]">Makeup</option>
                   </select>
                 </div>
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Duration (Minutes)</label>
+                  <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Duration (Minutes)</label>
                   <input
                     type="number"
                     required
                     value={newDuration}
                     onChange={(e) => setNewDuration(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-mono"
+                    className="w-full px-3 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-mono"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Price (₹ INR) *</label>
+                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Price (₹ INR) *</label>
                 <input
                   type="number"
                   required
                   value={newPrice}
                   onChange={(e) => setNewPrice(Number(e.target.value))}
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-mono font-bold"
+                  className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-mono font-bold"
                 />
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Description</label>
+                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Description</label>
                 <textarea
                   rows={2}
                   placeholder="Bespoke service details, benefits and steps..."
                   value={newDescription}
                   onChange={(e) => setNewDescription(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none"
+                  className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928]"
                 />
               </div>
 
-              <label className="flex items-center gap-2 cursor-pointer font-bold text-slate-700">
+              <label className="flex items-center gap-2 cursor-pointer font-bold text-[#F5F4F0]">
                 <input
                   type="checkbox"
                   checked={newPopular}
                   onChange={(e) => setNewPopular(e.target.checked)}
-                  className="rounded text-blue-600 focus:ring-blue-500"
+                  className="rounded text-[#F5C928] focus:ring-[#F5C928]"
                 />
                 <span>Feature as Signature Bestseller</span>
               </label>
@@ -359,13 +359,13 @@ export function ServicesView() {
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="flex-1 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-xl"
+                  className="flex-1 py-2.5 bg-[#171719] text-[#A3A3AD] hover:text-[#F5F4F0] font-bold rounded-xl border border-[#27272A] cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 bg-blue-600 text-white font-extrabold rounded-xl shadow-md shadow-blue-500/20"
+                  className="flex-1 py-2.5 bg-[#F5C928] hover:bg-[#f7d348] text-[#080809] font-bold rounded-xl shadow-md shadow-[#F5C928]/10 cursor-pointer"
                 >
                   Add Treatment
                 </button>

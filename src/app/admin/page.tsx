@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useDemo } from "@/lib/demo-context";
+import { useBillCare } from "@/lib/billcare-context";
 import { formatCurrency } from "@/lib/utils";
 import {
   ShieldCheck,
@@ -43,22 +43,22 @@ interface SalonPartnerData {
   dueDate?: string;
   monthlyGmv: number;
   appointmentsCount: number;
-  // Improvement metrics with RUVEXI
+  // Improvement metrics with BillCare Solution
   revenueGrowthPct: number;
   noShowReduction: string;
   retentionIncreasePct: number;
   hoursSavedWeekly: number;
-  improvementVerdict: "Strong Improvement 🚀" | "Steady Growth 📈" | "Onboarding 🆕";
+  improvementVerdict: "Strong Improvement" | "Steady Growth" | "Onboarding";
 }
 
 export default function AdminPage() {
   const router = useRouter();
-  const { updateSalonProfile, showToast } = useDemo();
+  const { updateSalonProfile, showToast } = useBillCare();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filterPayment, setFilterPayment] = useState<"All" | "Paid" | "Pending">("All");
 
-  // Sample real salon partners that opted for RUVEXI
+  // Sample real salon partners that opted for BillCare
   const [salonPartners, setSalonPartners] = useState<SalonPartnerData[]>([
     {
       id: "sln_01",
@@ -77,7 +77,7 @@ export default function AdminPage() {
       noShowReduction: "22% → 3.5%",
       retentionIncreasePct: 48,
       hoursSavedWeekly: 18,
-      improvementVerdict: "Strong Improvement 🚀",
+      improvementVerdict: "Strong Improvement",
     },
     {
       id: "sln_02",
@@ -96,7 +96,7 @@ export default function AdminPage() {
       noShowReduction: "19% → 4.0%",
       retentionIncreasePct: 42,
       hoursSavedWeekly: 22,
-      improvementVerdict: "Strong Improvement 🚀",
+      improvementVerdict: "Strong Improvement",
     },
     {
       id: "sln_03",
@@ -115,7 +115,7 @@ export default function AdminPage() {
       noShowReduction: "25% → 5.2%",
       retentionIncreasePct: 35,
       hoursSavedWeekly: 14,
-      improvementVerdict: "Steady Growth 📈",
+      improvementVerdict: "Steady Growth",
     },
     {
       id: "sln_04",
@@ -134,7 +134,7 @@ export default function AdminPage() {
       noShowReduction: "18% → 2.8%",
       retentionIncreasePct: 52,
       hoursSavedWeekly: 26,
-      improvementVerdict: "Strong Improvement 🚀",
+      improvementVerdict: "Strong Improvement",
     },
     {
       id: "sln_05",
@@ -153,7 +153,7 @@ export default function AdminPage() {
       noShowReduction: "20% → 6.0%",
       retentionIncreasePct: 30,
       hoursSavedWeekly: 10,
-      improvementVerdict: "Steady Growth 📈",
+      improvementVerdict: "Steady Growth",
     },
     {
       id: "sln_06",
@@ -172,7 +172,7 @@ export default function AdminPage() {
       noShowReduction: "21% → 4.2%",
       retentionIncreasePct: 39,
       hoursSavedWeekly: 15,
-      improvementVerdict: "Strong Improvement 🚀",
+      improvementVerdict: "Strong Improvement",
     },
   ]);
 
@@ -219,9 +219,9 @@ export default function AdminPage() {
   // Action: Send WhatsApp Payment Reminder to Salon Owner
   const handleSendPaymentReminder = (salon: SalonPartnerData) => {
     const cleanPhone = salon.ownerPhone.replace(/[^0-9]/g, "");
-    const message = `Hi ${salon.ownerName}! 👋 This is a friendly reminder from RUVEXI regarding ${salon.name}'s monthly software subscription fee of ${formatCurrency(
+    const message = `Hello ${salon.ownerName}, this is a reminder from BillCare regarding ${salon.name}'s monthly subscription fee of ${formatCurrency(
       salon.monthlySubscriptionFee
-    )} for October 2026. Please complete the UPI payment via this link: https://ruvexi.com/pay/${salon.id}. Thank you for powering your salon with RUVEXI! ✨`;
+    )} for October 2026. Please complete the settlement via this link: https://billcare.io/pay/${salon.id}. Thank you for partnering with BillCare.`;
     window.open(
       `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`,
       "_blank"
@@ -241,7 +241,7 @@ export default function AdminPage() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-base tracking-tight text-slate-950">
-                  RUVEXI PLATFORM OWNER
+                  BILLCARE PLATFORM OWNER
                 </span>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 uppercase">
                   Super Admin
@@ -258,7 +258,8 @@ export default function AdminPage() {
               href="/front-desk"
               className="text-xs font-bold text-slate-700 hover:text-slate-950 px-3 py-1.5 rounded-xl hover:bg-slate-100 transition-all flex items-center gap-1.5 border border-slate-200"
             >
-              <span>🛎️ Receptionist View</span>
+              <Calendar className="w-3.5 h-3.5 text-slate-600" />
+              <span>Receptionist View</span>
             </Link>
             <Link
               href="/owner"
@@ -285,7 +286,7 @@ export default function AdminPage() {
                 Partner Salons & Subscription Tracker
               </h1>
               <p className="text-xs sm:text-sm text-slate-300 font-medium max-w-xl">
-                See all salons that opted for RUVEXI, whether they paid this month's subscription, their numbers, and how much they improved with our software.
+                See all salons that opted for BillCare, whether they paid this month's subscription, their numbers, and how much they improved with our software.
               </p>
             </div>
 
@@ -372,7 +373,7 @@ export default function AdminPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-100">
             <div>
               <h2 className="text-lg font-black text-slate-950">
-                All Salons Opted into RUVEXI
+                All Salons Opted into BillCare
               </h2>
               <p className="text-xs text-slate-500">
                 Check subscription payment status and how each salon improved with our software.
@@ -430,7 +431,7 @@ export default function AdminPage() {
                   <th className="py-3.5 px-4">Monthly Subscription</th>
                   <th className="py-3.5 px-4">Did They Pay This Month?</th>
                   <th className="py-3.5 px-4">Stats in Numbers</th>
-                  <th className="py-3.5 px-4">Did They Improve With RUVEXI?</th>
+                  <th className="py-3.5 px-4">Did They Improve With BillCare?</th>
                   <th className="py-3.5 px-4 text-right">Actions</th>
                 </tr>
               </thead>

@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useDemo } from "@/lib/demo-context";
+import { useBillCare } from "@/lib/billcare-context";
+import { BillCareLogo } from "@/components/brand/billcare-logo";
 import {
   Lock,
   Mail,
@@ -12,236 +13,249 @@ import {
   ArrowRight,
   ShieldCheck,
   CheckCircle2,
+  Sparkles,
+  AlertCircle,
+  Star,
 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { allPersonas, switchPersona, loginAs, showToast } = useDemo();
+  const { login, showToast } = useBillCare();
 
-  const [email, setEmail] = useState("sunil@luxehaven.in");
-  const [password, setPassword] = useState("••••••••••••");
+  const [email, setEmail] = useState("owner@billcare.io");
+  const [password, setPassword] = useState("billcare2026");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
 
-  const handleStandardLogin = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage("");
     setIsLoading(true);
 
-    setTimeout(() => {
-      loginAs("owner", "Sunil Kumar");
+    try {
+      const res = await login(email, password);
+      if (res.success) {
+        router.push("/dashboard");
+      } else {
+        setErrorMessage(res.error || "Authentication failed. Please verify credentials.");
+      }
+    } catch (err: any) {
+      setErrorMessage(err.message || "An unexpected error occurred during login.");
+    } finally {
       setIsLoading(false);
-      router.push("/dashboard");
-    }, 600);
-  };
-
-  const handleQuickPersonaSelect = (role: "owner" | "manager" | "stylist" | "admin", personaId: string) => {
-    switchPersona(personaId);
-    showToast(`Signed in as ${allPersonas.find((p) => p.id === personaId)?.name}`);
-    if (role === "admin") {
-      router.push("/admin");
-    } else {
-      router.push("/dashboard");
     }
   };
 
+  const handleFillRoleCreds = (selectedEmail: string, roleName: string) => {
+    setEmail(selectedEmail);
+    setPassword("billcare2026");
+    setErrorMessage("");
+    showToast(`${roleName} credentials loaded`, "info");
+  };
+
+  const roles = [
+    { name: "Owner", email: "owner@billcare.io", icon: "👑", badge: "Full Access" },
+    { name: "Manager", email: "manager@billcare.io", icon: "💼", badge: "Operations" },
+    { name: "Receptionist", email: "reception@billcare.io", icon: "🎧", badge: "Front Desk" },
+  ];
+
   return (
-    <div className="min-h-screen bg-[#faf9f6] text-slate-800 flex flex-col font-sans selection:bg-slate-900 selection:text-white">
+    <div className="min-h-screen bg-[#09090b] text-slate-100 flex flex-col font-sans selection:bg-amber-200 selection:text-slate-950">
       {/* Top Bar */}
-      <div className="border-b border-slate-200 bg-white/90 px-6 py-4 flex items-center justify-between">
+      <header className="border-b border-white/[0.08] bg-[#0c0c0e]/80 backdrop-blur-xl px-6 lg:px-12 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 rounded-lg bg-slate-950 text-white flex items-center justify-center font-bold text-sm">
-            R
-          </div>
-          <span className="font-extrabold text-base tracking-tight text-slate-950">
-            RUVEXI
-          </span>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-            SALON OS
-          </span>
+          <BillCareLogo size="sm" variant="light" showSubtitle={true} />
         </Link>
 
         <Link
           href="/"
-          className="text-xs font-bold text-slate-500 hover:text-slate-950 transition-colors"
+          className="text-xs uppercase tracking-wider font-mono text-slate-400 hover:text-white transition-colors"
         >
-          ← Back to Marketing Site
+          ← Back to Home
         </Link>
-      </div>
+      </header>
 
       {/* Main Split Screen */}
       <div className="flex-1 flex flex-col lg:flex-row">
-        {/* Left Editorial Presentation (Hidden on Mobile) */}
-        <div className="hidden lg:flex lg:w-1/2 bg-slate-100/60 p-12 xl:p-16 flex-col justify-between border-r border-slate-200">
-          <div className="space-y-6 max-w-md">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 text-xs font-semibold">
-              <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
-              <span>Multi-Tenant Architecture</span>
+        {/* Left Editorial Presentation */}
+        <div className="hidden lg:flex lg:w-1/2 bg-[#0c0c0e] p-10 xl:p-14 flex-col justify-between border-r border-white/[0.08] relative overflow-hidden">
+          {/* Subtle Ambient Radial Glow */}
+          <div className="absolute top-1/4 left-1/4 w-[500px] h-[300px] bg-amber-500/5 blur-[120px] pointer-events-none" />
+
+          <div className="space-y-6 max-w-md relative z-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-amber-300 text-xs font-mono uppercase tracking-widest">
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+              <span>Multi-Tenant Cloud OS</span>
             </div>
 
-            <h2 className="text-3xl xl:text-4xl font-extrabold text-slate-950 tracking-tight leading-tight">
-              Purpose-Built for Hair Studios, Barbers & Day Spas
+            <h2 className="font-serif text-3xl xl:text-4xl font-normal text-white tracking-tight leading-tight">
+              The salon platform crafted for <span className="italic font-light text-amber-200">artistry & yield</span>.
             </h2>
 
-            <p className="text-slate-600 text-sm leading-relaxed">
-              Log in to orchestrate your daily chair schedules, inventory deductions, commission settlements, and WhatsApp appointment confirmations.
+            <p className="text-slate-400 text-xs sm:text-sm font-light leading-relaxed">
+              Log in to manage appointments, front-desk point of sale, staff commission allocations, automated WhatsApp reminders, and real-time business analytics.
             </p>
-          </div>
 
-          {/* Real Salon Testimonial Quote */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-2xs space-y-3.5 max-w-md">
-            <p className="text-xs text-slate-700 leading-relaxed font-medium">
-              "RUVEXI transformed our front-desk efficiency. The automated 28-day color reminders recovered over ₹85,000 in monthly re-bookings with zero manual coordinator follow-ups."
-            </p>
-            <div className="flex items-center gap-3 pt-1">
-              <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-800 font-bold text-xs flex items-center justify-center">
-                SS
-              </div>
-              <div>
-                <div className="text-xs font-bold text-slate-900">Sanya Sethi</div>
-                <div className="text-[11px] text-slate-500">Creative Director, Auric Atelier & Day Spa</div>
+            {/* Real Salon Front Desk Snapshot */}
+            <div className="rounded-2xl overflow-hidden border border-white/[0.12] shadow-2xl relative aspect-[16/9] bg-slate-900 group">
+              <img
+                src="/images/hero-showcase.jpg"
+                alt="Luxury salon interior and BillCare terminal"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0e] via-black/30 to-transparent flex items-end p-4">
+                <span className="text-[11px] font-mono tracking-wider text-slate-200 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>140+ Salons Active Daily</span>
+                </span>
               </div>
             </div>
           </div>
 
-          {/* Security Badges */}
-          <div className="flex items-center gap-6 text-xs text-slate-500 font-medium">
-            <span>✓ 99.98% Cloud SLA</span>
-            <span>✓ 256-bit SSL</span>
-            <span>✓ Zero Commission</span>
+          {/* Testimonial Quote */}
+          <div className="bg-[#121216] border border-white/[0.08] rounded-2xl p-5 space-y-3 max-w-md mt-6 relative z-10 shadow-xl">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1 text-amber-400">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <Star key={s} className="w-3 h-3 fill-amber-400 text-amber-400" />
+                ))}
+              </div>
+              <span className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-300 border border-amber-400/20">
+                Verified Salon Owner
+              </span>
+            </div>
+            <p className="text-xs text-slate-300 font-light leading-relaxed">
+              "BillCare transformed our daily operations. Fast checkout, zero commission fees, and automated WhatsApp appointment reminders recovered over ₹1.85 Lakhs in repeat bookings."
+            </p>
+            <div className="flex items-center gap-3 pt-3 border-t border-white/[0.06]">
+              <img
+                src="/images/owner-priya.jpg"
+                alt="Priya Nair"
+                className="w-9 h-9 rounded-full object-cover border border-amber-400/30"
+              />
+              <div>
+                <div className="text-xs font-medium text-white">Priya Nair</div>
+                <div className="text-[11px] text-slate-400">Founder & Creative Director, Maison Luxe</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Trust Highlights */}
+          <div className="flex items-center gap-6 text-xs text-slate-400 font-mono pt-4 relative z-10">
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
+              99.98% SLA
+            </span>
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
+              256-bit SSL
+            </span>
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
+              0% Commission
+            </span>
           </div>
         </div>
 
         {/* Right Form Container */}
-        <div className="flex-1 p-6 sm:p-12 lg:p-16 flex items-center justify-center">
+        <div className="flex-1 p-6 sm:p-12 lg:p-16 flex items-center justify-center bg-[#09090b]">
           <div className="w-full max-w-md space-y-6">
             {/* Header */}
-            <div className="space-y-1.5">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-950 tracking-tight">
+            <div className="space-y-2">
+              <h1 className="font-serif text-3xl sm:text-4xl font-normal text-white tracking-tight">
                 Sign in to your salon
               </h1>
-              <p className="text-xs sm:text-sm text-slate-500">
-                Enter your credentials or choose a 1-click persona to preview different staff roles.
+              <p className="text-xs text-slate-400 font-light">
+                Enter your work credentials to access your live BillCare console.
               </p>
             </div>
 
-            {/* 1-Click Demo Personas Selector */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-2xs space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider">
-                  1-Click Role Switcher
-                </span>
-                <span className="text-[10px] text-slate-400">Click to enter as:</span>
+            {/* Error Message if any */}
+            {errorMessage && (
+              <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2 animate-in fade-in">
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+                <span>{errorMessage}</span>
               </div>
+            )}
 
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleQuickPersonaSelect("owner", "usr_owner")}
-                  className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left transition-all group"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-xs">
-                      👑
-                    </div>
-                    <div>
-                      <div className="font-bold text-xs text-slate-900 group-hover:text-blue-600">Salon Owner</div>
-                      <div className="text-[10px] text-slate-500">Sunil (Full Access)</div>
-                    </div>
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleQuickPersonaSelect("manager", "usr_manager")}
-                  className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left transition-all group"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-xs">
-                      💼
-                    </div>
-                    <div>
-                      <div className="font-bold text-xs text-slate-900 group-hover:text-blue-600">Operations Manager</div>
-                      <div className="text-[10px] text-slate-500">Kavita (POS & Shifts)</div>
-                    </div>
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleQuickPersonaSelect("stylist", "usr_stylist")}
-                  className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left transition-all group"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-xs">
-                      ✂️
-                    </div>
-                    <div>
-                      <div className="font-bold text-xs text-slate-900 group-hover:text-blue-600">Senior Stylist</div>
-                      <div className="text-[10px] text-slate-500">Priya (Chair & Comm)</div>
-                    </div>
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleQuickPersonaSelect("admin", "usr_admin")}
-                  className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left transition-all group"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-xs">
-                      🛡️
-                    </div>
-                    <div>
-                      <div className="font-bold text-xs text-slate-900 group-hover:text-blue-600">Super Admin</div>
-                      <div className="text-[10px] text-slate-500">Alex (Multi-Tenant)</div>
-                    </div>
-                  </div>
-                </button>
+            {/* Quick Role Selectors */}
+            <div className="bg-[#0c0c0e] border border-white/[0.08] rounded-xl p-3 space-y-2 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-mono uppercase tracking-wider text-slate-400">
+                  Select Role to Test Isolation
+                </span>
+                <span className="font-mono text-[10px] text-amber-300">Password: billcare2026</span>
+              </div>
+              <div className="grid grid-cols-3 gap-1.5">
+                {roles.map((r) => {
+                  const isSelected = email === r.email;
+                  return (
+                    <button
+                      key={r.email}
+                      type="button"
+                      onClick={() => handleFillRoleCreds(r.email, r.name)}
+                      className={`p-2 rounded-lg border text-left transition-all cursor-pointer ${
+                        isSelected
+                          ? "bg-amber-500/15 border-amber-500/40 text-amber-200 shadow-sm"
+                          : "bg-white/[0.03] border-white/[0.08] text-slate-300 hover:bg-white/[0.07] hover:text-white"
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm">{r.icon}</span>
+                        <span className="font-semibold text-xs truncate">{r.name}</span>
+                      </div>
+                      <div className="text-[10px] font-mono text-slate-400 mt-0.5 truncate">
+                        {r.badge}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Standard Login Form */}
-            <form onSubmit={handleStandardLogin} className="space-y-4">
+            {/* Login Form */}
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700">Work Email Address</label>
+                <label className="text-xs font-mono uppercase tracking-wider text-slate-300">Work Email</label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     placeholder="name@yoursalon.com"
-                    className="w-full bg-white border border-slate-200 focus:border-slate-900 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none transition-colors shadow-2xs"
+                    className="w-full bg-[#0c0c0e] border border-white/[0.12] focus:border-amber-400 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none transition-colors"
                   />
                 </div>
               </div>
 
               <div className="space-y-1.5">
                 <div className="flex justify-between items-center">
-                  <label className="text-xs font-bold text-slate-700">Password</label>
+                  <label className="text-xs font-mono uppercase tracking-wider text-slate-300">Password</label>
                   <Link
                     href="/forgot-password"
-                    className="text-[11px] font-semibold text-blue-600 hover:underline"
+                    className="text-[11px] text-slate-400 hover:text-amber-300 transition-colors"
                   >
                     Forgot Password?
                   </Link>
                 </div>
                 <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     placeholder="••••••••••••"
-                    className="w-full bg-white border border-slate-200 focus:border-slate-900 rounded-xl pl-10 pr-10 py-2.5 text-xs text-slate-900 focus:outline-none transition-colors font-mono shadow-2xs"
+                    className="w-full bg-[#0c0c0e] border border-white/[0.12] focus:border-amber-400 rounded-xl pl-10 pr-10 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none transition-colors font-mono"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -249,24 +263,24 @@ export default function LoginPage() {
               </div>
 
               <div className="flex items-center justify-between text-xs">
-                <label className="flex items-center gap-2 cursor-pointer text-slate-600">
+                <label className="flex items-center gap-2 cursor-pointer text-slate-400">
                   <input
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 rounded accent-slate-950 border-slate-300"
+                    className="w-4 h-4 rounded accent-amber-400 bg-white/10 border-white/20"
                   />
-                  <span>Keep this workstation logged in</span>
+                  <span>Keep workstation logged in</span>
                 </label>
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full py-3 bg-white hover:bg-slate-200 text-slate-950 font-semibold text-xs uppercase tracking-wider rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
               >
                 {isLoading ? (
-                  <span>Signing in...</span>
+                  <span>Authenticating...</span>
                 ) : (
                   <>
                     <span>Enter Salon Console</span>
@@ -277,10 +291,10 @@ export default function LoginPage() {
             </form>
 
             {/* Signup Link */}
-            <div className="text-center text-xs text-slate-500 pt-2 border-t border-slate-200">
+            <div className="text-center text-xs text-slate-400 pt-4 border-t border-white/[0.08]">
               Setting up a new salon?{" "}
-              <Link href="/signup" className="font-bold text-slate-950 hover:underline">
-                Create Salon Workspace (14-Day Free Trial)
+              <Link href="/signup" className="text-white hover:text-amber-300 underline underline-offset-4 font-medium transition-colors">
+                Start 14-Day Free Trial
               </Link>
             </div>
           </div>

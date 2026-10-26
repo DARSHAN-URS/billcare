@@ -11,6 +11,20 @@ export interface SalonProfile {
   rating: number;
   reviewCount: number;
   logo: string;
+  upiId?: string;
+  bankAccountName?: string;
+  bankAccountNumber?: string;
+  bankIfsc?: string;
+  bankName?: string;
+  whatsapp?: {
+    status?: string;
+    displayNumber?: string;
+    verifiedName?: string;
+    phoneNumberId?: string;
+    wabaId?: string;
+    qualityRating?: string;
+    isConnected?: boolean;
+  };
 }
 
 export interface StaffMember {
@@ -779,7 +793,7 @@ export interface UserPersona {
   id: string;
   name: string;
   email: string;
-  role: "owner" | "manager" | "stylist" | "admin";
+  role: "owner" | "manager" | "receptionist" | "admin";
   avatar: string;
   roleTitle: string;
   salonBranch: string;
@@ -787,39 +801,39 @@ export interface UserPersona {
 
 export const DEMO_PERSONAS: UserPersona[] = [
   {
-    id: "usr_receptionist",
-    name: "Kavita Rao",
-    email: "reception@luxehaven.in",
-    role: "manager",
-    avatar: "KR",
-    roleTitle: "Front Desk Receptionist",
-    salonBranch: "Luxe Haven Salon",
-  },
-  {
     id: "usr_owner",
     name: "Sunil Kumar",
-    email: "sunil@luxehaven.in",
+    email: "owner@billcare.io",
     role: "owner",
     avatar: "SK",
-    roleTitle: "Salon Owner",
-    salonBranch: "Luxe Haven Salon",
+    roleTitle: "Salon Owner & Director",
+    salonBranch: "Flagship Studio - Bandra West",
+  },
+  {
+    id: "usr_manager",
+    name: "Kavita Rao",
+    email: "manager@billcare.io",
+    role: "manager",
+    avatar: "KR",
+    roleTitle: "Salon Operations Manager",
+    salonBranch: "Flagship Studio - Bandra West",
+  },
+  {
+    id: "usr_receptionist",
+    name: "Ananya Sen",
+    email: "reception@billcare.io",
+    role: "receptionist",
+    avatar: "AS",
+    roleTitle: "Front Desk Receptionist",
+    salonBranch: "Flagship Studio - Bandra West",
   },
   {
     id: "usr_admin",
     name: "Alex Vance",
-    email: "alex@ruvexi.com",
+    email: "alex@billcare.io",
     role: "admin",
     avatar: "AV",
-    roleTitle: "RUVEXI Platform Owner",
-    salonBranch: "All Salons Hub",
-  },
-  {
-    id: "usr_stylist",
-    name: "Priya Sharma",
-    email: "priya.stylist@luxehaven.in",
-    role: "stylist",
-    avatar: "PS",
-    roleTitle: "Master Stylist",
-    salonBranch: "Luxe Haven Salon",
+    roleTitle: "BillCare Platform Administrator",
+    salonBranch: "Enterprise Multi-Center Hub",
   },
 ];

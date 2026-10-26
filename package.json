@@ -1,8 +1,8 @@
 {
-  "name": "@ruvexi/website",
+  "name": "billcare-saas",
   "version": "1.0.0",
   "private": true,
-  "description": "RUVEXI Salon Management SaaS - Next.js Multi-Tenant Web Platform",
+  "description": "BillCare Solution - Modern Salon & Spa Management SaaS Platform",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

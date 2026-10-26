@@ -1,7 +1,7 @@
 "use client";
 
-import { DemoShell } from "@/components/demo-shell";
+import { DashboardShell } from "@/components/dashboard-shell";
 
 export default function AppointmentsPage() {
-  return <DemoShell initialTab="calendar" />;
+  return <DashboardShell initialTab="calendar" />;
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import { DemoShell } from "@/components/demo-shell";
+import { DashboardShell } from "@/components/dashboard-shell";
 
 export default function OverviewPage() {
-  return <DemoShell initialTab="overview" />;
+  return <DashboardShell initialTab="overview" />;
 }

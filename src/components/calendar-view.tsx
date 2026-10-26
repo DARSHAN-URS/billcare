@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { useDemo } from "@/lib/demo-context";
+import { useBillCare } from "@/lib/billcare-context";
 import { formatCurrency } from "@/lib/utils";
-import { Appointment, CustomerProfile } from "@/lib/demo-data";
+import { Appointment, CustomerProfile } from "@/lib/types";
 import { ClientFormulaModal } from "./client-formula-modal";
 import {
   Calendar as CalendarIcon,
@@ -42,7 +42,7 @@ export function CalendarView({ onGoToPosBilling }: CalendarViewProps) {
     invoices,
     updateAppointmentStatus,
     bookAppointment,
-  } = useDemo();
+  } = useBillCare();
 
   const [viewMode, setViewMode] = useState<"timeline" | "cards">("timeline");
   const [selectedStaffFilter, setSelectedStaffFilter] = useState<string>("All");
@@ -98,8 +98,9 @@ export function CalendarView({ onGoToPosBilling }: CalendarViewProps) {
     const found = customers.find(
       (c) => c.name.toLowerCase() === customerName.toLowerCase()
     );
+
     if (found) {
-      setActiveFormulaCustomer(found);
+      setActiveFormulaCustomer(found as any);
     } else {
       // Create temporary profile for walk-ins
       setActiveFormulaCustomer({
@@ -144,88 +145,88 @@ export function CalendarView({ onGoToPosBilling }: CalendarViewProps) {
   return (
     <div className="space-y-6">
       {/* Top Header */}
-      <div className="luxury-card p-6 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-[#0D0D0F] border border-[#27272A] p-5 sm:p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/25 border border-white/20">
+          <div className="w-12 h-12 rounded-xl bg-[#F5C928]/10 border border-[#F5C928]/30 flex items-center justify-center text-[#F5C928] shadow-lg shadow-[#F5C928]/5 shrink-0">
             <CalendarIcon className="w-6 h-6" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
-                Fresha-Grade Chair Matrix & Schedule
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-xl font-serif font-bold text-[#F5F4F0] tracking-tight">
+                Chair Matrix & Appointments
               </h1>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+              <span className="text-[10px] font-mono uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/30">
                 Live Timeline
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-[#7E8B9C] mt-0.5">
               Multi-stylist timeline • Technical formula cards • 1-click checkout & WhatsApp reminders
             </p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          {/* View mode toggle (Fresha Signature Matrix vs Cards) */}
-          <div className="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200/80 text-xs">
+          {/* View mode toggle (Timeline Matrix vs Cards) */}
+          <div className="flex items-center bg-[#171719] p-1 rounded-xl border border-[#27272A] text-xs">
             <button
               onClick={() => setViewMode("timeline")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all ${
                 viewMode === "timeline"
-                  ? "bg-white text-slate-900 shadow-sm"
-                  : "text-slate-600 hover:text-slate-900"
+                  ? "bg-[#F5C928] text-[#080809] shadow-sm"
+                  : "text-[#A3A3AD] hover:text-[#F5F4F0]"
               }`}
             >
-              <Columns className="w-3.5 h-3.5 text-blue-600" />
+              <Columns className="w-3.5 h-3.5" />
               Timeline Matrix
             </button>
             <button
               onClick={() => setViewMode("cards")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all ${
                 viewMode === "cards"
-                  ? "bg-white text-slate-900 shadow-sm"
-                  : "text-slate-600 hover:text-slate-900"
+                  ? "bg-[#F5C928] text-[#080809] shadow-sm"
+                  : "text-[#A3A3AD] hover:text-[#F5F4F0]"
               }`}
             >
-              <Grid3X3 className="w-3.5 h-3.5 text-indigo-600" />
+              <Grid3X3 className="w-3.5 h-3.5" />
               Cards
             </button>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200 text-xs">
-            <button className="p-1 text-slate-600 hover:text-slate-900">
+          <div className="flex items-center gap-1.5 bg-[#171719] p-1.5 rounded-xl border border-[#27272A] text-xs">
+            <button className="p-1 text-[#7E8B9C] hover:text-[#F5F4F0]">
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="font-extrabold px-2 text-slate-800">Today, 12 Oct 2026</span>
-            <button className="p-1 text-slate-600 hover:text-slate-900">
+            <span className="font-mono font-bold px-2 text-[#F5F4F0]">Today, 12 Oct 2026</span>
+            <button className="p-1 text-[#7E8B9C] hover:text-[#F5F4F0]">
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
 
           <button
             onClick={() => setShowBookModal(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-md shadow-blue-500/20 transition-all"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#F5C928] hover:bg-[#f7d348] text-[#080809] font-bold text-xs rounded-xl shadow-lg shadow-[#F5C928]/10 transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" /> New Booking
           </button>
         </div>
       </div>
 
-      {/* VIEW MODE 1: FRESHA-GRADE TIMELINE MATRIX (Signature Multi-Stylist Columns) */}
+      {/* VIEW MODE 1: FRESHA-GRADE TIMELINE MATRIX */}
       {viewMode === "timeline" ? (
-        <div className="luxury-card rounded-3xl overflow-hidden border border-slate-200 shadow-sm">
+        <div className="bg-[#0D0D0F] border border-[#27272A] rounded-2xl overflow-hidden shadow-xl">
           {/* Timeline filter & controls */}
-          <div className="p-3 bg-slate-900 text-white flex flex-wrap items-center justify-between gap-3 text-xs border-b border-slate-800">
+          <div className="p-3 bg-[#111113] text-[#F5F4F0] flex flex-wrap items-center justify-between gap-3 text-xs border-b border-[#27272A]">
             <div className="flex items-center gap-2 overflow-x-auto">
-              <span className="font-black text-amber-400 flex items-center gap-1.5 mr-2">
+              <span className="font-mono font-bold text-[#F5C928] flex items-center gap-1.5 mr-2">
                 <Sparkles className="w-3.5 h-3.5" />
-                TIMELINE MATRIX
+                TIMELINE
               </span>
               <button
                 onClick={() => setSelectedStaffFilter("All")}
-                className={`px-3 py-1 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
                   selectedStaffFilter === "All"
-                    ? "bg-blue-600 text-white shadow-xs"
-                    : "bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white"
+                    ? "bg-[#F5C928] text-[#080809] shadow-xs"
+                    : "bg-[#171719] text-[#A3A3AD] hover:text-[#F5F4F0] border border-[#27272A]"
                 }`}
               >
                 All Chairs ({staff.length})
@@ -234,10 +235,10 @@ export function CalendarView({ onGoToPosBilling }: CalendarViewProps) {
                 <button
                   key={st.id}
                   onClick={() => setSelectedStaffFilter(st.name)}
-                  className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${
                     selectedStaffFilter === st.name
-                      ? "bg-blue-600 text-white shadow-xs"
-                      : "bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white"
+                      ? "bg-[#F5C928] text-[#080809] shadow-xs"
+                      : "bg-[#171719] text-[#A3A3AD] hover:text-[#F5F4F0] border border-[#27272A]"
                   }`}
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
@@ -246,14 +247,14 @@ export function CalendarView({ onGoToPosBilling }: CalendarViewProps) {
               ))}
             </div>
 
-            <div className="flex items-center gap-3 text-xs font-bold">
-              <span className="flex items-center gap-1.5 text-blue-300">
+            <div className="flex items-center gap-3 text-xs font-mono font-bold">
+              <span className="flex items-center gap-1.5 text-blue-400">
                 <span className="w-2 h-2 rounded-full bg-blue-400"></span> Confirmed
               </span>
-              <span className="flex items-center gap-1.5 text-amber-300">
-                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> In Chair
+              <span className="flex items-center gap-1.5 text-[#F5C928]">
+                <span className="w-2 h-2 rounded-full bg-[#F5C928] animate-pulse"></span> In Chair
               </span>
-              <span className="flex items-center gap-1.5 text-emerald-300">
+              <span className="flex items-center gap-1.5 text-emerald-400">
                 <span className="w-2 h-2 rounded-full bg-emerald-400"></span> Completed
               </span>
             </div>
@@ -269,28 +270,28 @@ export function CalendarView({ onGoToPosBilling }: CalendarViewProps) {
                 <div className={visibleStaff.length === 1 ? "min-w-full" : "min-w-[850px]"}>
                   {/* Columns Header (Stylists) */}
                   <div
-                    className="grid bg-slate-50 border-b border-slate-200 text-xs sticky top-0 z-20"
+                    className="grid bg-[#111113] border-b border-[#27272A] text-xs sticky top-0 z-20"
                     style={{
                       gridTemplateColumns: `90px repeat(${visibleStaff.length}, minmax(180px, 1fr))`,
                     }}
                   >
-                    <div className="p-3 sm:p-4 font-black text-slate-500 uppercase tracking-wider text-xs flex items-center justify-center border-r border-slate-200 sticky left-0 z-30 bg-slate-50">
+                    <div className="p-3 sm:p-4 font-mono font-bold text-[#7E8B9C] uppercase tracking-wider text-xs flex items-center justify-center border-r border-[#27272A] sticky left-0 z-30 bg-[#111113]">
                       Time
                     </div>
                     {visibleStaff.map((st) => (
                       <div
                         key={st.id}
-                        className="p-3.5 border-r border-slate-200 last:border-r-0 flex items-center justify-between gap-2 bg-slate-50"
+                        className="p-3.5 border-r border-[#27272A] last:border-r-0 flex items-center justify-between gap-2 bg-[#111113]"
                       >
                         <div className="flex items-center gap-2.5">
                           <img
                             src={st.avatar}
                             alt={st.name}
-                            className="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-sm"
+                            className="w-8 h-8 rounded-full object-cover ring-1 ring-[#27272A]"
                           />
                           <div>
-                            <h4 className="font-extrabold text-slate-900 leading-tight">{st.name}</h4>
-                            <span className="text-[11px] text-slate-600 block truncate max-w-[140px] font-medium">
+                            <h4 className="font-bold text-[#F5F4F0] leading-tight">{st.name}</h4>
+                            <span className="text-[11px] text-[#7E8B9C] block truncate max-w-[140px]">
                               {st.role}
                             </span>
                           </div>
@@ -298,8 +299,8 @@ export function CalendarView({ onGoToPosBilling }: CalendarViewProps) {
                         <span
                           className={`w-2.5 h-2.5 rounded-full ${
                             st.status === "clocked_in"
-                              ? "bg-emerald-500 shadow-sm shadow-emerald-500/50"
-                              : "bg-amber-400"
+                              ? "bg-emerald-400 shadow-sm shadow-emerald-400/50"
+                              : "bg-[#F5C928]"
                           }`}
                           title={st.status}
                         />
@@ -308,7 +309,7 @@ export function CalendarView({ onGoToPosBilling }: CalendarViewProps) {
                   </div>
 
                   {/* Time Slots Grid */}
-                  <div className="divide-y divide-slate-100">
+                  <div className="divide-y divide-[#27272A]">
                     {timelineHours.map((hour) => (
                       <div
                         key={hour}
@@ -318,7 +319,7 @@ export function CalendarView({ onGoToPosBilling }: CalendarViewProps) {
                         }}
                       >
                         {/* Time Label Column (Sticky) */}
-                        <div className="p-2 sm:p-3 font-mono font-bold text-slate-600 text-xs bg-slate-50/95 border-r border-slate-200 flex items-start justify-center pt-3.5 sticky left-0 z-10 backdrop-blur-sm">
+                        <div className="p-2 sm:p-3 font-mono font-bold text-[#7E8B9C] text-xs bg-[#111113]/95 border-r border-[#27272A] flex items-start justify-center pt-3.5 sticky left-0 z-10 backdrop-blur-sm">
                           {hour}
                         </div>
 
@@ -329,44 +330,44 @@ export function CalendarView({ onGoToPosBilling }: CalendarViewProps) {
                           return (
                             <div
                               key={st.id}
-                              className="p-2 border-r border-slate-200 last:border-r-0 relative group hover:bg-blue-50/30 transition-colors flex flex-col justify-center"
+                              className="p-2 border-r border-[#27272A] last:border-r-0 relative group hover:bg-[#171719]/40 transition-colors flex flex-col justify-center"
                             >
                               {apt ? (
                                 <div
-                                  className={`p-3 rounded-2xl border transition-all shadow-sm ${
+                                  className={`p-3 rounded-xl border transition-all shadow-sm ${
                                     apt.status === "Completed"
-                                      ? "bg-emerald-50/90 border-emerald-200/90 text-emerald-950"
+                                      ? "bg-emerald-500/10 border-emerald-500/30 text-[#F5F4F0]"
                                       : apt.status === "In-Service"
-                                      ? "bg-amber-50/90 border-amber-200/90 text-amber-950 ring-1 ring-amber-300"
-                                      : "bg-blue-50/90 border-blue-200/90 text-blue-950"
+                                      ? "bg-[#F5C928]/10 border-[#F5C928]/40 text-[#F5F4F0] ring-1 ring-[#F5C928]/30"
+                                      : "bg-[#171719] border-[#27272A] text-[#F5F4F0]"
                                   }`}
                                 >
                                   <div className="flex items-center justify-between gap-1 mb-1.5">
-                                    <span className="font-mono text-xs font-black px-2 py-0.5 rounded-md bg-white border border-slate-200/80">
+                                    <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-[#111113] border border-[#27272A] text-[#F5F4F0]">
                                       {apt.time}
                                     </span>
                                     <span
-                                      className={`text-[11px] font-black uppercase px-2 py-0.5 rounded-full ${
+                                      className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full ${
                                         apt.status === "Completed"
-                                          ? "bg-emerald-200 text-emerald-900"
+                                          ? "bg-emerald-500/20 text-emerald-400"
                                           : apt.status === "In-Service"
-                                          ? "bg-amber-200 text-amber-900 animate-pulse"
-                                          : "bg-blue-200 text-blue-900"
+                                          ? "bg-[#F5C928]/20 text-[#F5C928] animate-pulse"
+                                          : "bg-blue-500/20 text-blue-400"
                                       }`}
                                     >
                                       {apt.status}
                                     </span>
                                   </div>
 
-                                  <h5 className="font-black text-xs text-slate-900 leading-snug line-clamp-1">
+                                  <h5 className="font-bold text-xs text-[#F5F4F0] leading-snug line-clamp-1">
                                     {apt.customerName}
                                   </h5>
-                                  <p className="text-xs text-slate-700 line-clamp-1 mt-0.5 font-medium">
+                                  <p className="text-xs text-[#A3A3AD] line-clamp-1 mt-0.5">
                                     {apt.serviceName}
                                   </p>
 
-                                  <div className="mt-2 pt-2 border-t border-slate-200/70 flex items-center justify-between text-xs">
-                                    <span className="font-mono font-black text-slate-900">
+                                  <div className="mt-2 pt-2 border-t border-[#27272A] flex items-center justify-between text-xs">
+                                    <span className="font-mono font-bold text-[#F5C928]">
                                       {formatCurrency(apt.price)}
                                     </span>
 
@@ -374,7 +375,7 @@ export function CalendarView({ onGoToPosBilling }: CalendarViewProps) {
                                       {/* Formula Card Button */}
                                       <button
                                         onClick={() => handleOpenFormulaCard(apt.customerName)}
-                                        className="p-1 hover:bg-white rounded-lg text-indigo-700 transition-colors border border-indigo-200/60"
+                                        className="p-1 hover:bg-[#27272A] rounded-lg text-[#F5C928] transition-colors border border-[#27272A]"
                                         title="View Technical Formula Card"
                                       >
                                         <Sparkles className="w-3.5 h-3.5" />
@@ -390,7 +391,7 @@ export function CalendarView({ onGoToPosBilling }: CalendarViewProps) {
                                               apt.staffName
                                             )
                                           }
-                                          className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all shadow-xs flex items-center gap-1"
+                                          className="px-2.5 py-1 bg-[#F5C928] hover:bg-[#f7d348] text-[#080809] rounded-lg text-xs font-bold transition-all shadow-xs flex items-center gap-1 cursor-pointer"
                                           title="Checkout at POS"
                                         >
                                           <Receipt className="w-3 h-3" /> Pay
@@ -402,7 +403,7 @@ export function CalendarView({ onGoToPosBilling }: CalendarViewProps) {
                               ) : (
                                 <button
                                   onClick={() => handleQuickSlotClick(hour, st.name)}
-                                  className="w-full h-full min-h-[70px] rounded-xl border border-dashed border-slate-200/90 hover:border-blue-500 hover:bg-blue-50/60 flex items-center justify-center text-slate-500 hover:text-blue-700 transition-all opacity-0 group-hover:opacity-100 text-xs font-bold gap-1"
+                                  className="w-full h-full min-h-[70px] rounded-xl border border-dashed border-[#27272A] hover:border-[#F5C928]/60 hover:bg-[#F5C928]/5 flex items-center justify-center text-[#7E8B9C] hover:text-[#F5C928] transition-all opacity-0 group-hover:opacity-100 text-xs font-bold gap-1 cursor-pointer"
                                 >
                                   <Plus className="w-3.5 h-3.5" /> Book {hour}
                                 </button>
@@ -425,10 +426,10 @@ export function CalendarView({ onGoToPosBilling }: CalendarViewProps) {
           <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
             <button
               onClick={() => setSelectedStaffFilter("All")}
-              className={`px-4 py-2 rounded-2xl font-black transition-all whitespace-nowrap ${
+              className={`px-4 py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
                 selectedStaffFilter === "All"
-                  ? "bg-slate-950 text-white shadow-md shadow-slate-950/20"
-                  : "bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50"
+                  ? "bg-[#F5C928] text-[#080809] shadow-md shadow-[#F5C928]/10"
+                  : "bg-[#111113] text-[#A3A3AD] border border-[#27272A] hover:text-[#F5F4F0]"
               }`}
             >
               All Chairs & Artists ({appointments.length})
@@ -437,10 +438,10 @@ export function CalendarView({ onGoToPosBilling }: CalendarViewProps) {
               <button
                 key={st.id}
                 onClick={() => setSelectedStaffFilter(st.name)}
-                className={`px-3.5 py-2 rounded-2xl font-bold transition-all whitespace-nowrap flex items-center gap-2 border ${
+                className={`px-3.5 py-2 rounded-xl font-bold transition-all whitespace-nowrap flex items-center gap-2 border ${
                   selectedStaffFilter === st.name
-                    ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20"
-                    : "bg-white text-slate-600 border-slate-200/80 hover:bg-slate-50"
+                    ? "bg-[#F5C928] text-[#080809] border-[#F5C928] shadow-md shadow-[#F5C928]/10"
+                    : "bg-[#111113] text-[#A3A3AD] border-[#27272A] hover:text-[#F5F4F0]"
                 }`}
               >
                 <img
@@ -454,151 +455,151 @@ export function CalendarView({ onGoToPosBilling }: CalendarViewProps) {
           </div>
 
           {filteredAppointments.length === 0 ? (
-            <div className="luxury-card p-12 rounded-3xl text-center space-y-4 max-w-md mx-auto">
-              <div className="w-16 h-16 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mx-auto">
+            <div className="bg-[#0D0D0F] border border-[#27272A] p-12 rounded-2xl text-center space-y-4 max-w-md mx-auto shadow-xl">
+              <div className="w-16 h-16 rounded-full bg-[#171719] border border-[#27272A] text-[#F5C928] flex items-center justify-center mx-auto">
                 <CalendarIcon className="w-8 h-8" />
               </div>
               <div>
-                <h3 className="font-extrabold text-base text-slate-900">No Appointments Scheduled</h3>
-                <p className="text-xs text-slate-500 mt-1">
+                <h3 className="font-serif font-bold text-base text-[#F5F4F0]">No Appointments Scheduled</h3>
+                <p className="text-xs text-[#7E8B9C] mt-1">
                   There are no bookings matching the selected artist filter.
                 </p>
               </div>
               <button
                 onClick={() => setShowBookModal(true)}
-                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-sm inline-flex items-center gap-1.5"
+                className="px-5 py-2.5 bg-[#F5C928] hover:bg-[#f7d348] text-[#080809] font-bold text-xs rounded-xl shadow-sm inline-flex items-center gap-1.5 cursor-pointer"
               >
                 <Plus className="w-4 h-4" /> Schedule New Booking
               </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredAppointments.map((apt) => (
-              <div
-                key={apt.id}
-                className="luxury-card rounded-3xl p-5 flex flex-col justify-between hover:border-blue-400 hover:shadow-xl transition-all"
-              >
-                <div>
-                  <div className="flex items-start justify-between gap-2">
-                    <span className="text-xs font-black text-blue-700 bg-blue-50 px-3 py-1 rounded-xl flex items-center gap-1.5 border border-blue-100 font-mono">
-                      <Clock className="w-3.5 h-3.5" /> {apt.time} ({apt.durationMinutes}m)
-                    </span>
+              {filteredAppointments.map((apt) => (
+                <div
+                  key={apt.id}
+                  className="bg-[#111113] border border-[#27272A] rounded-xl p-5 flex flex-col justify-between hover:border-[#F5C928]/50 hover:bg-[#171719] transition-all shadow-lg"
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="text-xs font-mono font-bold text-[#F5C928] bg-[#171719] px-3 py-1 rounded-lg flex items-center gap-1.5 border border-[#27272A]">
+                        <Clock className="w-3.5 h-3.5" /> {apt.time} ({apt.durationMinutes}m)
+                      </span>
 
-                    <span
-                      className={`text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider ${
-                        apt.status === "Completed"
-                          ? "bg-emerald-100 text-emerald-800"
-                          : apt.status === "In-Service"
-                          ? "bg-amber-100 text-amber-800"
-                          : apt.status === "Cancelled"
-                          ? "bg-rose-100 text-rose-800"
-                          : "bg-blue-100 text-blue-800"
-                      }`}
-                    >
-                      {apt.status}
-                    </span>
-                  </div>
+                      <span
+                        className={`text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${
+                          apt.status === "Completed"
+                            ? "bg-emerald-500/20 text-emerald-400"
+                            : apt.status === "In-Service"
+                            ? "bg-[#F5C928]/20 text-[#F5C928]"
+                            : apt.status === "Cancelled"
+                            ? "bg-rose-500/20 text-rose-400"
+                            : "bg-blue-500/20 text-blue-400"
+                        }`}
+                      >
+                        {apt.status}
+                      </span>
+                    </div>
 
-                  <div className="mt-3.5">
-                    <h3 className="font-extrabold text-slate-900 text-base leading-snug tracking-tight">
-                      {apt.serviceName}
-                    </h3>
-                    <div className="flex items-center justify-between mt-1.5">
-                      <p className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                        <User className="w-3.5 h-3.5 text-blue-500" /> {apt.customerName}
+                    <div className="mt-3.5">
+                      <h3 className="font-serif font-bold text-[#F5F4F0] text-base leading-snug">
+                        {apt.serviceName}
+                      </h3>
+                      <div className="flex items-center justify-between mt-1.5">
+                        <p className="text-xs font-bold text-[#A3A3AD] flex items-center gap-1.5">
+                          <User className="w-3.5 h-3.5 text-[#F5C928]" /> {apt.customerName}
+                        </p>
+                        <button
+                          onClick={() => handleOpenFormulaCard(apt.customerName)}
+                          className="text-[11px] font-bold text-[#F5C928] hover:underline flex items-center gap-1 cursor-pointer"
+                        >
+                          <Sparkles className="w-3 h-3" /> Formula Card
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-[#7E8B9C] flex items-center gap-1.5 mt-0.5 font-mono">
+                        <Phone className="w-3 h-3 text-[#7E8B9C]" /> {apt.customerPhone}
                       </p>
-                      <button
-                        onClick={() => handleOpenFormulaCard(apt.customerName)}
-                        className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 hover:underline"
-                      >
-                        <Sparkles className="w-3 h-3" /> Formula Card
-                      </button>
                     </div>
-                    <p className="text-[11px] text-slate-400 flex items-center gap-1.5 mt-0.5 font-mono">
-                      <Phone className="w-3 h-3 text-slate-400" /> {apt.customerPhone}
-                    </p>
+
+                    <div className="mt-4 pt-3 border-t border-[#27272A] flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <Scissors className="w-3.5 h-3.5 text-[#7E8B9C]" />
+                        <span className="font-bold text-[#F5F4F0]">{apt.staffName}</span>
+                      </div>
+                      <span className="font-mono font-bold text-[#F5C928] text-sm">
+                        {formatCurrency(apt.price)}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                      <Scissors className="w-3.5 h-3.5 text-indigo-600" />
-                      <span className="font-extrabold text-slate-800">{apt.staffName}</span>
+                  <div className="mt-4 pt-3 border-t border-[#27272A] flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1">
+                      {apt.status === "Confirmed" && (
+                        <button
+                          onClick={() => updateAppointmentStatus(apt.id, "In-Service")}
+                          className="px-2.5 py-1 text-[#F5C928] bg-[#F5C928]/10 hover:bg-[#F5C928]/20 border border-[#F5C928]/30 rounded-lg text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                          title="Mark In-Service"
+                        >
+                          <PlayCircle className="w-3.5 h-3.5" /> Start
+                        </button>
+                      )}
+                      {apt.status === "In-Service" && (
+                        <button
+                          onClick={() => updateAppointmentStatus(apt.id, "Completed")}
+                          className="px-2.5 py-1 text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-lg text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                          title="Mark Completed"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Finish
+                        </button>
+                      )}
+                      {apt.status !== "Cancelled" && apt.status !== "Completed" && (
+                        <button
+                          onClick={() => updateAppointmentStatus(apt.id, "Cancelled")}
+                          className="p-1.5 text-[#7E8B9C] hover:text-rose-400 hover:bg-rose-500/10 rounded-lg text-xs transition-colors cursor-pointer"
+                          title="Cancel Booking"
+                        >
+                          <XCircle className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                     </div>
-                    <span className="font-black text-slate-900 font-mono text-sm">
-                      {formatCurrency(apt.price)}
-                    </span>
+
+                    {onGoToPosBilling && (
+                      <button
+                        onClick={() =>
+                          onGoToPosBilling(apt.customerName, apt.serviceName, apt.staffName)
+                        }
+                        className="px-3 py-1.5 bg-[#F5C928] hover:bg-[#f7d348] text-[#080809] rounded-lg text-xs font-bold transition-all shadow-sm flex items-center gap-1 cursor-pointer"
+                      >
+                        <Receipt className="w-3.5 h-3.5" /> Checkout Bill
+                      </button>
+                    )}
                   </div>
                 </div>
-
-                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1">
-                    {apt.status === "Confirmed" && (
-                      <button
-                        onClick={() => updateAppointmentStatus(apt.id, "In-Service")}
-                        className="px-2.5 py-1 text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-xl text-xs font-bold flex items-center gap-1 transition-colors"
-                        title="Mark In-Service"
-                      >
-                        <PlayCircle className="w-3.5 h-3.5" /> Start
-                      </button>
-                    )}
-                    {apt.status === "In-Service" && (
-                      <button
-                        onClick={() => updateAppointmentStatus(apt.id, "Completed")}
-                        className="px-2.5 py-1 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-xl text-xs font-bold flex items-center gap-1 transition-colors"
-                        title="Mark Completed"
-                      >
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Finish
-                      </button>
-                    )}
-                    {apt.status !== "Cancelled" && apt.status !== "Completed" && (
-                      <button
-                        onClick={() => updateAppointmentStatus(apt.id, "Cancelled")}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl text-xs transition-colors"
-                        title="Cancel Booking"
-                      >
-                        <XCircle className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                  </div>
-
-                  {onGoToPosBilling && (
-                    <button
-                      onClick={() =>
-                        onGoToPosBilling(apt.customerName, apt.serviceName, apt.staffName)
-                      }
-                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1"
-                    >
-                      <Receipt className="w-3.5 h-3.5" /> Checkout Bill
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
         </div>
       )}
 
-      {/* 360 Client Technical Formula Modal (Fresha & Boulevard Gold Standard) */}
+      {/* 360 Client Technical Formula Modal */}
       {activeFormulaCustomer && (
         <ClientFormulaModal
           customer={activeFormulaCustomer}
-          invoices={invoices}
+          invoices={invoices as any}
           onClose={() => setActiveFormulaCustomer(null)}
         />
       )}
 
       {/* New Booking Modal */}
       {showBookModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 p-6 w-full max-w-md animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="font-extrabold text-slate-900 text-base">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
+          <div className="bg-[#0D0D0F] border border-[#27272A] rounded-2xl shadow-2xl p-6 w-full max-w-md animate-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-[#27272A]">
+              <h3 className="font-serif font-bold text-[#F5F4F0] text-base">
                 Schedule New Salon Chair Booking
               </h3>
               <button
                 onClick={() => setShowBookModal(false)}
-                className="text-slate-400 hover:text-slate-600"
+                className="text-[#7E8B9C] hover:text-[#F5F4F0] cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -606,7 +607,7 @@ export function CalendarView({ onGoToPosBilling }: CalendarViewProps) {
 
             <form onSubmit={handleBookSubmit} className="mt-4 space-y-3 text-xs">
               <div>
-                <label className="font-bold text-slate-700 block mb-1">
+                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">
                   Customer Full Name
                 </label>
                 <input
@@ -615,30 +616,30 @@ export function CalendarView({ onGoToPosBilling }: CalendarViewProps) {
                   placeholder="e.g. Shalini Roy"
                   value={custName}
                   onChange={(e) => setCustName(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-bold"
+                  className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-bold"
                 />
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Phone Number</label>
+                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Phone Number</label>
                 <input
                   type="tel"
                   required
                   value={custPhone}
                   onChange={(e) => setCustPhone(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-mono font-medium"
+                  className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-mono font-medium"
                 />
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Select Treatment</label>
+                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Select Treatment</label>
                 <select
                   value={serviceName}
                   onChange={(e) => setServiceName(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none font-bold text-slate-800"
+                  className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-bold"
                 >
                   {services.map((s) => (
-                    <option key={s.id} value={s.name}>
+                    <option key={s.id} value={s.name} className="bg-[#111113] text-[#F5F4F0]">
                       {s.name} ({formatCurrency(s.price)})
                     </option>
                   ))}
@@ -647,30 +648,30 @@ export function CalendarView({ onGoToPosBilling }: CalendarViewProps) {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">
+                  <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">
                     Assigned Stylist
                   </label>
                   <select
                     value={staffName}
                     onChange={(e) => setStaffName(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none font-bold"
+                    className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-bold"
                   >
                     {staff.map((st) => (
-                      <option key={st.id} value={st.name}>
+                      <option key={st.id} value={st.name} className="bg-[#111113] text-[#F5F4F0]">
                         {st.name}
                       </option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Time Slot</label>
+                  <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Time Slot</label>
                   <select
                     value={timeSlot}
                     onChange={(e) => setTimeSlot(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none font-bold"
+                    className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-bold"
                   >
                     {timelineHours.map((th) => (
-                      <option key={th} value={th}>
+                      <option key={th} value={th} className="bg-[#111113] text-[#F5F4F0]">
                         {th}
                       </option>
                     ))}
@@ -682,13 +683,13 @@ export function CalendarView({ onGoToPosBilling }: CalendarViewProps) {
                 <button
                   type="button"
                   onClick={() => setShowBookModal(false)}
-                  className="flex-1 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-xl"
+                  className="flex-1 py-2.5 bg-[#171719] text-[#A3A3AD] hover:text-[#F5F4F0] font-bold rounded-xl border border-[#27272A] cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 bg-blue-600 text-white font-extrabold rounded-xl shadow-md shadow-blue-500/20"
+                  className="flex-1 py-2.5 bg-[#F5C928] hover:bg-[#f7d348] text-[#080809] font-bold rounded-xl shadow-md shadow-[#F5C928]/10 cursor-pointer"
                 >
                   Reserve Slot
                 </button>

@@ -1,0 +1,1763 @@
+"use client";
+
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { billcareApi } from "./api-client";
+import { DEMO_PERSONAS } from "./demo-data";
+import { getRoleConfig } from "./role-permissions";
+
+// ============================================================================
+// Types & Data Contracts (Modeled on Salonist.io architecture)
+// ============================================================================
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: "owner" | "manager" | "receptionist" | "admin";
+  salonId: string;
+  avatar?: string;
+}
+
+export interface Salon {
+  id: string;
+  name: string;
+  slug: string;
+  branch: string;
+  city: string;
+  currency: string;
+  chairs: number;
+  category: string;
+  logoUrl?: string;
+  logo?: string;
+  gstin: string;
+  autoGst: boolean;
+  phone: string;
+  email: string;
+  address: string;
+  timing: string;
+  rating?: number;
+  reviewCount?: number;
+  [key: string]: any;
+}
+
+export interface Customer {
+  id: string;
+  salonId: string;
+  name: string;
+  phone: string;
+  email: string;
+  gender: any;
+  birthday?: string;
+  totalVisits: number;
+  visitsCount: number;
+  totalSpend: number;
+  totalSpent: number;
+  loyaltyPoints: number;
+  lastVisitDate: string;
+  tags: string[];
+  notes?: string;
+  lastService?: string;
+  preferredStaff?: string;
+  vipTier?: string;
+  formulaNotes?: string;
+  patchTestStatus?: string;
+  patchTestDate?: string;
+  allergies?: string;
+  rebookingCadenceDays?: number;
+  createdAt: string;
+  [key: string]: any;
+}
+
+export interface Service {
+  id: string;
+  salonId: string;
+  category: any;
+  name: string;
+  durationMinutes: number;
+  bufferMinutes?: number;
+  price: number;
+  description: string;
+  isOnlineBookable?: boolean;
+  isActive?: boolean;
+  popular?: boolean;
+  [key: string]: any;
+}
+
+export interface Staff {
+  id: string;
+  salonId: string;
+  name: string;
+  phone: string;
+  email: string;
+  role: string;
+  commissionRate: number; // e.g., 15 for 15%
+  isClockedIn: boolean;
+  clockedInAt?: string;
+  todayEarnings: number;
+  totalServicesCompleted: number;
+  isActive: boolean;
+  avatar?: string;
+  specialty?: string[];
+  status?: "clocked_in" | "on_break" | "clocked_out";
+  clockInTime?: string;
+  todayRevenue?: number;
+  todayCommission?: number;
+  todayServicesCount?: number;
+  rating?: number;
+  [key: string]: any;
+}
+
+export interface InventoryItem {
+  id: string;
+  salonId: string;
+  name: string;
+  category: any;
+  sku: string;
+  currentStock: number;
+  minThreshold: number;
+  costPrice: number;
+  sellingPrice?: number;
+  retailPrice?: number;
+  brand?: string;
+  usageType?: string;
+  unit: string;
+  supplier?: string;
+  lastRestocked: string;
+  [key: string]: any;
+}
+
+export interface Appointment {
+  id: string;
+  salonId: string;
+  branchId?: string;
+  customerId: string;
+  customerName: string;
+  customerPhone: string;
+  staffId: string;
+  staffName: string;
+  serviceId: string;
+  serviceName: string;
+  date: string; // YYYY-MM-DD
+  startTime: string; // HH:mm
+  endTime: string; // HH:mm
+  time: string; // formatted time e.g. "11:00 AM"
+  durationMinutes: number;
+  price: number;
+  status: any;
+  source?: string;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface InvoiceItem {
+  id?: string;
+  name: string;
+  type: "service" | "product" | string;
+  quantity: number;
+  unitPrice?: number;
+  price?: number;
+  total?: number;
+  staffId?: string;
+  staffName?: string;
+  [key: string]: any;
+}
+
+export interface Invoice {
+  id: string;
+  invoiceNumber: string;
+  salonId: string;
+  customerId: string;
+  customerName: string;
+  customerPhone: string;
+  staffId?: string;
+  staffName?: string;
+  items: InvoiceItem[];
+  subtotal: number;
+  discountPercent: number;
+  discountAmount: number;
+  discount?: number;
+  taxPercent: number;
+  cgst: number;
+  sgst: number;
+  taxAmount: number;
+  gstAmount?: number;
+  grandTotal: number;
+  total: number;
+  paymentMethod: "UPI" | "Card" | "Cash" | "Split";
+  paymentBreakdown?: { cash?: number; upi?: number; card?: number };
+  splitDetails?: { cash?: number; upi?: number; card?: number };
+  status: "paid" | "draft" | "refunded";
+  notes?: string;
+  createdAt: string;
+  date: string;
+  [key: string]: any;
+}
+
+export interface FollowUp {
+  id: string;
+  salonId: string;
+  customerId: string;
+  customerName: string;
+  customerPhone: string;
+  serviceName: string;
+  triggerReason: string;
+  suggestedMessage: string;
+  status: any;
+  dueDate: string;
+  createdAt: string;
+  campaignType?: any;
+  scheduledFor?: string;
+  serviceTrigger?: string;
+  discountOffer?: string;
+  [key: string]: any;
+}
+
+export interface ToastNotification {
+  id: string;
+  message: string;
+  type?: "info" | "success" | "warning" | "error";
+}
+
+export type TabType =
+  | "frontdesk"
+  | "owner"
+  | "overview"
+  | "calendar"
+  | "pos"
+  | "customers"
+  | "services"
+  | "staff"
+  | "inventory"
+  | "followups"
+  | "reports"
+  | "booking"
+  | "settings";
+
+// ============================================================================
+// Context Interface
+// ============================================================================
+
+interface BillCareContextType {
+  // Auth & Session
+  user: User | null;
+  salon: Salon;
+  isAuthenticated: boolean;
+  isBackendConnected: boolean;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signup: (
+    userData: { name: string; email: string; phone: string; password?: string },
+    salonData: { name: string; city: string; category: string; chairs: number; currency?: string; gstin?: string }
+  ) => Promise<{ success: boolean; error?: string }>;
+  logout: () => void;
+  updateSalon: (data: Partial<Salon>) => void;
+  updateUser: (data: Partial<User>) => void;
+
+  // Real Data Collections
+  customers: Customer[];
+  services: Service[];
+  staff: Staff[];
+  inventory: InventoryItem[];
+  appointments: Appointment[];
+  invoices: Invoice[];
+  followUps: FollowUp[];
+
+  // CRUD Operations
+  addCustomer: (data: any) => Customer;
+  updateCustomer: (id: string, data: Partial<Customer>) => void;
+  deleteCustomer: (id: string) => void;
+
+  addService: (data: any) => Service;
+  updateService: (id: string, data: Partial<Service>) => void;
+  deleteService: (id: string) => void;
+
+  addStaff: (data: any) => Staff;
+  updateStaff: (id: string, data: Partial<Staff>) => void;
+  deleteStaff: (id: string) => void;
+  toggleClockInOut: (staffId: string) => void;
+
+  addInventoryItem: (data: any) => InventoryItem;
+  updateInventoryItem: (id: string, data: Partial<InventoryItem>) => void;
+  adjustStock: (id: string, change: number, reason?: string) => void;
+  deleteInventoryItem: (id: string) => void;
+
+  addAppointment: (data: any) => Appointment;
+  updateAppointmentStatus: (id: string, status: Appointment["status"]) => void;
+  deleteAppointment: (id: string) => void;
+
+  createInvoice: (data: {
+    customerId?: string;
+    customerName: string;
+    customerPhone: string;
+    staffId?: string;
+    staffName?: string;
+    items: InvoiceItem[];
+    subtotal: number;
+    discountPercent?: number;
+    discountAmount?: number;
+    discount?: number;
+    taxPercent?: number;
+    cgst?: number;
+    sgst?: number;
+    taxAmount?: number;
+    gstAmount?: number;
+    grandTotal?: number;
+    total?: number;
+    paymentMethod: "UPI" | "Card" | "Cash" | "Split" | string;
+    paymentBreakdown?: { cash?: number; upi?: number; card?: number };
+    splitDetails?: { cash?: number; upi?: number; card?: number };
+    notes?: string;
+    [key: string]: any;
+  }) => Invoice;
+
+  addFollowUp: (data: any) => FollowUp;
+  markFollowUpSent: (id: string) => void;
+
+  // Utilities & Compatibility
+  toasts: ToastNotification[];
+  toast?: string;
+  showToast: (message: string, type?: ToastNotification["type"]) => void;
+  removeToast: (id: string) => void;
+
+  // Compatibility Bridges for existing views
+  updateSalonProfile: (data: Partial<Salon>) => void;
+  feedbacks: any[];
+  addFeedback: (data: any) => void;
+  bookAppointment: (data: any) => Appointment;
+  sendFollowUp: (id: string) => void;
+  createFollowUp: (data: any) => FollowUp;
+  updateStock: (id: string, qty: number, reason?: string) => void;
+  restockItem: (id: string, qty: number) => void;
+  toggleStaffStatus: (staffId: string) => void;
+  updateStaffCommission: (id: string, rate: number) => void;
+  addStaffMember: (data: any) => Staff;
+  resetDemoData: () => void;
+  currentPersona: { id: string; name: string; role: string; avatar: string; roleTitle: string };
+  allPersonas: any[];
+  switchPersona: (id: string) => void;
+  loginAs: (role: string, name: string) => void;
+}
+
+const BillCareContext = createContext<BillCareContextType | null>(null);
+
+// ============================================================================
+// Default Starter Blueprint Data
+// ============================================================================
+
+const DEFAULT_SALON: Salon = {
+  id: "sln_billcare_flagship",
+  name: "BillCare Premier Atelier & Spa",
+  slug: "billcare-atelier",
+  branch: "Flagship Studio",
+  city: "Mumbai & Bengaluru",
+  currency: "₹",
+  chairs: 8,
+  category: "Luxury Hair Studio & Aesthetic Spa",
+  logoUrl: "/logo.png",
+  logo: "/logo.png",
+  gstin: "27AABCB1234F1Z8",
+  autoGst: true,
+  phone: "+91 98450 11223",
+  email: "hello@billcare.io",
+  address: "Suite 401, Crescent Galleria, Indiranagar",
+  timing: "10:00 AM - 09:00 PM (All Days)",
+  rating: 4.9,
+  reviewCount: 418,
+  upiId: "billcare.pos@icici",
+  bankAccountName: "BillCare Premier Atelier & Spa",
+  bankAccountNumber: "50200088991122",
+  bankIfsc: "HDFC0001043",
+  bankName: "HDFC Bank (Indiranagar Branch)",
+};
+
+const DEFAULT_USER: User = {
+  id: "usr_billcare_owner",
+  name: "Sunil Kumar",
+  email: "owner@billcare.io",
+  phone: "+91 98450 11223",
+  role: "owner",
+  salonId: "sln_billcare_flagship",
+};
+
+const INITIAL_SERVICES: Service[] = [
+  {
+    id: "srv_1",
+    salonId: "sln_billcare_flagship",
+    category: "Hair",
+    name: "Master Stylist Haircut & Blowdry",
+    durationMinutes: 45,
+    bufferMinutes: 5,
+    price: 1800,
+    description: "Consultation, deep detox wash, scalp stimulation & precision styling.",
+    isOnlineBookable: true,
+    isActive: true,
+  },
+  {
+    id: "srv_2",
+    salonId: "sln_billcare_flagship",
+    category: "Hair",
+    name: "Balayage & Root Glaze Treatment",
+    durationMinutes: 150,
+    bufferMinutes: 10,
+    price: 8500,
+    description: "Custom French balayage technique with bond builder & gloss finish.",
+    isOnlineBookable: true,
+    isActive: true,
+  },
+  {
+    id: "srv_3",
+    salonId: "sln_billcare_flagship",
+    category: "Spa",
+    name: "Aroma Hot Stone Deep Tissue Spa",
+    durationMinutes: 60,
+    bufferMinutes: 10,
+    price: 3200,
+    description: "Heated volcanic basalt stones with organic lavender & chamomile oils.",
+    isOnlineBookable: true,
+    isActive: true,
+  },
+  {
+    id: "srv_4",
+    salonId: "sln_billcare_flagship",
+    category: "Skin",
+    name: "Hydra-Glow Medical Facial Therapy",
+    durationMinutes: 75,
+    bufferMinutes: 10,
+    price: 4500,
+    description: "Vacuum vortex suction pore cleansing, ultrasound infusion & LED photo light.",
+    isOnlineBookable: true,
+    isActive: true,
+  },
+  {
+    id: "srv_5",
+    salonId: "sln_billcare_flagship",
+    category: "Nails",
+    name: "Gel Sculpting & Russian Manicure",
+    durationMinutes: 60,
+    bufferMinutes: 5,
+    price: 2400,
+    description: "E-file cuticle detail, gel builder apex alignment & 3-week high shine.",
+    isOnlineBookable: true,
+    isActive: true,
+  },
+  {
+    id: "srv_6",
+    salonId: "sln_billcare_flagship",
+    category: "Grooming",
+    name: "Gentleman Executive Beard & Hair Sculpt",
+    durationMinutes: 50,
+    bufferMinutes: 5,
+    price: 1500,
+    description: "Razor fade, steam towel conditioning & cedarwood beard oil sculpting.",
+    isOnlineBookable: true,
+    isActive: true,
+  },
+];
+
+const INITIAL_STAFF: Staff[] = [
+  {
+    id: "stf_1",
+    salonId: "sln_billcare_flagship",
+    name: "Priya Sharma",
+    phone: "+91 98450 77112",
+    email: "priya@billcare.io",
+    role: "Senior Creative Stylist",
+    commissionRate: 18,
+    isClockedIn: true,
+    status: "clocked_in",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80",
+    specialty: ["Balayage", "Precision Bob Cut", "Keratin Smoothing"],
+    clockedInAt: "10:00 AM",
+    todayEarnings: 2750,
+    todayRevenue: 15400,
+    todayCommission: 2750,
+    todayServicesCount: 4,
+    totalServicesCompleted: 142,
+    rating: 4.9,
+    isActive: true,
+  },
+  {
+    id: "stf_2",
+    salonId: "sln_billcare_flagship",
+    name: "Kavita Rao",
+    phone: "+91 98450 88223",
+    email: "kavita@billcare.io",
+    role: "Lead Aesthetician & Spa Director",
+    commissionRate: 15,
+    isClockedIn: true,
+    status: "clocked_in",
+    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80",
+    specialty: ["Hydra-Glow Facial", "Volcanic Stone Massage", "Lymphatic Drainage"],
+    clockedInAt: "10:15 AM",
+    todayEarnings: 1980,
+    todayRevenue: 13200,
+    todayCommission: 1980,
+    todayServicesCount: 3,
+    totalServicesCompleted: 118,
+    rating: 4.85,
+    isActive: true,
+  },
+  {
+    id: "stf_3",
+    salonId: "sln_billcare_flagship",
+    name: "Rahul Verma",
+    phone: "+91 98450 99334",
+    email: "rahul@billcare.io",
+    role: "Master Colorist & Balayage Specialist",
+    commissionRate: 20,
+    isClockedIn: true,
+    status: "clocked_in",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80",
+    specialty: ["French Balayage", "Bleach & Tone", "Gentleman Fade"],
+    clockedInAt: "10:30 AM",
+    todayEarnings: 3400,
+    todayRevenue: 17000,
+    todayCommission: 3400,
+    todayServicesCount: 3,
+    totalServicesCompleted: 96,
+    rating: 4.95,
+    isActive: true,
+  },
+  {
+    id: "stf_4",
+    salonId: "sln_billcare_flagship",
+    name: "Ananya Sen",
+    phone: "+91 98450 44556",
+    email: "ananya@billcare.io",
+    role: "Nail Artist & Lash Specialist",
+    commissionRate: 14,
+    isClockedIn: false,
+    status: "clocked_out",
+    avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&auto=format&fit=crop&q=80",
+    specialty: ["Russian Gel Manicure", "Lash Lift", "Chrome Nail Art"],
+    todayEarnings: 1200,
+    todayRevenue: 8500,
+    todayCommission: 1200,
+    todayServicesCount: 2,
+    totalServicesCompleted: 78,
+    rating: 4.8,
+    isActive: true,
+  },
+];
+
+const INITIAL_CUSTOMERS: Customer[] = [
+  {
+    id: "cst_1",
+    salonId: "sln_billcare_flagship",
+    name: "Ananya Deshmukh",
+    phone: "+91 98765 43210",
+    email: "ananya.d@gmail.com",
+    gender: "female",
+    birthday: "1994-08-14",
+    totalVisits: 8,
+    visitsCount: 8,
+    totalSpend: 34200,
+    totalSpent: 34200,
+    loyaltyPoints: 340,
+    lastVisitDate: "2026-10-18",
+    tags: ["VIP", "Balayage", "High Value"],
+    notes: "Prefers cold iced latte; allergic to ammonium sulfate shampoos.",
+    createdAt: "2026-01-10",
+  },
+  {
+    id: "cst_2",
+    salonId: "sln_billcare_flagship",
+    name: "Vikram Malhotra",
+    phone: "+91 98111 22334",
+    email: "vikram.m@corporation.com",
+    gender: "male",
+    birthday: "1988-11-20",
+    totalVisits: 14,
+    visitsCount: 14,
+    totalSpend: 28500,
+    totalSpent: 28500,
+    loyaltyPoints: 280,
+    lastVisitDate: "2026-10-21",
+    tags: ["Executive", "Regular", "Barber"],
+    notes: "Executive haircut every 3 weeks sharp. Prefers early morning slots.",
+    createdAt: "2026-02-14",
+  },
+  {
+    id: "cst_3",
+    salonId: "sln_billcare_flagship",
+    name: "Meera Krishnan",
+    phone: "+91 98222 33445",
+    email: "meera.k@design.io",
+    gender: "female",
+    birthday: "1996-03-25",
+    totalVisits: 5,
+    visitsCount: 5,
+    totalSpend: 21500,
+    totalSpent: 21500,
+    loyaltyPoints: 215,
+    lastVisitDate: "2026-09-28",
+    tags: ["Spa", "HydraFacial"],
+    notes: "Sensitive skin. Uses only botanical products.",
+    createdAt: "2026-04-12",
+  },
+  {
+    id: "cst_4",
+    salonId: "sln_billcare_flagship",
+    name: "Rohan Kapoor",
+    phone: "+91 98333 44556",
+    email: "rohan.k@fintech.co",
+    gender: "male",
+    totalVisits: 3,
+    visitsCount: 3,
+    totalSpend: 5400,
+    totalSpent: 5400,
+    loyaltyPoints: 50,
+    lastVisitDate: "2026-10-12",
+    tags: ["New", "Beard Grooming"],
+    createdAt: "2026-08-05",
+  },
+];
+
+const INITIAL_INVENTORY: InventoryItem[] = [
+  {
+    id: "inv_1",
+    salonId: "sln_billcare_flagship",
+    name: "Olaplex No. 1 Bond Multiplier (525ml)",
+    category: "Back-Bar Chemical",
+    sku: "OLA-BOND-01",
+    currentStock: 4,
+    minThreshold: 5, // Triggers low-stock alert!
+    costPrice: 4800,
+    sellingPrice: 7200,
+    unit: "bottle",
+    supplier: "Olaplex India Official",
+    lastRestocked: "2026-10-05",
+  },
+  {
+    id: "inv_2",
+    salonId: "sln_billcare_flagship",
+    name: "L'Oréal Professionnel Inoa Ammonia-Free (60g)",
+    category: "Hair Color",
+    sku: "LOR-INOA-6N",
+    currentStock: 18,
+    minThreshold: 8,
+    costPrice: 380,
+    sellingPrice: 650,
+    unit: "tube",
+    supplier: "L'Oréal Pro Distribution",
+    lastRestocked: "2026-10-15",
+  },
+  {
+    id: "inv_3",
+    salonId: "sln_billcare_flagship",
+    name: "Moroccanoil Treatment Original (100ml)",
+    category: "Retail Product",
+    sku: "MOR-OIL-100",
+    currentStock: 3,
+    minThreshold: 6, // Low stock alert!
+    costPrice: 2200,
+    sellingPrice: 3800,
+    unit: "bottle",
+    supplier: "Moroccanoil Direct",
+    lastRestocked: "2026-09-20",
+  },
+  {
+    id: "inv_4",
+    salonId: "sln_billcare_flagship",
+    name: "Kérastase Genesis Anti-Chute Fortifying Shampoo (250ml)",
+    category: "Retail Product",
+    sku: "KER-GEN-250",
+    currentStock: 12,
+    minThreshold: 4,
+    costPrice: 1800,
+    sellingPrice: 3100,
+    unit: "bottle",
+    supplier: "Kérastase India",
+    lastRestocked: "2026-10-10",
+  },
+  {
+    id: "inv_5",
+    salonId: "sln_billcare_flagship",
+    name: "Dermalogica Daily Microfoliant (74g)",
+    category: "Skin Spa Retail",
+    sku: "DERM-MIC-74",
+    currentStock: 8,
+    minThreshold: 3,
+    costPrice: 2900,
+    sellingPrice: 4950,
+    unit: "pcs",
+    supplier: "Dermalogica Pro",
+    lastRestocked: "2026-10-12",
+  },
+];
+
+const INITIAL_APPOINTMENTS: Appointment[] = [
+  {
+    id: "apt_1",
+    salonId: "sln_billcare_flagship",
+    customerId: "cst_1",
+    customerName: "Ananya Deshmukh",
+    customerPhone: "+91 98765 43210",
+    staffId: "stf_1",
+    staffName: "Priya Sharma",
+    serviceId: "srv_1",
+    serviceName: "Master Stylist Haircut & Blowdry",
+    date: new Date().toISOString().split("T")[0],
+    startTime: "11:00",
+    endTime: "11:45",
+    time: "11:00 AM",
+    durationMinutes: 45,
+    price: 1800,
+    status: "confirmed",
+    notes: "Prefers soft wave finish. Client arriving with assistant.",
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "apt_2",
+    salonId: "sln_billcare_flagship",
+    customerId: "cst_2",
+    customerName: "Vikram Malhotra",
+    customerPhone: "+91 98111 22334",
+    staffId: "stf_3",
+    staffName: "Rahul Verma",
+    serviceId: "srv_6",
+    serviceName: "Gentleman Executive Beard & Hair Sculpt",
+    date: new Date().toISOString().split("T")[0],
+    startTime: "12:00",
+    endTime: "12:50",
+    time: "12:00 PM",
+    durationMinutes: 50,
+    price: 1500,
+    status: "arrived",
+    notes: "Razor sharp fade. Warm steam towel requested.",
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "apt_3",
+    salonId: "sln_billcare_flagship",
+    customerId: "cst_3",
+    customerName: "Meera Krishnan",
+    customerPhone: "+91 98222 33445",
+    staffId: "stf_2",
+    staffName: "Kavita Rao",
+    serviceId: "srv_4",
+    serviceName: "Hydra-Glow Medical Facial Therapy",
+    date: new Date().toISOString().split("T")[0],
+    startTime: "14:00",
+    endTime: "15:15",
+    time: "02:00 PM",
+    durationMinutes: 75,
+    price: 4500,
+    status: "scheduled",
+    notes: "Special treatment before evening gala.",
+    createdAt: new Date().toISOString(),
+  },
+];
+
+const INITIAL_INVOICES: Invoice[] = [
+  {
+    id: "inv_rec_1",
+    invoiceNumber: "BC-INV-2026-0104",
+    salonId: "sln_billcare_flagship",
+    customerId: "cst_1",
+    customerName: "Ananya Deshmukh",
+    customerPhone: "+91 98765 43210",
+    staffId: "stf_1",
+    staffName: "Priya Sharma",
+    items: [
+      {
+        type: "service",
+        id: "srv_1",
+        name: "Master Stylist Haircut & Blowdry",
+        quantity: 1,
+        unitPrice: 1800,
+        total: 1800,
+        staffId: "stf_1",
+      },
+      {
+        type: "product",
+        id: "inv_3",
+        name: "Moroccanoil Treatment Original (100ml)",
+        quantity: 1,
+        unitPrice: 3800,
+        total: 3800,
+      },
+    ],
+    subtotal: 5600,
+    discountPercent: 10,
+    discountAmount: 560,
+    taxPercent: 18,
+    cgst: 453.6,
+    sgst: 453.6,
+    taxAmount: 907.2,
+    grandTotal: 5947.2,
+    total: 5947.2,
+    paymentMethod: "UPI",
+    status: "paid",
+    notes: "Complimentary coffee provided.",
+    date: "Today, 11:30 AM",
+    createdAt: new Date(Date.now() - 3600000 * 3).toISOString(),
+  },
+  {
+    id: "inv_rec_2",
+    invoiceNumber: "BC-INV-2026-0103",
+    salonId: "sln_billcare_flagship",
+    customerId: "cst_2",
+    customerName: "Vikram Malhotra",
+    customerPhone: "+91 98111 22334",
+    staffId: "stf_3",
+    staffName: "Rahul Verma",
+    items: [
+      {
+        type: "service",
+        id: "srv_6",
+        name: "Gentleman Executive Beard & Hair Sculpt",
+        quantity: 1,
+        unitPrice: 1500,
+        total: 1500,
+        staffId: "stf_3",
+      },
+    ],
+    subtotal: 1500,
+    discountPercent: 0,
+    discountAmount: 0,
+    taxPercent: 18,
+    cgst: 135,
+    sgst: 135,
+    taxAmount: 270,
+    grandTotal: 1770,
+    total: 1770,
+    paymentMethod: "Card",
+    status: "paid",
+    date: "Today, 09:15 AM",
+    createdAt: new Date(Date.now() - 3600000 * 6).toISOString(),
+  },
+];
+
+const INITIAL_FOLLOWUPS: FollowUp[] = [
+  {
+    id: "flw_1",
+    salonId: "sln_billcare_flagship",
+    customerId: "cst_1",
+    customerName: "Ananya Deshmukh",
+    customerPhone: "+91 98765 43210",
+    serviceName: "Balayage & Root Glaze Treatment",
+    triggerReason: "28-Day Root Touch-Up Due",
+    suggestedMessage:
+      "Hi Ananya! ✨ It has been 4 weeks since your signature Balayage at BillCare. We recommend a quick gloss refresher to maintain your luminous tone. Would you like to reserve Thursday at 3 PM?",
+    status: "pending",
+    dueDate: "2026-10-24",
+    createdAt: "2026-10-20",
+  },
+  {
+    id: "flw_2",
+    salonId: "sln_billcare_flagship",
+    customerId: "cst_3",
+    customerName: "Meera Krishnan",
+    customerPhone: "+91 98222 33445",
+    serviceName: "Hydra-Glow Medical Facial Therapy",
+    triggerReason: "30-Day Skin Hydration Cycle",
+    suggestedMessage:
+      "Hello Meera! Hope your skin is glowing after the Hydra-Glow treatment. Your next monthly session is due next week. Reply BOOK to claim your 10% loyalty VIP credit.",
+    status: "pending",
+    dueDate: "2026-10-28",
+    createdAt: "2026-10-21",
+  },
+];
+
+const INITIAL_FEEDBACKS = [
+  {
+    id: "fb_1",
+    customerName: "Ananya Deshmukh",
+    staffName: "Priya Sharma",
+    serviceName: "Balayage & Root Glaze Treatment",
+    rating: 5,
+    comment: "Priya is a master colorist. The toner formula she created matched my inspiration photo 100%!",
+    date: "Today, 1:15 PM",
+    tags: ["Loved the service ✨", "Very polite staff"],
+  },
+  {
+    id: "fb_2",
+    customerName: "Vikram Malhotra",
+    staffName: "Rahul Verma",
+    serviceName: "Gentleman Executive Beard & Hair Sculpt",
+    rating: 5,
+    comment: "Best razor fade in town. Super hygienic chairs.",
+    date: "Yesterday, 6:00 PM",
+    tags: ["Sharp & precise styling ✂️", "Clean & hygienic chairs"],
+  },
+];
+
+// ============================================================================
+// BillCare Provider Component
+// ============================================================================
+
+export function BillCareProvider({ children }: { children: React.ReactNode }) {
+  // Persistence state
+  const [user, setUser] = useState<User | null>(DEFAULT_USER);
+  const [salon, setSalon] = useState<Salon>(DEFAULT_SALON);
+  const [customers, setCustomers] = useState<Customer[]>(INITIAL_CUSTOMERS);
+  const [services, setServices] = useState<Service[]>(INITIAL_SERVICES);
+  const [staff, setStaff] = useState<Staff[]>(INITIAL_STAFF);
+  const [inventory, setInventory] = useState<InventoryItem[]>(INITIAL_INVENTORY);
+  const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
+  const [invoices, setInvoices] = useState<Invoice[]>(INITIAL_INVOICES);
+  const [followUps, setFollowUps] = useState<FollowUp[]>(INITIAL_FOLLOWUPS);
+  const [feedbacks, setFeedbacks] = useState<any[]>(INITIAL_FEEDBACKS);
+  const [toasts, setToasts] = useState<ToastNotification[]>([]);
+  const [isBackendConnected, setIsBackendConnected] = useState<boolean>(false);
+
+  // Helper to persist data to localStorage
+  const persist = (key: string, data: any) => {
+    try {
+      localStorage.setItem(key, JSON.stringify(data));
+    } catch (e) {
+      console.error(`Failed to save ${key} to storage`, e);
+    }
+  };
+
+  // Load from localStorage first, then sync directly from the FastAPI backend database
+  useEffect(() => {
+    try {
+      const storedUser = localStorage.getItem("billcare_user");
+      const storedSalon = localStorage.getItem("billcare_salon");
+      const storedCustomers = localStorage.getItem("billcare_customers");
+      const storedServices = localStorage.getItem("billcare_services");
+      const storedStaff = localStorage.getItem("billcare_staff");
+      const storedInventory = localStorage.getItem("billcare_inventory");
+      const storedAppointments = localStorage.getItem("billcare_appointments");
+      const storedInvoices = localStorage.getItem("billcare_invoices");
+      const storedFollowups = localStorage.getItem("billcare_followups");
+      const storedFeedbacks = localStorage.getItem("billcare_feedbacks");
+
+      if (storedUser) setUser(JSON.parse(storedUser));
+      if (storedSalon) setSalon(JSON.parse(storedSalon));
+      if (storedCustomers) setCustomers(JSON.parse(storedCustomers));
+      if (storedServices) setServices(JSON.parse(storedServices));
+      if (storedStaff) setStaff(JSON.parse(storedStaff));
+      if (storedInventory) setInventory(JSON.parse(storedInventory));
+      if (storedAppointments) setAppointments(JSON.parse(storedAppointments));
+      if (storedInvoices) setInvoices(JSON.parse(storedInvoices));
+      if (storedFollowups) setFollowUps(JSON.parse(storedFollowups));
+      if (storedFeedbacks) setFeedbacks(JSON.parse(storedFeedbacks));
+    } catch (e) {
+      console.warn("BillCare: Storage hydration warning", e);
+    }
+
+    // Connect and synchronize from live backend database
+    billcareApi
+      .getBootstrap()
+      .then((data) => {
+        if (!data) return;
+        setIsBackendConnected(true);
+
+        if (data.salon) {
+          setSalon(data.salon);
+          persist("billcare_salon", data.salon);
+        }
+        if (data.user && !localStorage.getItem("billcare_user")) {
+          setUser(data.user);
+          persist("billcare_user", data.user);
+        }
+        if (Array.isArray(data.customers) && data.customers.length > 0) {
+          setCustomers(data.customers);
+          persist("billcare_customers", data.customers);
+        }
+        if (Array.isArray(data.services) && data.services.length > 0) {
+          setServices(data.services);
+          persist("billcare_services", data.services);
+        }
+        if (Array.isArray(data.staff) && data.staff.length > 0) {
+          setStaff(data.staff);
+          persist("billcare_staff", data.staff);
+        }
+        if (Array.isArray(data.inventory) && data.inventory.length > 0) {
+          setInventory(data.inventory);
+          persist("billcare_inventory", data.inventory);
+        }
+        if (Array.isArray(data.appointments) && data.appointments.length > 0) {
+          setAppointments(data.appointments);
+          persist("billcare_appointments", data.appointments);
+        }
+        if (Array.isArray(data.invoices) && data.invoices.length > 0) {
+          setInvoices(data.invoices);
+          persist("billcare_invoices", data.invoices);
+        }
+        if (Array.isArray(data.followUps) && data.followUps.length > 0) {
+          setFollowUps(data.followUps);
+          persist("billcare_followups", data.followUps);
+        }
+        if (Array.isArray(data.feedbacks) && data.feedbacks.length > 0) {
+          setFeedbacks(data.feedbacks);
+          persist("billcare_feedbacks", data.feedbacks);
+        }
+      })
+      .catch((err) => {
+        console.info("BillCare: Connected via offline cached data:", err.message);
+      });
+  }, []);
+
+  // Toast Notification handler
+  const showToast = (message: string, type: ToastNotification["type"] = "success") => {
+    const id = "toast_" + Date.now() + "_" + Math.random().toString(36).substring(2, 6);
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      removeToast(id);
+    }, 4500);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  // --------------------------------------------------------------------------
+  // Authentication Actions
+  // --------------------------------------------------------------------------
+  const login = async (email: string, password: string = "") => {
+    const normalizedEmail = email.toLowerCase().trim();
+    if (!normalizedEmail) {
+      return { success: false, error: "Please enter your work email address." };
+    }
+    if (!password) {
+      return { success: false, error: "Please enter your password." };
+    }
+
+    try {
+      const res = await billcareApi.login({ email: normalizedEmail, password });
+      if (res && res.user) {
+        setUser(res.user);
+        persist("billcare_user", res.user);
+        if (res.token) {
+          persist("billcare_token", res.token);
+        }
+        if (res.salon) {
+          setSalon(res.salon);
+          persist("billcare_salon", res.salon);
+        }
+        showToast(`Welcome back to BillCare, ${res.user.name}!`);
+        return { success: true };
+      }
+      return { success: false, error: "Authentication failed. Please verify credentials." };
+    } catch (err: any) {
+      console.warn("Backend auth failed:", err.message);
+      return { success: false, error: err.message || "Invalid email or password." };
+    }
+  };
+
+  const signup = async (
+    userData: { name: string; email: string; phone: string; password?: string },
+    salonData: { name: string; city: string; category: string; chairs: number; currency?: string; gstin?: string }
+  ) => {
+    if (!userData.name || !userData.email || !salonData.name) {
+      return { success: false, error: "Please fill in all required fields." };
+    }
+    if (!userData.password || userData.password.length < 6) {
+      return { success: false, error: "Password must be at least 6 characters." };
+    }
+
+    try {
+      const res = await billcareApi.signup({
+        user: userData,
+        salon: salonData,
+      });
+      if (res && res.user && res.salon) {
+        setUser(res.user);
+        setSalon(res.salon);
+        persist("billcare_user", res.user);
+        persist("billcare_salon", res.salon);
+        if (res.token) {
+          persist("billcare_token", res.token);
+        }
+        showToast(`Welcome to BillCare! Your workspace for "${res.salon.name}" is ready.`);
+        return { success: true };
+      }
+      return { success: false, error: "Failed to create salon account." };
+    } catch (err: any) {
+      console.warn("Backend signup failed:", err.message);
+      return { success: false, error: err.message || "Failed to create salon account." };
+    }
+  };
+
+  const logout = () => {
+    setUser(null);
+    try {
+      localStorage.removeItem("billcare_user");
+      localStorage.removeItem("billcare_token");
+    } catch (e) {}
+    showToast("Signed out successfully from BillCare.", "info");
+  };
+
+  const updateSalon = (data: Partial<Salon>) => {
+    setSalon((prev) => {
+      const updated = { ...prev, ...data };
+      persist("billcare_salon", updated);
+      return updated;
+    });
+    billcareApi.updateSalon(data).catch((err) => console.warn("Backend sync notice:", err.message));
+    showToast("Salon settings updated successfully.");
+  };
+
+  const updateUser = (data: Partial<User>) => {
+    if (!user) return;
+    setUser((prev) => {
+      if (!prev) return null;
+      const updated = { ...prev, ...data };
+      persist("billcare_user", updated);
+      return updated;
+    });
+    showToast("Profile credentials updated.");
+  };
+
+  const switchPersona = (personaId: string) => {
+    const found = DEMO_PERSONAS.find(
+      (p) => p.id === personaId || p.role.toLowerCase() === personaId.toLowerCase()
+    );
+    if (found) {
+      const newUser: User = {
+        id: found.id,
+        name: found.name,
+        email: found.email,
+        phone: "+91 98450 11223",
+        role: found.role,
+        salonId: salon.id || "sln_billcare_flagship",
+        avatar: found.avatar,
+      };
+      setUser(newUser);
+      persist("billcare_user", newUser);
+      showToast(`Switched role to ${found.roleTitle} (${found.name})`, "info");
+    }
+  };
+
+  const loginAs = (role: string, name?: string) => {
+    const found = DEMO_PERSONAS.find((p) => p.role.toLowerCase() === role.toLowerCase()) || DEMO_PERSONAS[0];
+    const newUser: User = {
+      id: found.id,
+      name: name || found.name,
+      email: found.email,
+      phone: "+91 98450 11223",
+      role: (found.role as any) || "owner",
+      salonId: salon.id || "sln_billcare_flagship",
+      avatar: (name || found.name).charAt(0),
+    };
+    setUser(newUser);
+    persist("billcare_user", newUser);
+    showToast(`Active role: ${found.roleTitle}`, "info");
+  };
+
+  // --------------------------------------------------------------------------
+  // Customer CRUD
+  // --------------------------------------------------------------------------
+  const addCustomer = (data: any): Customer => {
+    const newCustomer: Customer = {
+      id: "cst_" + Date.now(),
+      salonId: salon.id,
+      name: data.name,
+      phone: data.phone,
+      email: data.email || "",
+      gender: data.gender || "female",
+      tags: data.tags || [],
+      totalVisits: 0,
+      visitsCount: 0,
+      totalSpend: 0,
+      totalSpent: 0,
+      loyaltyPoints: 50,
+      lastVisitDate: new Date().toISOString().split("T")[0],
+      notes: data.notes || "",
+      createdAt: new Date().toISOString(),
+      ...data,
+    };
+
+    setCustomers((prev) => {
+      const updated = [newCustomer, ...prev];
+      persist("billcare_customers", updated);
+      return updated;
+    });
+
+    billcareApi.createCustomer(newCustomer).catch((err) => console.warn("Sync notice createCustomer:", err.message));
+    showToast(`Added customer ${newCustomer.name} to CRM`);
+    return newCustomer;
+  };
+
+  const updateCustomer = (id: string, data: Partial<Customer>) => {
+    setCustomers((prev) => {
+      const updated = prev.map((c) => (c.id === id ? { ...c, ...data } : c));
+      persist("billcare_customers", updated);
+      return updated;
+    });
+    billcareApi.updateCustomer(id, data).catch((err) => console.warn("Sync notice updateCustomer:", err.message));
+    showToast("Customer record updated.");
+  };
+
+  const deleteCustomer = (id: string) => {
+    setCustomers((prev) => {
+      const updated = prev.filter((c) => c.id !== id);
+      persist("billcare_customers", updated);
+      return updated;
+    });
+    billcareApi.deleteCustomer(id).catch((err) => console.warn("Sync notice deleteCustomer:", err.message));
+    showToast("Customer profile deleted from database.", "info");
+  };
+
+  // --------------------------------------------------------------------------
+  // Service CRUD
+  // --------------------------------------------------------------------------
+  const addService = (data: any): Service => {
+    const newService: Service = {
+      id: "srv_" + Date.now(),
+      salonId: salon.id,
+      name: data.name,
+      category: data.category || "General",
+      durationMinutes: data.durationMinutes || 45,
+      bufferMinutes: data.bufferMinutes ?? 5,
+      price: data.price || 0,
+      description: data.description || "",
+      isOnlineBookable: data.isOnlineBookable ?? true,
+      isActive: data.isActive ?? true,
+      ...data,
+    };
+    setServices((prev) => {
+      const updated = [...prev, newService];
+      persist("billcare_services", updated);
+      return updated;
+    });
+    billcareApi.createService(newService).catch((err) => console.warn("Sync notice createService:", err.message));
+    showToast(`Service "${newService.name}" published to menu.`);
+    return newService;
+  };
+
+  const updateService = (id: string, data: Partial<Service>) => {
+    setServices((prev) => {
+      const updated = prev.map((s) => (s.id === id ? { ...s, ...data } : s));
+      persist("billcare_services", updated);
+      return updated;
+    });
+    billcareApi.updateService(id, data).catch((err) => console.warn("Sync notice updateService:", err.message));
+    showToast("Service details saved.");
+  };
+
+  const deleteService = (id: string) => {
+    setServices((prev) => {
+      const updated = prev.filter((s) => s.id !== id);
+      persist("billcare_services", updated);
+      return updated;
+    });
+    billcareApi.deleteService(id).catch((err) => console.warn("Sync notice deleteService:", err.message));
+    showToast("Service archived from menu.", "info");
+  };
+
+  // --------------------------------------------------------------------------
+  // Staff CRUD & Attendance
+  // --------------------------------------------------------------------------
+  const addStaff = (data: any): Staff => {
+    const newStaff: Staff = {
+      id: "stf_" + Date.now(),
+      salonId: salon.id,
+      name: data.name,
+      phone: data.phone || "",
+      email: data.email || "",
+      role: data.role || "Stylist",
+      commissionRate: data.commissionRate || 15,
+      isClockedIn: true,
+      clockedInAt: new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }),
+      todayEarnings: 0,
+      todayCommission: 0,
+      todayRevenue: 0,
+      todayServicesCount: 0,
+      totalServicesCompleted: 0,
+      isActive: true,
+      specialty: data.specialty || ["Hair Specialist"],
+      status: "clocked_in",
+      rating: 5,
+      ...data,
+    };
+    setStaff((prev) => {
+      const updated = [...prev, newStaff];
+      persist("billcare_staff", updated);
+      return updated;
+    });
+    billcareApi.createStaff(newStaff).catch((err) => console.warn("Sync notice createStaff:", err.message));
+    showToast(`Added team member ${newStaff.name}`);
+    return newStaff;
+  };
+
+  const updateStaff = (id: string, data: Partial<Staff>) => {
+    setStaff((prev) => {
+      const updated = prev.map((s) => (s.id === id ? { ...s, ...data } : s));
+      persist("billcare_staff", updated);
+      return updated;
+    });
+    billcareApi.updateStaff(id, data).catch((err) => console.warn("Sync notice updateStaff:", err.message));
+    showToast("Staff profile updated.");
+  };
+
+  const deleteStaff = (id: string) => {
+    setStaff((prev) => {
+      const updated = prev.filter((s) => s.id !== id);
+      persist("billcare_staff", updated);
+      return updated;
+    });
+    billcareApi.deleteStaff(id).catch((err) => console.warn("Sync notice deleteStaff:", err.message));
+    showToast("Staff member removed from roster.", "info");
+  };
+
+  const toggleClockInOut = (staffId: string) => {
+    setStaff((prev) => {
+      const updated = prev.map((s) => {
+        if (s.id === staffId) {
+          const nextState = !s.isClockedIn;
+          showToast(
+            `${s.name} clocked ${nextState ? "IN" : "OUT"} at ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`,
+            nextState ? "success" : "info"
+          );
+          return {
+            ...s,
+            isClockedIn: nextState,
+            clockedInAt: nextState
+              ? new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+              : undefined,
+          };
+        }
+        return s;
+      });
+      persist("billcare_staff", updated);
+      return updated;
+    });
+    billcareApi.toggleClock(staffId).catch((err) => console.warn("Sync notice toggleClock:", err.message));
+  };
+
+  // --------------------------------------------------------------------------
+  // Inventory Management
+  // --------------------------------------------------------------------------
+  const addInventoryItem = (data: any): InventoryItem => {
+    const newItem: InventoryItem = {
+      id: "inv_" + Date.now(),
+      salonId: salon.id,
+      name: data.name,
+      category: data.category || "General",
+      sku: data.sku || `SKU-${Date.now().toString().slice(-6)}`,
+      currentStock: data.currentStock || 0,
+      minThreshold: data.minThreshold || 5,
+      costPrice: data.costPrice || 0,
+      sellingPrice: data.sellingPrice || data.retailPrice || Math.round((data.costPrice || 1000) * 1.5),
+      unit: data.unit || "unit",
+      supplier: data.supplier || "Official Distributor",
+      lastRestocked: new Date().toISOString().split("T")[0],
+      ...data,
+    };
+    setInventory((prev) => {
+      const updated = [newItem, ...prev];
+      persist("billcare_inventory", updated);
+      return updated;
+    });
+    billcareApi.createInventory(newItem).catch((err) => console.warn("Sync notice createInventory:", err.message));
+    showToast(`Added product "${newItem.name}" to inventory.`);
+    return newItem;
+  };
+
+  const updateInventoryItem = (id: string, data: Partial<InventoryItem>) => {
+    setInventory((prev) => {
+      const updated = prev.map((item) => (item.id === id ? { ...item, ...data } : item));
+      persist("billcare_inventory", updated);
+      return updated;
+    });
+    billcareApi.updateInventory(id, data).catch((err) => console.warn("Sync notice updateInventory:", err.message));
+    showToast("Inventory item updated.");
+  };
+
+  const adjustStock = (id: string, change: number, reason = "Stock Adjustment") => {
+    setInventory((prev) => {
+      const updated = prev.map((item) => {
+        if (item.id === id) {
+          const newQty = Math.max(0, item.currentStock + change);
+          showToast(`Adjusted ${item.name} stock (${change > 0 ? "+" + change : change}) - ${reason}`);
+          return { ...item, currentStock: newQty };
+        }
+        return item;
+      });
+      persist("billcare_inventory", updated);
+      return updated;
+    });
+    billcareApi.adjustStock(id, change, reason).catch((err) => console.warn("Sync notice adjustStock:", err.message));
+  };
+
+  const deleteInventoryItem = (id: string) => {
+    setInventory((prev) => {
+      const updated = prev.filter((i) => i.id !== id);
+      persist("billcare_inventory", updated);
+      return updated;
+    });
+    billcareApi.deleteInventory(id).catch((err) => console.warn("Sync notice deleteInventory:", err.message));
+    showToast("Product deleted from inventory.", "info");
+  };
+
+  // --------------------------------------------------------------------------
+  // Appointments Management
+  // --------------------------------------------------------------------------
+  const addAppointment = (data: any): Appointment => {
+    const newApt: Appointment = {
+      id: "apt_" + Date.now(),
+      salonId: salon.id,
+      customerId: data.customerId || "cst_walkin",
+      customerName: data.customerName || "Walk-in Guest",
+      customerPhone: data.customerPhone || "",
+      staffId: data.staffId || staff[0]?.id || "stf_1",
+      staffName: data.staffName || staff[0]?.name || "Priya Sharma",
+      serviceId: data.serviceId || services[0]?.id || "srv_1",
+      serviceName: data.serviceName || services[0]?.name || "Haircut",
+      date: data.date || new Date().toISOString().split("T")[0],
+      startTime: data.startTime || data.time || "11:00",
+      endTime: data.endTime || "11:45",
+      time: data.time || data.startTime || "11:00 AM",
+      durationMinutes: data.durationMinutes || 45,
+      price: data.price || 1500,
+      status: data.status || "confirmed",
+      createdAt: new Date().toISOString(),
+      ...data,
+    };
+    setAppointments((prev) => {
+      const updated = [newApt, ...prev];
+      persist("billcare_appointments", updated);
+      return updated;
+    });
+    billcareApi.createAppointment(newApt).catch((err) => console.warn("Sync notice createAppointment:", err.message));
+    showToast(`Booked appointment for ${newApt.customerName} at ${newApt.startTime}`);
+    return newApt;
+  };
+
+  const updateAppointmentStatus = (id: string, status: Appointment["status"]) => {
+    setAppointments((prev) => {
+      const updated = prev.map((a) => (a.id === id ? { ...a, status } : a));
+      persist("billcare_appointments", updated);
+      return updated;
+    });
+    billcareApi.updateAppointmentStatus(id, status).catch((err) => console.warn("Sync notice updateAppointmentStatus:", err.message));
+    showToast(`Appointment status changed to "${status.toUpperCase()}"`);
+  };
+
+  const deleteAppointment = (id: string) => {
+    setAppointments((prev) => {
+      const updated = prev.filter((a) => a.id !== id);
+      persist("billcare_appointments", updated);
+      return updated;
+    });
+    billcareApi.deleteAppointment(id).catch((err) => console.warn("Sync notice deleteAppointment:", err.message));
+    showToast("Appointment removed.", "info");
+  };
+
+  // --------------------------------------------------------------------------
+  // POS Checkout & Invoicing Engine
+  // --------------------------------------------------------------------------
+  const createInvoice = (data: {
+    customerId?: string;
+    customerName: string;
+    customerPhone: string;
+    staffId?: string;
+    staffName?: string;
+    items: InvoiceItem[];
+    subtotal: number;
+    discountPercent?: number;
+    discountAmount?: number;
+    discount?: number;
+    taxPercent?: number;
+    cgst?: number;
+    sgst?: number;
+    taxAmount?: number;
+    gstAmount?: number;
+    grandTotal?: number;
+    total?: number;
+    paymentMethod: "UPI" | "Card" | "Cash" | "Split" | string;
+    paymentBreakdown?: { cash?: number; upi?: number; card?: number };
+    splitDetails?: { cash?: number; upi?: number; card?: number };
+    notes?: string;
+    [key: string]: any;
+  }): Invoice => {
+    const grandTotalVal = data.grandTotal ?? data.total ?? data.subtotal;
+    const seq = 100 + invoices.length + 1;
+    const invNumber = `BC-INV-${new Date().getFullYear()}-${seq.toString().padStart(4, "0")}`;
+
+    const newInvoice: Invoice = {
+      ...data,
+      id: "inv_" + Date.now(),
+      invoiceNumber: invNumber,
+      salonId: salon.id,
+      customerId: data.customerId || "cst_walkin",
+      discountPercent: data.discountPercent ?? 0,
+      discountAmount: data.discountAmount ?? data.discount ?? 0,
+      discount: data.discount ?? data.discountAmount ?? 0,
+      taxPercent: data.taxPercent ?? 5,
+      cgst: data.cgst ?? Math.round((data.gstAmount ?? data.taxAmount ?? 0) / 2),
+      sgst: data.sgst ?? Math.round((data.gstAmount ?? data.taxAmount ?? 0) / 2),
+      taxAmount: data.taxAmount ?? data.gstAmount ?? 0,
+      gstAmount: data.gstAmount ?? data.taxAmount ?? 0,
+      grandTotal: grandTotalVal,
+      total: grandTotalVal,
+      paymentMethod: data.paymentMethod as any,
+      status: "paid",
+      createdAt: new Date().toISOString(),
+      date: data.date || new Date().toISOString().split("T")[0],
+    };
+
+    // 1. Add to invoices
+    setInvoices((prev) => {
+      const updated = [newInvoice, ...prev];
+      persist("billcare_invoices", updated);
+      return updated;
+    });
+
+    // 2. Transmit to backend database (FastAPI will update customer visits/spend & deduct product stock)
+    billcareApi.createInvoice(newInvoice).catch((err) => console.warn("Sync notice createInvoice:", err.message));
+
+    // 3. Optimistically update local customer metrics
+    if (data.customerId) {
+      setCustomers((prev) => {
+        const updated = prev.map((c) => {
+          if (c.id === data.customerId) {
+            const addedPoints = Math.round(grandTotalVal * 0.05);
+            return {
+              ...c,
+              totalVisits: (c.totalVisits || 0) + 1,
+              visitsCount: (c.visitsCount || c.totalVisits || 0) + 1,
+              totalSpend: (c.totalSpend || 0) + grandTotalVal,
+              totalSpent: (c.totalSpent || c.totalSpend || 0) + grandTotalVal,
+              loyaltyPoints: (c.loyaltyPoints || 0) + addedPoints,
+              lastVisitDate: new Date().toISOString().split("T")[0],
+            };
+          }
+          return c;
+        });
+        persist("billcare_customers", updated);
+        return updated;
+      });
+    }
+
+    // 4. Auto-deduct inventory if retail products were sold
+    data.items.forEach((item) => {
+      if (item.type === "product" && item.id) {
+        setInventory((prev) => {
+          const updated = prev.map((inv) =>
+            inv.id === item.id
+              ? { ...inv, currentStock: Math.max(0, inv.currentStock - item.quantity) }
+              : inv
+          );
+          persist("billcare_inventory", updated);
+          return updated;
+        });
+      }
+    });
+
+    // 5. Credit staff commission
+    if (data.staffId) {
+      setStaff((prev) => {
+        const updated = prev.map((st) => {
+          if (st.id === data.staffId) {
+            const comm = (data.subtotal * (st.commissionRate || 15)) / 100;
+            return {
+              ...st,
+              todayEarnings: (st.todayEarnings || 0) + comm,
+              totalServicesCompleted: (st.totalServicesCompleted || 0) + 1,
+            };
+          }
+          return st;
+        });
+        persist("billcare_staff", updated);
+        return updated;
+      });
+    }
+
+    showToast(`Invoice ${invNumber} generated for ${data.customerName}! Payment mode: ${data.paymentMethod}`);
+    return newInvoice;
+  };
+
+  // --------------------------------------------------------------------------
+  // Marketing & Retention Follow-Ups
+  // --------------------------------------------------------------------------
+  const addFollowUp = (data: any): FollowUp => {
+    const newFlw: FollowUp = {
+      id: "flw_" + Date.now(),
+      salonId: salon.id,
+      customerId: data.customerId || "cst_1",
+      customerName: data.customerName || "Valued Client",
+      customerPhone: data.customerPhone || "",
+      serviceName: data.serviceName || "Treatment",
+      triggerReason: data.triggerReason || "Retention Check-In",
+      suggestedMessage: data.suggestedMessage || "",
+      status: data.status || "pending",
+      dueDate: data.dueDate || new Date().toISOString().split("T")[0],
+      createdAt: new Date().toISOString(),
+      ...data,
+    };
+    setFollowUps((prev) => {
+      const updated = [newFlw, ...prev];
+      persist("billcare_followups", updated);
+      return updated;
+    });
+    billcareApi.createFollowUp(newFlw).catch((err) => console.warn("Sync notice createFollowUp:", err.message));
+    return newFlw;
+  };
+
+  const markFollowUpSent = (id: string) => {
+    setFollowUps((prev) => {
+      const updated = prev.map((f) => (f.id === id ? { ...f, status: "sent" as const } : f));
+      persist("billcare_followups", updated);
+      return updated;
+    });
+    billcareApi.markFollowUpSent(id).catch((err) => console.warn("Sync notice markFollowUpSent:", err.message));
+    showToast("Follow-up marked as sent.");
+  };
+
+  const addFeedback = (data: any) => {
+    const newFb = {
+      id: "fb_" + Date.now(),
+      salonId: salon.id,
+      customerName: data.customerName || "Valued Guest",
+      staffName: data.staffName || "Stylist",
+      serviceName: data.serviceName || "Service",
+      rating: data.rating || 5,
+      comment: data.comment || "Great experience",
+      date: "Just now",
+      tags: data.tags || ["Loved the service ✨"],
+      ...data,
+    };
+    setFeedbacks((prev) => {
+      const updated = [newFb, ...prev];
+      persist("billcare_feedbacks", updated);
+      return updated;
+    });
+    billcareApi.createFeedback(newFb).catch((err) => console.warn("Sync notice createFeedback:", err.message));
+    showToast("Feedback recorded. Thank you!");
+  };
+
+  return (
+    <BillCareContext.Provider
+      value={{
+        user,
+        salon,
+        isAuthenticated: !!user,
+        isBackendConnected,
+        login,
+        signup,
+        logout,
+        updateSalon,
+        updateUser,
+
+        customers,
+        services,
+        staff,
+        inventory,
+        appointments,
+        invoices,
+        followUps,
+
+        addCustomer,
+        updateCustomer,
+        deleteCustomer,
+
+        addService,
+        updateService,
+        deleteService,
+
+        addStaff,
+        updateStaff,
+        deleteStaff,
+        toggleClockInOut,
+
+        addInventoryItem,
+        updateInventoryItem,
+        adjustStock,
+        deleteInventoryItem,
+
+        addAppointment,
+        updateAppointmentStatus,
+        deleteAppointment,
+
+        createInvoice,
+
+        addFollowUp,
+        markFollowUpSent,
+
+        toasts,
+        toast: toasts[0]?.message,
+        showToast,
+        removeToast,
+
+        updateSalonProfile: updateSalon,
+        feedbacks,
+        addFeedback,
+        bookAppointment: (data: any) =>
+          addAppointment({
+            customerId: "cst_online_" + Date.now(),
+            customerName: data.customerName,
+            customerPhone: data.customerPhone,
+            serviceId: services.find((s) => s.name === data.serviceName)?.id || services[0]?.id || "srv_1",
+            serviceName: data.serviceName,
+            staffId: data.staffId || staff[0]?.id || "stf_1",
+            staffName: data.staffName || staff[0]?.name || "Priya Sharma",
+            date: new Date().toISOString().split("T")[0],
+            startTime: data.time || "11:00",
+            endTime: "11:45",
+            durationMinutes: data.durationMinutes || 45,
+            price: data.price || 1500,
+            status: "confirmed",
+            notes: "Online booking reservation",
+          }),
+        sendFollowUp: markFollowUpSent,
+        createFollowUp: addFollowUp,
+        updateStock: (id: string, qty: number, reason?: string) => adjustStock(id, qty, reason || "Stock update"),
+        restockItem: (id: string, qty: number) => adjustStock(id, qty, "Restock order"),
+        toggleStaffStatus: toggleClockInOut,
+        updateStaffCommission: (id: string, rate: number) => updateStaff(id, { commissionRate: rate }),
+        addStaffMember: addStaff,
+        resetDemoData: () => showToast("Workspace data active."),
+        currentPersona: {
+          id: user?.id || "usr_owner",
+          name: user?.name || "Sunil Kumar",
+          role: user?.role || "owner",
+          avatar: user?.avatar || user?.name?.charAt(0) || "S",
+          roleTitle: getRoleConfig(user?.role).label,
+        },
+        allPersonas: DEMO_PERSONAS,
+        switchPersona,
+        loginAs,
+      }}
+    >
+      {children}
+
+      {/* Floating Modern Toast Stack */}
+      <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
+        {toasts.map((toast) => (
+          <div
+            key={toast.id}
+            className={`pointer-events-auto flex items-center justify-between p-3.5 rounded-xl shadow-lg border text-xs font-semibold backdrop-blur-md transition-all animate-in slide-in-from-bottom-2 ${
+              toast.type === "error"
+                ? "bg-rose-950/90 text-rose-100 border-rose-800"
+                : toast.type === "warning"
+                ? "bg-amber-950/90 text-amber-100 border-amber-800"
+                : toast.type === "info"
+                ? "bg-slate-900/90 text-slate-100 border-slate-700"
+                : "bg-emerald-950/95 text-emerald-100 border-emerald-800"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>{toast.message}</span>
+            </div>
+            <button
+              onClick={() => removeToast(toast.id)}
+              className="text-slate-400 hover:text-white ml-2 text-xs font-bold"
+            >
+              ✕
+            </button>
+          </div>
+        ))}
+      </div>
+    </BillCareContext.Provider>
+  );
+}
+
+// Hook to access BillCare Context
+export function useBillCare() {
+  const context = useContext(BillCareContext);
+  if (!context) {
+    throw new Error("useBillCare must be used within a BillCareProvider");
+  }
+  return context;
+}
+
+// Backward compatibility alias for any existing code using useDemo
+export const useDemo = useBillCare;
+export const DemoProvider = BillCareProvider;
