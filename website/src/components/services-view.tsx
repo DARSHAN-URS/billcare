@@ -174,7 +174,28 @@ export function ServicesView() {
       </div>
 
       {/* Services Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {filteredServices.length === 0 ? (
+        <div className="bg-[#111113] border border-[#27272A] p-12 rounded-2xl text-center space-y-4 max-w-md mx-auto shadow-xl">
+          <div className="w-16 h-16 rounded-2xl bg-[#171719] border border-[#27272A] text-[#F5C928] flex items-center justify-center mx-auto">
+            <Scissors className="w-8 h-8" />
+          </div>
+          <div>
+            <h3 className="font-serif font-bold text-base text-[#F5F4F0]">No Services Found</h3>
+            <p className="text-xs text-[#7E8B9C] mt-1">
+              Your service catalog is completely clean. Click below to add your first service from scratch.
+            </p>
+          </div>
+          <div className="pt-1">
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="px-5 py-2.5 bg-[#F5C928] hover:bg-[#f7d348] text-[#080809] font-bold text-xs rounded-xl shadow-xs transition-all inline-flex items-center gap-1.5 cursor-pointer"
+            >
+              <Plus className="w-4 h-4" /> Add Your First Service
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredServices.map((service) => (
           <div
             key={service.id}
@@ -268,7 +289,8 @@ export function ServicesView() {
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      )}
 
       {/* Add Treatment Modal */}
       {showAddModal && (

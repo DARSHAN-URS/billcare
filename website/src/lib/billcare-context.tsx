@@ -332,6 +332,7 @@ interface BillCareContextType {
   updateStaffCommission: (id: string, rate: number) => void;
   addStaffMember: (data: any) => Staff;
   resetDemoData: () => void;
+  wipeAllData: () => void;
   currentPersona: { id: string; name: string; role: string; avatar: string; roleTitle: string };
   allPersonas: any[];
   switchPersona: (id: string) => void;
@@ -379,509 +380,21 @@ const DEFAULT_USER: User = {
   salonId: "sln_billcare_flagship",
 };
 
-const INITIAL_SERVICES: Service[] = [
-  {
-    id: "srv_1",
-    salonId: "sln_billcare_flagship",
-    category: "Hair",
-    name: "Master Stylist Haircut & Blowdry",
-    durationMinutes: 45,
-    bufferMinutes: 5,
-    price: 1800,
-    description: "Consultation, deep detox wash, scalp stimulation & precision styling.",
-    isOnlineBookable: true,
-    isActive: true,
-  },
-  {
-    id: "srv_2",
-    salonId: "sln_billcare_flagship",
-    category: "Hair",
-    name: "Balayage & Root Glaze Treatment",
-    durationMinutes: 150,
-    bufferMinutes: 10,
-    price: 8500,
-    description: "Custom French balayage technique with bond builder & gloss finish.",
-    isOnlineBookable: true,
-    isActive: true,
-  },
-  {
-    id: "srv_3",
-    salonId: "sln_billcare_flagship",
-    category: "Spa",
-    name: "Aroma Hot Stone Deep Tissue Spa",
-    durationMinutes: 60,
-    bufferMinutes: 10,
-    price: 3200,
-    description: "Heated volcanic basalt stones with organic lavender & chamomile oils.",
-    isOnlineBookable: true,
-    isActive: true,
-  },
-  {
-    id: "srv_4",
-    salonId: "sln_billcare_flagship",
-    category: "Skin",
-    name: "Hydra-Glow Medical Facial Therapy",
-    durationMinutes: 75,
-    bufferMinutes: 10,
-    price: 4500,
-    description: "Vacuum vortex suction pore cleansing, ultrasound infusion & LED photo light.",
-    isOnlineBookable: true,
-    isActive: true,
-  },
-  {
-    id: "srv_5",
-    salonId: "sln_billcare_flagship",
-    category: "Nails",
-    name: "Gel Sculpting & Russian Manicure",
-    durationMinutes: 60,
-    bufferMinutes: 5,
-    price: 2400,
-    description: "E-file cuticle detail, gel builder apex alignment & 3-week high shine.",
-    isOnlineBookable: true,
-    isActive: true,
-  },
-  {
-    id: "srv_6",
-    salonId: "sln_billcare_flagship",
-    category: "Grooming",
-    name: "Gentleman Executive Beard & Hair Sculpt",
-    durationMinutes: 50,
-    bufferMinutes: 5,
-    price: 1500,
-    description: "Razor fade, steam towel conditioning & cedarwood beard oil sculpting.",
-    isOnlineBookable: true,
-    isActive: true,
-  },
-];
+const INITIAL_SERVICES: Service[] = [];
 
-const INITIAL_STAFF: Staff[] = [
-  {
-    id: "stf_1",
-    salonId: "sln_billcare_flagship",
-    name: "Priya Sharma",
-    phone: "+91 98450 77112",
-    email: "priya@billcare.io",
-    role: "Senior Creative Stylist",
-    commissionRate: 18,
-    isClockedIn: true,
-    status: "clocked_in",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80",
-    specialty: ["Balayage", "Precision Bob Cut", "Keratin Smoothing"],
-    clockedInAt: "10:00 AM",
-    todayEarnings: 2750,
-    todayRevenue: 15400,
-    todayCommission: 2750,
-    todayServicesCount: 4,
-    totalServicesCompleted: 142,
-    rating: 4.9,
-    isActive: true,
-  },
-  {
-    id: "stf_2",
-    salonId: "sln_billcare_flagship",
-    name: "Kavita Rao",
-    phone: "+91 98450 88223",
-    email: "kavita@billcare.io",
-    role: "Lead Aesthetician & Spa Director",
-    commissionRate: 15,
-    isClockedIn: true,
-    status: "clocked_in",
-    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80",
-    specialty: ["Hydra-Glow Facial", "Volcanic Stone Massage", "Lymphatic Drainage"],
-    clockedInAt: "10:15 AM",
-    todayEarnings: 1980,
-    todayRevenue: 13200,
-    todayCommission: 1980,
-    todayServicesCount: 3,
-    totalServicesCompleted: 118,
-    rating: 4.85,
-    isActive: true,
-  },
-  {
-    id: "stf_3",
-    salonId: "sln_billcare_flagship",
-    name: "Rahul Verma",
-    phone: "+91 98450 99334",
-    email: "rahul@billcare.io",
-    role: "Master Colorist & Balayage Specialist",
-    commissionRate: 20,
-    isClockedIn: true,
-    status: "clocked_in",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80",
-    specialty: ["French Balayage", "Bleach & Tone", "Gentleman Fade"],
-    clockedInAt: "10:30 AM",
-    todayEarnings: 3400,
-    todayRevenue: 17000,
-    todayCommission: 3400,
-    todayServicesCount: 3,
-    totalServicesCompleted: 96,
-    rating: 4.95,
-    isActive: true,
-  },
-  {
-    id: "stf_4",
-    salonId: "sln_billcare_flagship",
-    name: "Ananya Sen",
-    phone: "+91 98450 44556",
-    email: "ananya@billcare.io",
-    role: "Nail Artist & Lash Specialist",
-    commissionRate: 14,
-    isClockedIn: false,
-    status: "clocked_out",
-    avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&auto=format&fit=crop&q=80",
-    specialty: ["Russian Gel Manicure", "Lash Lift", "Chrome Nail Art"],
-    todayEarnings: 1200,
-    todayRevenue: 8500,
-    todayCommission: 1200,
-    todayServicesCount: 2,
-    totalServicesCompleted: 78,
-    rating: 4.8,
-    isActive: true,
-  },
-];
+const INITIAL_STAFF: Staff[] = [];
 
-const INITIAL_CUSTOMERS: Customer[] = [
-  {
-    id: "cst_1",
-    salonId: "sln_billcare_flagship",
-    name: "Ananya Deshmukh",
-    phone: "+91 98765 43210",
-    email: "ananya.d@gmail.com",
-    gender: "female",
-    birthday: "1994-08-14",
-    totalVisits: 8,
-    visitsCount: 8,
-    totalSpend: 34200,
-    totalSpent: 34200,
-    loyaltyPoints: 340,
-    lastVisitDate: "2026-10-18",
-    tags: ["VIP", "Balayage", "High Value"],
-    notes: "Prefers cold iced latte; allergic to ammonium sulfate shampoos.",
-    createdAt: "2026-01-10",
-  },
-  {
-    id: "cst_2",
-    salonId: "sln_billcare_flagship",
-    name: "Vikram Malhotra",
-    phone: "+91 98111 22334",
-    email: "vikram.m@corporation.com",
-    gender: "male",
-    birthday: "1988-11-20",
-    totalVisits: 14,
-    visitsCount: 14,
-    totalSpend: 28500,
-    totalSpent: 28500,
-    loyaltyPoints: 280,
-    lastVisitDate: "2026-10-21",
-    tags: ["Executive", "Regular", "Barber"],
-    notes: "Executive haircut every 3 weeks sharp. Prefers early morning slots.",
-    createdAt: "2026-02-14",
-  },
-  {
-    id: "cst_3",
-    salonId: "sln_billcare_flagship",
-    name: "Meera Krishnan",
-    phone: "+91 98222 33445",
-    email: "meera.k@design.io",
-    gender: "female",
-    birthday: "1996-03-25",
-    totalVisits: 5,
-    visitsCount: 5,
-    totalSpend: 21500,
-    totalSpent: 21500,
-    loyaltyPoints: 215,
-    lastVisitDate: "2026-09-28",
-    tags: ["Spa", "HydraFacial"],
-    notes: "Sensitive skin. Uses only botanical products.",
-    createdAt: "2026-04-12",
-  },
-  {
-    id: "cst_4",
-    salonId: "sln_billcare_flagship",
-    name: "Rohan Kapoor",
-    phone: "+91 98333 44556",
-    email: "rohan.k@fintech.co",
-    gender: "male",
-    totalVisits: 3,
-    visitsCount: 3,
-    totalSpend: 5400,
-    totalSpent: 5400,
-    loyaltyPoints: 50,
-    lastVisitDate: "2026-10-12",
-    tags: ["New", "Beard Grooming"],
-    createdAt: "2026-08-05",
-  },
-];
+const INITIAL_CUSTOMERS: Customer[] = [];
 
-const INITIAL_INVENTORY: InventoryItem[] = [
-  {
-    id: "inv_1",
-    salonId: "sln_billcare_flagship",
-    name: "Olaplex No. 1 Bond Multiplier (525ml)",
-    category: "Back-Bar Chemical",
-    sku: "OLA-BOND-01",
-    currentStock: 4,
-    minThreshold: 5, // Triggers low-stock alert!
-    costPrice: 4800,
-    sellingPrice: 7200,
-    unit: "bottle",
-    supplier: "Olaplex India Official",
-    lastRestocked: "2026-10-05",
-  },
-  {
-    id: "inv_2",
-    salonId: "sln_billcare_flagship",
-    name: "L'Oréal Professionnel Inoa Ammonia-Free (60g)",
-    category: "Hair Color",
-    sku: "LOR-INOA-6N",
-    currentStock: 18,
-    minThreshold: 8,
-    costPrice: 380,
-    sellingPrice: 650,
-    unit: "tube",
-    supplier: "L'Oréal Pro Distribution",
-    lastRestocked: "2026-10-15",
-  },
-  {
-    id: "inv_3",
-    salonId: "sln_billcare_flagship",
-    name: "Moroccanoil Treatment Original (100ml)",
-    category: "Retail Product",
-    sku: "MOR-OIL-100",
-    currentStock: 3,
-    minThreshold: 6, // Low stock alert!
-    costPrice: 2200,
-    sellingPrice: 3800,
-    unit: "bottle",
-    supplier: "Moroccanoil Direct",
-    lastRestocked: "2026-09-20",
-  },
-  {
-    id: "inv_4",
-    salonId: "sln_billcare_flagship",
-    name: "Kérastase Genesis Anti-Chute Fortifying Shampoo (250ml)",
-    category: "Retail Product",
-    sku: "KER-GEN-250",
-    currentStock: 12,
-    minThreshold: 4,
-    costPrice: 1800,
-    sellingPrice: 3100,
-    unit: "bottle",
-    supplier: "Kérastase India",
-    lastRestocked: "2026-10-10",
-  },
-  {
-    id: "inv_5",
-    salonId: "sln_billcare_flagship",
-    name: "Dermalogica Daily Microfoliant (74g)",
-    category: "Skin Spa Retail",
-    sku: "DERM-MIC-74",
-    currentStock: 8,
-    minThreshold: 3,
-    costPrice: 2900,
-    sellingPrice: 4950,
-    unit: "pcs",
-    supplier: "Dermalogica Pro",
-    lastRestocked: "2026-10-12",
-  },
-];
+const INITIAL_INVENTORY: InventoryItem[] = [];
 
-const INITIAL_APPOINTMENTS: Appointment[] = [
-  {
-    id: "apt_1",
-    salonId: "sln_billcare_flagship",
-    customerId: "cst_1",
-    customerName: "Ananya Deshmukh",
-    customerPhone: "+91 98765 43210",
-    staffId: "stf_1",
-    staffName: "Priya Sharma",
-    serviceId: "srv_1",
-    serviceName: "Master Stylist Haircut & Blowdry",
-    date: new Date().toISOString().split("T")[0],
-    startTime: "11:00",
-    endTime: "11:45",
-    time: "11:00 AM",
-    durationMinutes: 45,
-    price: 1800,
-    status: "confirmed",
-    notes: "Prefers soft wave finish. Client arriving with assistant.",
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "apt_2",
-    salonId: "sln_billcare_flagship",
-    customerId: "cst_2",
-    customerName: "Vikram Malhotra",
-    customerPhone: "+91 98111 22334",
-    staffId: "stf_3",
-    staffName: "Rahul Verma",
-    serviceId: "srv_6",
-    serviceName: "Gentleman Executive Beard & Hair Sculpt",
-    date: new Date().toISOString().split("T")[0],
-    startTime: "12:00",
-    endTime: "12:50",
-    time: "12:00 PM",
-    durationMinutes: 50,
-    price: 1500,
-    status: "arrived",
-    notes: "Razor sharp fade. Warm steam towel requested.",
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "apt_3",
-    salonId: "sln_billcare_flagship",
-    customerId: "cst_3",
-    customerName: "Meera Krishnan",
-    customerPhone: "+91 98222 33445",
-    staffId: "stf_2",
-    staffName: "Kavita Rao",
-    serviceId: "srv_4",
-    serviceName: "Hydra-Glow Medical Facial Therapy",
-    date: new Date().toISOString().split("T")[0],
-    startTime: "14:00",
-    endTime: "15:15",
-    time: "02:00 PM",
-    durationMinutes: 75,
-    price: 4500,
-    status: "scheduled",
-    notes: "Special treatment before evening gala.",
-    createdAt: new Date().toISOString(),
-  },
-];
+const INITIAL_APPOINTMENTS: Appointment[] = [];
 
-const INITIAL_INVOICES: Invoice[] = [
-  {
-    id: "inv_rec_1",
-    invoiceNumber: "BC-INV-2026-0104",
-    salonId: "sln_billcare_flagship",
-    customerId: "cst_1",
-    customerName: "Ananya Deshmukh",
-    customerPhone: "+91 98765 43210",
-    staffId: "stf_1",
-    staffName: "Priya Sharma",
-    items: [
-      {
-        type: "service",
-        id: "srv_1",
-        name: "Master Stylist Haircut & Blowdry",
-        quantity: 1,
-        unitPrice: 1800,
-        total: 1800,
-        staffId: "stf_1",
-      },
-      {
-        type: "product",
-        id: "inv_3",
-        name: "Moroccanoil Treatment Original (100ml)",
-        quantity: 1,
-        unitPrice: 3800,
-        total: 3800,
-      },
-    ],
-    subtotal: 5600,
-    discountPercent: 10,
-    discountAmount: 560,
-    taxPercent: 18,
-    cgst: 453.6,
-    sgst: 453.6,
-    taxAmount: 907.2,
-    grandTotal: 5947.2,
-    total: 5947.2,
-    paymentMethod: "UPI",
-    status: "paid",
-    notes: "Complimentary coffee provided.",
-    date: "Today, 11:30 AM",
-    createdAt: new Date(Date.now() - 3600000 * 3).toISOString(),
-  },
-  {
-    id: "inv_rec_2",
-    invoiceNumber: "BC-INV-2026-0103",
-    salonId: "sln_billcare_flagship",
-    customerId: "cst_2",
-    customerName: "Vikram Malhotra",
-    customerPhone: "+91 98111 22334",
-    staffId: "stf_3",
-    staffName: "Rahul Verma",
-    items: [
-      {
-        type: "service",
-        id: "srv_6",
-        name: "Gentleman Executive Beard & Hair Sculpt",
-        quantity: 1,
-        unitPrice: 1500,
-        total: 1500,
-        staffId: "stf_3",
-      },
-    ],
-    subtotal: 1500,
-    discountPercent: 0,
-    discountAmount: 0,
-    taxPercent: 18,
-    cgst: 135,
-    sgst: 135,
-    taxAmount: 270,
-    grandTotal: 1770,
-    total: 1770,
-    paymentMethod: "Card",
-    status: "paid",
-    date: "Today, 09:15 AM",
-    createdAt: new Date(Date.now() - 3600000 * 6).toISOString(),
-  },
-];
+const INITIAL_INVOICES: Invoice[] = [];
 
-const INITIAL_FOLLOWUPS: FollowUp[] = [
-  {
-    id: "flw_1",
-    salonId: "sln_billcare_flagship",
-    customerId: "cst_1",
-    customerName: "Ananya Deshmukh",
-    customerPhone: "+91 98765 43210",
-    serviceName: "Balayage & Root Glaze Treatment",
-    triggerReason: "28-Day Root Touch-Up Due",
-    suggestedMessage:
-      "Hi Ananya! ✨ It has been 4 weeks since your signature Balayage at BillCare. We recommend a quick gloss refresher to maintain your luminous tone. Would you like to reserve Thursday at 3 PM?",
-    status: "pending",
-    dueDate: "2026-10-24",
-    createdAt: "2026-10-20",
-  },
-  {
-    id: "flw_2",
-    salonId: "sln_billcare_flagship",
-    customerId: "cst_3",
-    customerName: "Meera Krishnan",
-    customerPhone: "+91 98222 33445",
-    serviceName: "Hydra-Glow Medical Facial Therapy",
-    triggerReason: "30-Day Skin Hydration Cycle",
-    suggestedMessage:
-      "Hello Meera! Hope your skin is glowing after the Hydra-Glow treatment. Your next monthly session is due next week. Reply BOOK to claim your 10% loyalty VIP credit.",
-    status: "pending",
-    dueDate: "2026-10-28",
-    createdAt: "2026-10-21",
-  },
-];
+const INITIAL_FOLLOWUPS: FollowUp[] = [];
 
-const INITIAL_FEEDBACKS = [
-  {
-    id: "fb_1",
-    customerName: "Ananya Deshmukh",
-    staffName: "Priya Sharma",
-    serviceName: "Balayage & Root Glaze Treatment",
-    rating: 5,
-    comment: "Priya is a master colorist. The toner formula she created matched my inspiration photo 100%!",
-    date: "Today, 1:15 PM",
-    tags: ["Loved the service ✨", "Very polite staff"],
-  },
-  {
-    id: "fb_2",
-    customerName: "Vikram Malhotra",
-    staffName: "Rahul Verma",
-    serviceName: "Gentleman Executive Beard & Hair Sculpt",
-    rating: 5,
-    comment: "Best razor fade in town. Super hygienic chairs.",
-    date: "Yesterday, 6:00 PM",
-    tags: ["Sharp & precise styling ✂️", "Clean & hygienic chairs"],
-  },
-];
+const INITIAL_FEEDBACKS: any[] = [];
 
 // ============================================================================
 // BillCare Provider Component
@@ -914,6 +427,19 @@ export function BillCareProvider({ children }: { children: React.ReactNode }) {
   // Load from localStorage first, then sync directly from the FastAPI backend database
   useEffect(() => {
     try {
+      // Clean slate migration: purge any previous demo cache
+      if (typeof window !== "undefined" && !localStorage.getItem("billcare_clean_slate_2026_v1")) {
+        localStorage.removeItem("billcare_customers");
+        localStorage.removeItem("billcare_services");
+        localStorage.removeItem("billcare_staff");
+        localStorage.removeItem("billcare_inventory");
+        localStorage.removeItem("billcare_appointments");
+        localStorage.removeItem("billcare_invoices");
+        localStorage.removeItem("billcare_followups");
+        localStorage.removeItem("billcare_feedbacks");
+        localStorage.setItem("billcare_clean_slate_2026_v1", "true");
+      }
+
       const storedUser = localStorage.getItem("billcare_user");
       const storedSalon = localStorage.getItem("billcare_salon");
       const storedCustomers = localStorage.getItem("billcare_customers");
@@ -954,35 +480,35 @@ export function BillCareProvider({ children }: { children: React.ReactNode }) {
           setUser(data.user);
           persist("billcare_user", data.user);
         }
-        if (Array.isArray(data.customers) && data.customers.length > 0) {
+        if (Array.isArray(data.customers)) {
           setCustomers(data.customers);
           persist("billcare_customers", data.customers);
         }
-        if (Array.isArray(data.services) && data.services.length > 0) {
+        if (Array.isArray(data.services)) {
           setServices(data.services);
           persist("billcare_services", data.services);
         }
-        if (Array.isArray(data.staff) && data.staff.length > 0) {
+        if (Array.isArray(data.staff)) {
           setStaff(data.staff);
           persist("billcare_staff", data.staff);
         }
-        if (Array.isArray(data.inventory) && data.inventory.length > 0) {
+        if (Array.isArray(data.inventory)) {
           setInventory(data.inventory);
           persist("billcare_inventory", data.inventory);
         }
-        if (Array.isArray(data.appointments) && data.appointments.length > 0) {
+        if (Array.isArray(data.appointments)) {
           setAppointments(data.appointments);
           persist("billcare_appointments", data.appointments);
         }
-        if (Array.isArray(data.invoices) && data.invoices.length > 0) {
+        if (Array.isArray(data.invoices)) {
           setInvoices(data.invoices);
           persist("billcare_invoices", data.invoices);
         }
-        if (Array.isArray(data.followUps) && data.followUps.length > 0) {
+        if (Array.isArray(data.followUps)) {
           setFollowUps(data.followUps);
           persist("billcare_followups", data.followUps);
         }
-        if (Array.isArray(data.feedbacks) && data.feedbacks.length > 0) {
+        if (Array.isArray(data.feedbacks)) {
           setFeedbacks(data.feedbacks);
           persist("billcare_feedbacks", data.feedbacks);
         }
@@ -1702,7 +1228,44 @@ export function BillCareProvider({ children }: { children: React.ReactNode }) {
         toggleStaffStatus: toggleClockInOut,
         updateStaffCommission: (id: string, rate: number) => updateStaff(id, { commissionRate: rate }),
         addStaffMember: addStaff,
-        resetDemoData: () => showToast("Workspace data active."),
+        wipeAllData: () => {
+      setCustomers([]);
+      setServices([]);
+      setStaff([]);
+      setInventory([]);
+      setAppointments([]);
+      setInvoices([]);
+      setFollowUps([]);
+      setFeedbacks([]);
+      localStorage.removeItem("billcare_customers");
+      localStorage.removeItem("billcare_services");
+      localStorage.removeItem("billcare_staff");
+      localStorage.removeItem("billcare_inventory");
+      localStorage.removeItem("billcare_appointments");
+      localStorage.removeItem("billcare_invoices");
+      localStorage.removeItem("billcare_followups");
+      localStorage.removeItem("billcare_feedbacks");
+      showToast("Workspace wiped completely clean. Ready for your fresh data!");
+    },
+    resetDemoData: () => {
+      setCustomers([]);
+      setServices([]);
+      setStaff([]);
+      setInventory([]);
+      setAppointments([]);
+      setInvoices([]);
+      setFollowUps([]);
+      setFeedbacks([]);
+      localStorage.removeItem("billcare_customers");
+      localStorage.removeItem("billcare_services");
+      localStorage.removeItem("billcare_staff");
+      localStorage.removeItem("billcare_inventory");
+      localStorage.removeItem("billcare_appointments");
+      localStorage.removeItem("billcare_invoices");
+      localStorage.removeItem("billcare_followups");
+      localStorage.removeItem("billcare_feedbacks");
+      showToast("Workspace wiped completely clean. Ready for your fresh data!");
+    },
         currentPersona: {
           id: user?.id || "usr_owner",
           name: user?.name || "Sunil Kumar",

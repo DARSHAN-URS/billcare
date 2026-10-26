@@ -156,7 +156,28 @@ export function StaffView() {
       </div>
 
       {/* Staff Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {staff.length === 0 ? (
+        <div className="bg-[#111113] border border-[#27272A] p-12 rounded-2xl text-center space-y-4 max-w-md mx-auto shadow-xl">
+          <div className="w-16 h-16 rounded-2xl bg-[#171719] border border-[#27272A] text-[#F5C928] flex items-center justify-center mx-auto">
+            <Users className="w-8 h-8" />
+          </div>
+          <div>
+            <h3 className="font-serif font-bold text-base text-[#F5F4F0]">No Team Members Yet</h3>
+            <p className="text-xs text-[#7E8B9C] mt-1">
+              Add your stylists, barbers, nail artists, and team to start tracking attendance and commissions.
+            </p>
+          </div>
+          <div className="pt-1">
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="px-5 py-2.5 bg-[#F5C928] hover:bg-[#f7d348] text-[#080809] font-bold text-xs rounded-xl shadow-xs transition-all inline-flex items-center gap-1.5 cursor-pointer"
+            >
+              <UserPlus className="w-4 h-4" /> Add Your First Team Member
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {staff.map((member) => (
           <div
             key={member.id}
@@ -290,7 +311,8 @@ export function StaffView() {
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      )}
 
       {/* Add Staff Modal */}
       {showAddModal && (
