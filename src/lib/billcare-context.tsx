@@ -402,7 +402,7 @@ const INITIAL_FEEDBACKS: any[] = [];
 
 export function BillCareProvider({ children }: { children: React.ReactNode }) {
   // Persistence state
-  const [user, setUser] = useState<User | null>(DEFAULT_USER);
+  const [user, setUser] = useState<User | null>(null);
   const [salon, setSalon] = useState<Salon>(DEFAULT_SALON);
   const [customers, setCustomers] = useState<Customer[]>(INITIAL_CUSTOMERS);
   const [services, setServices] = useState<Service[]>(INITIAL_SERVICES);
@@ -427,8 +427,10 @@ export function BillCareProvider({ children }: { children: React.ReactNode }) {
   // Load from localStorage first, then sync directly from the FastAPI backend database
   useEffect(() => {
     try {
-      // Clean slate migration: purge any previous demo cache
-      if (typeof window !== "undefined" && !localStorage.getItem("billcare_clean_slate_2026_v1")) {
+      // Clean slate migration: purge previous demo cache and remove old bypass auth tokens
+      if (typeof window !== "undefined" && !localStorage.getItem("billcare_auth_strict_2026_v2")) {
+        localStorage.removeItem("billcare_user");
+        localStorage.removeItem("billcare_token");
         localStorage.removeItem("billcare_customers");
         localStorage.removeItem("billcare_services");
         localStorage.removeItem("billcare_staff");
@@ -437,10 +439,11 @@ export function BillCareProvider({ children }: { children: React.ReactNode }) {
         localStorage.removeItem("billcare_invoices");
         localStorage.removeItem("billcare_followups");
         localStorage.removeItem("billcare_feedbacks");
-        localStorage.setItem("billcare_clean_slate_2026_v1", "true");
+        localStorage.setItem("billcare_auth_strict_2026_v2", "true");
       }
 
       const storedUser = localStorage.getItem("billcare_user");
+      const storedToken = localStorage.getItem("billcare_token");
       const storedSalon = localStorage.getItem("billcare_salon");
       const storedCustomers = localStorage.getItem("billcare_customers");
       const storedServices = localStorage.getItem("billcare_services");
@@ -451,7 +454,18 @@ export function BillCareProvider({ children }: { children: React.ReactNode }) {
       const storedFollowups = localStorage.getItem("billcare_followups");
       const storedFeedbacks = localStorage.getItem("billcare_feedbacks");
 
-      if (storedUser) setUser(JSON.parse(storedUser));
+      // Only authenticate if both user and valid session token exist
+      if (storedUser && storedToken) {
+        try {
+          setUser(JSON.parse(storedUser));
+        } catch {
+          localStorage.removeItem("billcare_user");
+          localStorage.removeItem("billcare_token");
+          setUser(null);
+        }
+      } else {
+        setUser(null);
+      }
       if (storedSalon) setSalon(JSON.parse(storedSalon));
       if (storedCustomers) setCustomers(JSON.parse(storedCustomers));
       if (storedServices) setServices(JSON.parse(storedServices));
@@ -475,10 +489,6 @@ export function BillCareProvider({ children }: { children: React.ReactNode }) {
         if (data.salon) {
           setSalon(data.salon);
           persist("billcare_salon", data.salon);
-        }
-        if (data.user && !localStorage.getItem("billcare_user")) {
-          setUser(data.user);
-          persist("billcare_user", data.user);
         }
         if (Array.isArray(data.customers)) {
           setCustomers(data.customers);

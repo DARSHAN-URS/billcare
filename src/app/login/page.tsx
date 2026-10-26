@@ -22,8 +22,8 @@ export default function LoginPage() {
   const router = useRouter();
   const { login, showToast } = useBillCare();
 
-  const [email, setEmail] = useState("owner@billcare.io");
-  const [password, setPassword] = useState("billcare2026");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");

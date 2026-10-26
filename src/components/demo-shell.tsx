@@ -117,7 +117,14 @@ export function DemoShell({ initialTab = "frontdesk" }: DemoShellProps) {
   }, []);
 
   // Compute live metrics from actual data collections
-  const totalTodayRevenue = invoices.reduce((acc, inv) => acc + inv.grandTotal, 0);
+  // Strict Authentication Guard: redirect unauthenticated visitors to /login
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
+  }, [user, router]);
+
+    const totalTodayRevenue = invoices.reduce((acc, inv) => acc + inv.grandTotal, 0);
   const clockedInStaffCount = staff.filter((s) => s.isClockedIn).length;
   const pendingFollowUps = followUps.filter((f) => f.status === "pending").length;
   const lowStockCount = inventory.filter((i) => i.currentStock <= i.minThreshold).length;
@@ -265,6 +272,26 @@ export function DemoShell({ initialTab = "frontdesk" }: DemoShellProps) {
     }
     return "Front Desk Counter";
   };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-[#080809] flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-16 h-16 rounded-2xl bg-[#171719] border border-[#27272A] flex items-center justify-center text-[#F5C928] mb-4 shadow-xl">
+          <Lock className="w-8 h-8" />
+        </div>
+        <h2 className="font-serif text-xl font-bold text-[#F5F4F0] mb-2">Access Restricted</h2>
+        <p className="text-xs text-[#7E8B9C] max-w-sm mb-6 leading-relaxed">
+          Authentication is required to access the BillCare management operating system. Please sign in with your credentials.
+        </p>
+        <Link
+          href="/login"
+          className="px-6 py-2.5 rounded-xl bg-[#F5C928] text-[#080809] font-bold text-xs hover:bg-[#f7d348] transition-all shadow-md"
+        >
+          Proceed to Sign In
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#080809] flex flex-col font-sans text-[#F5F4F0] antialiased selection:bg-[#F5C928]/30 selection:text-[#F5F4F0]">
