@@ -67,6 +67,18 @@ export const billcareApi = {
       body: JSON.stringify(payload),
     }),
 
+  forgotPassword: (email: string) =>
+    request<any>("/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    }),
+
+  resetPassword: (payload: { token: string; new_password: string }) =>
+    request<any>("/auth/reset-password", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
   // Salon Profile
   getSalon: () => request<any>("/salon"),
   updateSalon: (data: any) =>
