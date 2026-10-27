@@ -78,21 +78,21 @@ export function SettingsView() {
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="bg-[#0D0D0F] border border-[#27272A] p-5 sm:p-6 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
+      <div className="bg-[#101010] border border-[#27272A] p-5 sm:p-6 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl bg-[#F5C928]/10 border border-[#F5C928]/30 flex items-center justify-center text-[#F5C928] shadow-lg shadow-[#F5C928]/5 shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-[#FACC15]/10 border border-[#FACC15]/30 flex items-center justify-center text-[#FACC15] shadow-lg shadow-[#FACC15]/5 shrink-0">
             <Settings className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2.5">
-              <h1 className="text-xl font-serif font-bold text-[#F5F4F0] tracking-tight">
+              <h1 className="text-xl font-serif font-bold text-[#F8FAFC] tracking-tight">
                 Salon Configuration & Multi-Branch Settings
               </h1>
-              <span className="text-[10px] font-mono uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-[#171719] text-[#F5C928] border border-[#27272A]">
+              <span className="text-[10px] font-mono uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-[#181818] text-[#FACC15] border border-[#27272A]">
                 Tenant Isolation Active
               </span>
             </div>
-            <p className="text-xs text-[#7E8B9C] mt-0.5">
+            <p className="text-xs text-[#71717A] mt-0.5">
               Brand profile • Tax & GSTIN compliance • WhatsApp Cloud API credentials
             </p>
           </div>
@@ -108,134 +108,134 @@ export function SettingsView() {
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Salon Identity (2 cols) */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-[#0D0D0F] border border-[#27272A] p-6 rounded-2xl space-y-4 shadow-xl">
-            <h3 className="text-xs font-mono font-bold text-[#A3A3AD] uppercase tracking-wider flex items-center gap-2 pb-3 border-b border-[#27272A]">
-              <Building2 className="w-4 h-4 text-[#F5C928]" />
+          <div className="bg-[#101010] border border-[#27272A] p-6 rounded-2xl space-y-4 shadow-xl">
+            <h3 className="text-xs font-mono font-bold text-[#A1A1AA] uppercase tracking-wider flex items-center gap-2 pb-3 border-b border-[#27272A]">
+              <Building2 className="w-4 h-4 text-[#FACC15]" />
               Salon Identity & Location Details
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div>
-                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Salon Legal Brand Name</label>
+                <label className="font-mono text-[11px] text-[#A1A1AA] block mb-1">Salon Legal Brand Name</label>
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-bold"
+                  className="w-full px-3.5 py-2.5 bg-[#151515] border border-[#27272A] rounded-xl text-[#F8FAFC] focus:outline-none focus:border-[#FACC15] font-bold"
                 />
               </div>
 
               <div>
-                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Branch / Location Title</label>
+                <label className="font-mono text-[11px] text-[#A1A1AA] block mb-1">Branch / Location Title</label>
                 <input
                   type="text"
                   required
                   value={branch}
                   onChange={(e) => setBranch(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-bold"
+                  className="w-full px-3.5 py-2.5 bg-[#151515] border border-[#27272A] rounded-xl text-[#F8FAFC] focus:outline-none focus:border-[#FACC15] font-bold"
                 />
               </div>
 
               <div className="sm:col-span-2">
-                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Marketing Tagline</label>
+                <label className="font-mono text-[11px] text-[#A1A1AA] block mb-1">Marketing Tagline</label>
                 <input
                   type="text"
                   value={tagline}
                   onChange={(e) => setTagline(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928]"
+                  className="w-full px-3.5 py-2 bg-[#151515] border border-[#27272A] rounded-xl text-[#F8FAFC] focus:outline-none focus:border-[#FACC15]"
                 />
               </div>
 
               <div className="sm:col-span-2">
-                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Complete Physical Address</label>
+                <label className="font-mono text-[11px] text-[#A1A1AA] block mb-1">Complete Physical Address</label>
                 <textarea
                   rows={2}
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928]"
+                  className="w-full px-3.5 py-2 bg-[#151515] border border-[#27272A] rounded-xl text-[#F8FAFC] focus:outline-none focus:border-[#FACC15]"
                 />
               </div>
 
               <div>
-                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Official Front-Desk Phone</label>
+                <label className="font-mono text-[11px] text-[#A1A1AA] block mb-1">Official Front-Desk Phone</label>
                 <input
                   type="text"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-mono"
+                  className="w-full px-3.5 py-2 bg-[#151515] border border-[#27272A] rounded-xl text-[#F8FAFC] focus:outline-none focus:border-[#FACC15] font-mono"
                 />
               </div>
 
               <div>
-                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Support / Concierge Email</label>
+                <label className="font-mono text-[11px] text-[#A1A1AA] block mb-1">Support / Concierge Email</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928]"
+                  className="w-full px-3.5 py-2 bg-[#151515] border border-[#27272A] rounded-xl text-[#F8FAFC] focus:outline-none focus:border-[#FACC15]"
                 />
               </div>
             </div>
           </div>
 
           {/* Tax, GST & Operating Schedule */}
-          <div className="bg-[#0D0D0F] border border-[#27272A] p-6 rounded-2xl space-y-4 shadow-xl">
-            <h3 className="text-xs font-mono font-bold text-[#A3A3AD] uppercase tracking-wider flex items-center gap-2 pb-3 border-b border-[#27272A]">
-              <Clock className="w-4 h-4 text-[#F5C928]" />
+          <div className="bg-[#101010] border border-[#27272A] p-6 rounded-2xl space-y-4 shadow-xl">
+            <h3 className="text-xs font-mono font-bold text-[#A1A1AA] uppercase tracking-wider flex items-center gap-2 pb-3 border-b border-[#27272A]">
+              <Clock className="w-4 h-4 text-[#FACC15]" />
               Operating Hours & Tax Configuration
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div>
-                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">GSTIN Number (Govt. Registered)</label>
+                <label className="font-mono text-[11px] text-[#A1A1AA] block mb-1">GSTIN Number (Govt. Registered)</label>
                 <input
                   type="text"
                   value={gstin}
                   onChange={(e) => setGstin(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-mono font-bold"
+                  className="w-full px-3.5 py-2 bg-[#151515] border border-[#27272A] rounded-xl text-[#F8FAFC] focus:outline-none focus:border-[#FACC15] font-mono font-bold"
                 />
               </div>
 
               <div>
-                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Applicable Tax Slab</label>
+                <label className="font-mono text-[11px] text-[#A1A1AA] block mb-1">Applicable Tax Slab</label>
                 <select
                   value={gstRate}
                   onChange={(e) => setGstRate(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-bold"
+                  className="w-full px-3.5 py-2 bg-[#151515] border border-[#27272A] rounded-xl text-[#F8FAFC] focus:outline-none focus:border-[#FACC15] font-bold"
                 >
-                  <option value="5%" className="bg-[#111113] text-[#F5F4F0]">5% GST (Standard Salon Service)</option>
-                  <option value="18%" className="bg-[#111113] text-[#F5F4F0]">18% GST (Luxury Wellness / Aesthetics)</option>
-                  <option value="0%" className="bg-[#111113] text-[#F5F4F0]">0% Exempt</option>
+                  <option value="5%" className="bg-[#151515] text-[#F8FAFC]">5% GST (Standard Salon Service)</option>
+                  <option value="18%" className="bg-[#151515] text-[#F8FAFC]">18% GST (Luxury Wellness / Aesthetics)</option>
+                  <option value="0%" className="bg-[#151515] text-[#F8FAFC]">0% Exempt</option>
                 </select>
               </div>
 
               <div>
-                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Salon Doors Open</label>
+                <label className="font-mono text-[11px] text-[#A1A1AA] block mb-1">Salon Doors Open</label>
                 <input
                   type="text"
                   value={openTime}
                   onChange={(e) => setOpenTime(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-mono"
+                  className="w-full px-3.5 py-2 bg-[#151515] border border-[#27272A] rounded-xl text-[#F8FAFC] focus:outline-none focus:border-[#FACC15] font-mono"
                 />
               </div>
 
               <div>
-                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Last Chair Slot Closes</label>
+                <label className="font-mono text-[11px] text-[#A1A1AA] block mb-1">Last Chair Slot Closes</label>
                 <input
                   type="text"
                   value={closeTime}
                   onChange={(e) => setCloseTime(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-mono"
+                  className="w-full px-3.5 py-2 bg-[#151515] border border-[#27272A] rounded-xl text-[#F8FAFC] focus:outline-none focus:border-[#FACC15] font-mono"
                 />
               </div>
             </div>
           </div>
 
           {/* UPI ID & Bank Settlement Account Configuration */}
-          <div className="bg-[#0D0D0F] border border-[#27272A] p-6 rounded-2xl space-y-4 shadow-xl">
+          <div className="bg-[#101010] border border-[#27272A] p-6 rounded-2xl space-y-4 shadow-xl">
             <div className="flex items-center justify-between pb-3 border-b border-[#27272A]">
-              <h3 className="text-xs font-mono font-bold text-[#A3A3AD] uppercase tracking-wider flex items-center gap-2">
+              <h3 className="text-xs font-mono font-bold text-[#A1A1AA] uppercase tracking-wider flex items-center gap-2">
                 <QrCode className="w-4 h-4 text-emerald-400" />
                 Salon UPI ID & Bank Account Settlement
               </h3>
@@ -244,14 +244,14 @@ export function SettingsView() {
               </span>
             </div>
 
-            <p className="text-xs text-[#7E8B9C] leading-relaxed">
+            <p className="text-xs text-[#71717A] leading-relaxed">
               Configure your salon's primary merchant UPI ID & Bank details. When bills are generated at the POS checkout, dynamic QR codes will automatically lock to this UPI ID for instant customer payments.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
               <div className="md:col-span-2">
-                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">
-                  Primary Merchant UPI ID / VPA <span className="text-[#F5C928]">*</span>
+                <label className="font-mono text-[11px] text-[#A1A1AA] block mb-1">
+                  Primary Merchant UPI ID / VPA <span className="text-[#FACC15]">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -259,58 +259,58 @@ export function SettingsView() {
                     value={upiId}
                     onChange={(e) => setUpiId(e.target.value)}
                     placeholder="e.g. yoursalon@okhdfcbank or 9845011223@paytm"
-                    className="w-full px-3.5 py-2.5 bg-[#111113] border border-[#27272A] rounded-xl focus:outline-none focus:border-[#F5C928] font-mono font-bold text-[#F5C928]"
+                    className="w-full px-3.5 py-2.5 bg-[#151515] border border-[#27272A] rounded-xl focus:outline-none focus:border-[#FACC15] font-mono font-bold text-[#FACC15]"
                   />
-                  <span className="absolute right-3 top-2 text-[10px] font-mono font-bold text-[#7E8B9C] bg-[#171719] px-2 py-0.5 rounded border border-[#27272A]">
+                  <span className="absolute right-3 top-2 text-[10px] font-mono font-bold text-[#71717A] bg-[#181818] px-2 py-0.5 rounded border border-[#27272A]">
                     NPCI UPI
                   </span>
                 </div>
-                <span className="text-[11px] text-[#7E8B9C] font-mono mt-1 block">
+                <span className="text-[11px] text-[#71717A] font-mono mt-1 block">
                   All dynamically generated bill QR codes will route funds directly to this handle.
                 </span>
               </div>
 
               <div>
-                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Bank Account Holder Name</label>
+                <label className="font-mono text-[11px] text-[#A1A1AA] block mb-1">Bank Account Holder Name</label>
                 <input
                   type="text"
                   value={bankAccountName}
                   onChange={(e) => setBankAccountName(e.target.value)}
                   placeholder="e.g. BillCare Atelier LLP"
-                  className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-bold"
+                  className="w-full px-3.5 py-2 bg-[#151515] border border-[#27272A] rounded-xl text-[#F8FAFC] focus:outline-none focus:border-[#FACC15] font-bold"
                 />
               </div>
 
               <div>
-                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Bank Account Number</label>
+                <label className="font-mono text-[11px] text-[#A1A1AA] block mb-1">Bank Account Number</label>
                 <input
                   type="text"
                   value={bankAccountNumber}
                   onChange={(e) => setBankAccountNumber(e.target.value)}
                   placeholder="e.g. 50200088991122"
-                  className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-mono font-bold"
+                  className="w-full px-3.5 py-2 bg-[#151515] border border-[#27272A] rounded-xl text-[#F8FAFC] focus:outline-none focus:border-[#FACC15] font-mono font-bold"
                 />
               </div>
 
               <div>
-                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Bank IFSC Code</label>
+                <label className="font-mono text-[11px] text-[#A1A1AA] block mb-1">Bank IFSC Code</label>
                 <input
                   type="text"
                   value={bankIfsc}
                   onChange={(e) => setBankIfsc(e.target.value)}
                   placeholder="e.g. HDFC0001043"
-                  className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5C928] focus:outline-none focus:border-[#F5C928] font-mono font-bold uppercase"
+                  className="w-full px-3.5 py-2 bg-[#151515] border border-[#27272A] rounded-xl text-[#FACC15] focus:outline-none focus:border-[#FACC15] font-mono font-bold uppercase"
                 />
               </div>
 
               <div>
-                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Bank Name & Branch</label>
+                <label className="font-mono text-[11px] text-[#A1A1AA] block mb-1">Bank Name & Branch</label>
                 <input
                   type="text"
                   value={bankName}
                   onChange={(e) => setBankName(e.target.value)}
                   placeholder="e.g. HDFC Bank (Indiranagar Branch)"
-                  className="w-full px-3.5 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-bold"
+                  className="w-full px-3.5 py-2 bg-[#151515] border border-[#27272A] rounded-xl text-[#F8FAFC] focus:outline-none focus:border-[#FACC15] font-bold"
                 />
               </div>
             </div>
@@ -320,9 +320,9 @@ export function SettingsView() {
         {/* Right Column: Hardware & Automation Badges */}
         <div className="space-y-6">
           {/* WhatsApp Cloud API Status */}
-          <div className="bg-[#0D0D0F] border border-[#27272A] p-6 rounded-2xl space-y-4 shadow-xl">
+          <div className="bg-[#101010] border border-[#27272A] p-6 rounded-2xl space-y-4 shadow-xl">
             <div className="flex items-center justify-between pb-3 border-b border-[#27272A]">
-              <h3 className="text-xs font-mono font-bold text-[#A3A3AD] uppercase tracking-wider flex items-center gap-1.5">
+              <h3 className="text-xs font-mono font-bold text-[#A1A1AA] uppercase tracking-wider flex items-center gap-1.5">
                 <MessageSquare className="w-4 h-4 text-emerald-400" /> WhatsApp Cloud API
               </h3>
               <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
@@ -332,15 +332,15 @@ export function SettingsView() {
 
             <div className="space-y-2 text-xs">
               <div className="flex justify-between py-1 border-b border-[#27272A]">
-                <span className="text-[#7E8B9C]">Verified Brand Name:</span>
-                <span className="font-bold text-[#F5F4F0]">{metaWabaStatus.verifiedName || salon.name}</span>
+                <span className="text-[#71717A]">Verified Brand Name:</span>
+                <span className="font-bold text-[#F8FAFC]">{metaWabaStatus.verifiedName || salon.name}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-[#27272A]">
-                <span className="text-[#7E8B9C]">Sender Phone:</span>
-                <span className="font-mono text-[#F5F4F0] font-bold">{metaWabaStatus.displayNumber || salon.phone}</span>
+                <span className="text-[#71717A]">Sender Phone:</span>
+                <span className="font-mono text-[#F8FAFC] font-bold">{metaWabaStatus.displayNumber || salon.phone}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-[#27272A]">
-                <span className="text-[#7E8B9C]">Quality Rating:</span>
+                <span className="text-[#71717A]">Quality Rating:</span>
                 <span className="font-bold text-emerald-400 font-mono">HIGH (Tier 2 ✓)</span>
               </div>
             </div>
@@ -354,38 +354,38 @@ export function SettingsView() {
               <span>Connect Official WhatsApp</span>
             </button>
 
-            <label className="flex items-center gap-2 cursor-pointer font-bold text-xs text-[#F5F4F0] pt-1">
+            <label className="flex items-center gap-2 cursor-pointer font-bold text-xs text-[#F8FAFC] pt-1">
               <input
                 type="checkbox"
                 checked={autoSendWhatsApp}
                 onChange={(e) => setAutoSendWhatsApp(e.target.checked)}
-                className="rounded text-[#F5C928] focus:ring-[#F5C928]"
+                className="rounded text-[#FACC15] focus:ring-[#FACC15]"
               />
               <span>Auto-dispatch receipts & reminders</span>
             </label>
           </div>
 
           {/* POS Hardware & Printer */}
-          <div className="bg-[#0D0D0F] border border-[#27272A] p-6 rounded-2xl space-y-4 shadow-xl">
-            <h3 className="text-xs font-mono font-bold text-[#A3A3AD] uppercase tracking-wider flex items-center gap-1.5 pb-3 border-b border-[#27272A]">
-              <Printer className="w-4 h-4 text-[#F5C928]" /> POS Hardware & Receipt Format
+          <div className="bg-[#101010] border border-[#27272A] p-6 rounded-2xl space-y-4 shadow-xl">
+            <h3 className="text-xs font-mono font-bold text-[#A1A1AA] uppercase tracking-wider flex items-center gap-1.5 pb-3 border-b border-[#27272A]">
+              <Printer className="w-4 h-4 text-[#FACC15]" /> POS Hardware & Receipt Format
             </h3>
 
             <div className="text-xs space-y-3">
               <div>
-                <label className="font-mono text-[11px] text-[#A3A3AD] block mb-1">Thermal Paper Roll Width</label>
+                <label className="font-mono text-[11px] text-[#A1A1AA] block mb-1">Thermal Paper Roll Width</label>
                 <select
                   value={printerWidth}
                   onChange={(e) => setPrinterWidth(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-bold"
+                  className="w-full px-3 py-2 bg-[#151515] border border-[#27272A] rounded-xl text-[#F8FAFC] focus:outline-none focus:border-[#FACC15] font-bold"
                 >
-                  <option value="80mm (Standard POS)" className="bg-[#111113] text-[#F5F4F0]">80mm (Standard Countertop POS)</option>
-                  <option value="58mm (Mini Bluetooth)" className="bg-[#111113] text-[#F5F4F0]">58mm (Mini Portable Bluetooth)</option>
-                  <option value="A4 / A5 (Full Sheet)" className="bg-[#111113] text-[#F5F4F0]">A4 / A5 (Full Laser Invoice)</option>
+                  <option value="80mm (Standard POS)" className="bg-[#151515] text-[#F8FAFC]">80mm (Standard Countertop POS)</option>
+                  <option value="58mm (Mini Bluetooth)" className="bg-[#151515] text-[#F8FAFC]">58mm (Mini Portable Bluetooth)</option>
+                  <option value="A4 / A5 (Full Sheet)" className="bg-[#151515] text-[#F8FAFC]">A4 / A5 (Full Laser Invoice)</option>
                 </select>
               </div>
 
-              <div className="p-3 bg-[#111113] rounded-xl border border-[#27272A] text-[11px] text-[#7E8B9C] font-mono leading-relaxed">
+              <div className="p-3 bg-[#151515] rounded-xl border border-[#27272A] text-[11px] text-[#71717A] font-mono leading-relaxed">
                 ESC/POS Bluetooth & USB thermal printing compatible without drivers.
               </div>
             </div>
@@ -395,7 +395,7 @@ export function SettingsView() {
           <div className="space-y-2">
             <button
               type="submit"
-              className="w-full py-3.5 px-4 bg-[#F5C928] hover:bg-[#f7d348] text-[#080809] font-bold text-xs rounded-xl shadow-lg shadow-[#F5C928]/10 flex items-center justify-center gap-2 transition-all cursor-pointer"
+              className="w-full py-3.5 px-4 bg-[#FACC15] hover:bg-[#EAB308] text-[#080808] font-bold text-xs rounded-xl shadow-lg shadow-[#FACC15]/10 flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
               <Save className="w-4 h-4" /> Save Salon Preferences
             </button>
@@ -403,7 +403,7 @@ export function SettingsView() {
             <button
               type="button"
               onClick={resetDemoData}
-              className="w-full py-2.5 px-4 bg-[#171719] hover:bg-[#27272A] border border-[#27272A] text-[#7E8B9C] hover:text-rose-400 font-mono text-xs rounded-xl transition-all cursor-pointer"
+              className="w-full py-2.5 px-4 bg-[#181818] hover:bg-[#27272A] border border-[#27272A] text-[#71717A] hover:text-rose-400 font-mono text-xs rounded-xl transition-all cursor-pointer"
             >
               Reset to Factory Baseline
             </button>

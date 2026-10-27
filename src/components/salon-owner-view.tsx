@@ -298,29 +298,29 @@ export function SalonOwnerView() {
   return (
     <div className="space-y-6">
       {/* Top Banner - Salon Owner Master Dashboard */}
-      <div className="bg-[#0D0D0F] border border-[#27272A] p-6 sm:p-8 rounded-2xl shadow-xl">
+      <div className="bg-[#101010] border border-[#27272A] p-6 sm:p-8 rounded-2xl shadow-xl">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#171719] text-[#F5C928] text-xs font-mono font-bold border border-[#27272A]">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#181818] text-[#FACC15] text-xs font-mono font-bold border border-[#27272A]">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Owner Console • {salon.name}</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-[#F5F4F0]">
+            <h1 className="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-[#F8FAFC]">
               Business & Worker Intelligence
             </h1>
-            <p className="text-xs sm:text-sm text-[#7E8B9C] max-w-2xl">
+            <p className="text-xs sm:text-sm text-[#71717A] max-w-2xl">
               Track services given by each stylist, multi-chair yields, best vs slow services, and query the Salon AI Advisor.
             </p>
           </div>
 
           {/* Time range switcher: This Week vs This Month */}
-          <div className="flex items-center bg-[#171719] border border-[#27272A] p-1.5 rounded-xl self-start lg:self-auto text-xs">
+          <div className="flex items-center bg-[#181818] border border-[#27272A] p-1.5 rounded-xl self-start lg:self-auto text-xs">
             <button
               onClick={() => setTimeRange("week")}
               className={`px-4 py-2 rounded-lg font-bold transition-all cursor-pointer ${
                 timeRange === "week"
-                  ? "bg-[#F5C928] text-[#080809] shadow-md"
-                  : "text-[#A3A3AD] hover:text-[#F5F4F0]"
+                  ? "bg-[#FACC15] text-[#080808] shadow-md"
+                  : "text-[#A1A1AA] hover:text-[#F8FAFC]"
               }`}
             >
               This Week
@@ -329,8 +329,8 @@ export function SalonOwnerView() {
               onClick={() => setTimeRange("month")}
               className={`px-4 py-2 rounded-lg font-bold transition-all cursor-pointer ${
                 timeRange === "month"
-                  ? "bg-[#F5C928] text-[#080809] shadow-md"
-                  : "text-[#A3A3AD] hover:text-[#F5F4F0]"
+                  ? "bg-[#FACC15] text-[#080808] shadow-md"
+                  : "text-[#A1A1AA] hover:text-[#F8FAFC]"
               }`}
             >
               This Month
@@ -342,16 +342,16 @@ export function SalonOwnerView() {
       {/* 4 Top KPI Cards for the Salon Owner */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Revenue */}
-        <div className="bg-[#111113] border border-[#27272A] p-5 rounded-xl">
+        <div className="bg-[#151515] border border-[#27272A] p-5 rounded-xl">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-wider">
+            <span className="text-[10px] font-mono font-bold text-[#71717A] uppercase tracking-wider">
               {isMonth ? "Monthly Sales Pacing" : "Weekly Sales Pacing"}
             </span>
-            <span className="p-2 rounded-lg bg-[#171719] text-[#F5C928] border border-[#27272A]">
+            <span className="p-2 rounded-lg bg-[#181818] text-[#FACC15] border border-[#27272A]">
               <DollarSign className="w-4 h-4" />
             </span>
           </div>
-          <div className="text-2xl sm:text-3xl font-mono font-bold text-[#F5C928] mt-2">
+          <div className="text-2xl sm:text-3xl font-mono font-bold text-[#FACC15] mt-2">
             {formatCurrency(totalMonthRevenue)}
           </div>
           <div className="flex items-center gap-1.5 mt-2 text-xs font-mono font-bold text-emerald-400">
@@ -361,57 +361,57 @@ export function SalonOwnerView() {
         </div>
 
         {/* Total Appointments / Customers Handled */}
-        <div className="bg-[#111113] border border-[#27272A] p-5 rounded-xl">
+        <div className="bg-[#151515] border border-[#27272A] p-5 rounded-xl">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-wider">
+            <span className="text-[10px] font-mono font-bold text-[#71717A] uppercase tracking-wider">
               {isMonth ? "Monthly Client Count" : "Weekly Client Count"}
             </span>
-            <span className="p-2 rounded-lg bg-[#171719] text-[#F5C928] border border-[#27272A]">
+            <span className="p-2 rounded-lg bg-[#181818] text-[#FACC15] border border-[#27272A]">
               <Users className="w-4 h-4" />
             </span>
           </div>
-          <div className="text-2xl sm:text-3xl font-mono font-bold text-[#F5F4F0] mt-2">
+          <div className="text-2xl sm:text-3xl font-mono font-bold text-[#F8FAFC] mt-2">
             {totalAppointmentsCount} Clients
           </div>
-          <div className="flex items-center gap-1.5 mt-2 text-xs font-mono text-[#A3A3AD]">
-            <CheckCircle2 className="w-3.5 h-3.5 text-[#F5C928]" />
+          <div className="flex items-center gap-1.5 mt-2 text-xs font-mono text-[#A1A1AA]">
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#FACC15]" />
             <span>Avg Bill: {formatCurrency(avgBillSize)}</span>
           </div>
         </div>
 
         {/* Repeat Customer Retention */}
-        <div className="bg-[#111113] border border-[#27272A] p-5 rounded-xl">
+        <div className="bg-[#151515] border border-[#27272A] p-5 rounded-xl">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-wider">
+            <span className="text-[10px] font-mono font-bold text-[#71717A] uppercase tracking-wider">
               Repeat Client Rate
             </span>
-            <span className="p-2 rounded-lg bg-[#171719] text-[#F5C928] border border-[#27272A]">
+            <span className="p-2 rounded-lg bg-[#181818] text-[#FACC15] border border-[#27272A]">
               <HeartHandshake className="w-4 h-4" />
             </span>
           </div>
-          <div className="text-2xl sm:text-3xl font-mono font-bold text-[#F5C928] mt-2">
+          <div className="text-2xl sm:text-3xl font-mono font-bold text-[#FACC15] mt-2">
             {repeatClientPercentage}% Returning
           </div>
-          <p className="text-xs text-[#7E8B9C] mt-2 font-mono">
+          <p className="text-xs text-[#71717A] mt-2 font-mono">
             68 of 100 clients return within 40 days
           </p>
         </div>
 
         {/* Salon Stock Health */}
-        <div className="bg-[#111113] border border-[#27272A] p-5 rounded-xl">
+        <div className="bg-[#151515] border border-[#27272A] p-5 rounded-xl">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-wider">
+            <span className="text-[10px] font-mono font-bold text-[#71717A] uppercase tracking-wider">
               Low Stock Warnings
             </span>
             <span
               className={`p-2 rounded-lg border ${
-                lowStockItems.length > 0 ? "bg-rose-500/10 text-rose-400 border-rose-500/30" : "bg-[#171719] text-emerald-400 border-[#27272A]"
+                lowStockItems.length > 0 ? "bg-rose-500/10 text-rose-400 border-rose-500/30" : "bg-[#181818] text-emerald-400 border-[#27272A]"
               }`}
             >
               <Boxes className="w-4 h-4" />
             </span>
           </div>
-          <div className="text-2xl sm:text-3xl font-mono font-bold text-[#F5F4F0] mt-2">
+          <div className="text-2xl sm:text-3xl font-mono font-bold text-[#F8FAFC] mt-2">
             {lowStockItems.length} Items Low
           </div>
           <p className="text-xs font-mono mt-2 text-rose-400">
@@ -421,23 +421,23 @@ export function SalonOwnerView() {
       </div>
 
       {/* SALON OWNER AI CHATBOT SECTION */}
-      <div className="bg-[#0D0D0F] border border-[#27272A] p-6 rounded-2xl space-y-4 shadow-xl">
+      <div className="bg-[#101010] border border-[#27272A] p-6 rounded-2xl space-y-4 shadow-xl">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#27272A]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#F5C928]/10 border border-[#F5C928]/30 text-[#F5C928] flex items-center justify-center shadow-md">
+            <div className="w-10 h-10 rounded-xl bg-[#FACC15]/10 border border-[#FACC15]/30 text-[#FACC15] flex items-center justify-center shadow-md">
               <Bot className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-serif font-bold text-[#F5F4F0]">
+                <h2 className="text-base sm:text-lg font-serif font-bold text-[#F8FAFC]">
                   Salon Owner AI Advisor
                 </h2>
-                <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#171719] text-[#F5C928] border border-[#27272A]">
-                  <Sparkles className="w-3 h-3 text-[#F5C928]" />
+                <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#181818] text-[#FACC15] border border-[#27272A]">
+                  <Sparkles className="w-3 h-3 text-[#FACC15]" />
                   Live Chatbot
                 </span>
               </div>
-              <p className="text-xs text-[#7E8B9C]">
+              <p className="text-xs text-[#71717A]">
                 Ask concise questions about your stylists, sales, services, or inventory and get instant answers.
               </p>
             </div>
@@ -455,7 +455,7 @@ export function SalonOwnerView() {
               ]);
               showToast("Chatbot reset to initial state.");
             }}
-            className="text-xs font-mono text-[#7E8B9C] hover:text-[#F5F4F0] flex items-center gap-1 self-start sm:self-auto px-2.5 py-1 rounded-lg border border-[#27272A] hover:bg-[#171719] transition-colors cursor-pointer"
+            className="text-xs font-mono text-[#71717A] hover:text-[#F8FAFC] flex items-center gap-1 self-start sm:self-auto px-2.5 py-1 rounded-lg border border-[#27272A] hover:bg-[#181818] transition-colors cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Clear Chat</span>
@@ -464,7 +464,7 @@ export function SalonOwnerView() {
 
         {/* 1-Tap Quick Question Chips */}
         <div className="space-y-1.5">
-          <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-wider block">
+          <span className="text-[10px] font-mono font-bold text-[#71717A] uppercase tracking-wider block">
             Tap to ask instantly:
           </span>
           <div className="flex items-center gap-2 overflow-x-auto pb-1.5 scrollbar-thin">
@@ -472,9 +472,9 @@ export function SalonOwnerView() {
               <button
                 key={qText}
                 onClick={() => handleSendChat(qText)}
-                className="px-3 py-1.5 rounded-lg bg-[#111113] border border-[#27272A] hover:border-[#F5C928]/40 hover:bg-[#171719] text-[#A3A3AD] hover:text-[#F5F4F0] text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+                className="px-3 py-1.5 rounded-lg bg-[#151515] border border-[#27272A] hover:border-[#FACC15]/40 hover:bg-[#181818] text-[#A1A1AA] hover:text-[#F8FAFC] text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
               >
-                <Lightbulb className="w-3.5 h-3.5 text-[#F5C928] shrink-0" />
+                <Lightbulb className="w-3.5 h-3.5 text-[#FACC15] shrink-0" />
                 <span>{qText}</span>
               </button>
             ))}
@@ -482,7 +482,7 @@ export function SalonOwnerView() {
         </div>
 
         {/* Messages Stream Box */}
-        <div className="bg-[#080809] rounded-xl border border-[#27272A] p-4 space-y-3.5 max-h-80 overflow-y-auto">
+        <div className="bg-[#080808] rounded-xl border border-[#27272A] p-4 space-y-3.5 max-h-80 overflow-y-auto">
           {chatMessages.map((msg) => {
             const isUser = msg.sender === "user";
             return (
@@ -491,7 +491,7 @@ export function SalonOwnerView() {
                 className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"} animate-in fade-in duration-200`}
               >
                 {!isUser && (
-                  <div className="w-7 h-7 rounded-lg bg-[#171719] border border-[#27272A] text-[#F5C928] flex items-center justify-center shrink-0 text-xs font-bold">
+                  <div className="w-7 h-7 rounded-lg bg-[#181818] border border-[#27272A] text-[#FACC15] flex items-center justify-center shrink-0 text-xs font-bold">
                     <Bot className="w-4 h-4" />
                   </div>
                 )}
@@ -499,8 +499,8 @@ export function SalonOwnerView() {
                 <div
                   className={`max-w-xl rounded-xl px-4 py-3 text-xs leading-relaxed ${
                     isUser
-                      ? "bg-[#F5C928] text-[#080809] font-bold"
-                      : "bg-[#111113] text-[#F5F4F0] border border-[#27272A]"
+                      ? "bg-[#FACC15] text-[#080808] font-bold"
+                      : "bg-[#151515] text-[#F8FAFC] border border-[#27272A]"
                   }`}
                 >
                   <div className="whitespace-pre-line font-sans">{msg.text}</div>
@@ -517,7 +517,7 @@ export function SalonOwnerView() {
                             showToast("Viewing stylist ledger.");
                           }
                         }}
-                        className="px-3 py-1 bg-[#171719] hover:bg-[#27272A] text-[#F5C928] border border-[#27272A] font-bold text-[11px] rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                        className="px-3 py-1 bg-[#181818] hover:bg-[#27272A] text-[#FACC15] border border-[#27272A] font-bold text-[11px] rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
                       >
                         <Sparkles className="w-3 h-3" />
                         <span>{msg.quickAction.label}</span>
@@ -527,7 +527,7 @@ export function SalonOwnerView() {
 
                   <div
                     className={`text-[9px] mt-1 text-right font-mono ${
-                      isUser ? "text-[#080809]/70" : "text-[#7E8B9C]"
+                      isUser ? "text-[#080808]/70" : "text-[#71717A]"
                     }`}
                   >
                     {msg.time}
@@ -535,7 +535,7 @@ export function SalonOwnerView() {
                 </div>
 
                 {isUser && (
-                  <div className="w-7 h-7 rounded-lg bg-[#F5C928] text-[#080809] flex items-center justify-center shrink-0 text-xs font-bold">
+                  <div className="w-7 h-7 rounded-lg bg-[#FACC15] text-[#080808] flex items-center justify-center shrink-0 text-xs font-bold">
                     <Crown className="w-4 h-4" />
                   </div>
                 )}
@@ -545,11 +545,11 @@ export function SalonOwnerView() {
 
           {isAiThinking && (
             <div className="flex gap-3 justify-start animate-in fade-in">
-              <div className="w-7 h-7 rounded-lg bg-[#171719] border border-[#27272A] text-[#F5C928] flex items-center justify-center shrink-0">
+              <div className="w-7 h-7 rounded-lg bg-[#181818] border border-[#27272A] text-[#FACC15] flex items-center justify-center shrink-0">
                 <Bot className="w-4 h-4 animate-spin" />
               </div>
-              <div className="bg-[#111113] border border-[#27272A] rounded-xl px-4 py-2.5 text-xs text-[#7E8B9C] flex items-center gap-2 font-mono">
-                <span className="w-2 h-2 rounded-full bg-[#F5C928] animate-ping"></span>
+              <div className="bg-[#151515] border border-[#27272A] rounded-xl px-4 py-2.5 text-xs text-[#71717A] flex items-center gap-2 font-mono">
+                <span className="w-2 h-2 rounded-full bg-[#FACC15] animate-ping"></span>
                 <span>AI is analyzing salon ledger...</span>
               </div>
             </div>
@@ -572,13 +572,13 @@ export function SalonOwnerView() {
               placeholder="Ask a concise question (e.g. 'How much did Priya earn this week?' or 'What is our profit margin?')"
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
-              className="w-full pl-4 pr-10 py-3 bg-[#111113] border border-[#27272A] rounded-xl text-xs font-medium text-[#F5F4F0] placeholder-[#7E8B9C] focus:outline-none focus:border-[#F5C928]"
+              className="w-full pl-4 pr-10 py-3 bg-[#151515] border border-[#27272A] rounded-xl text-xs font-medium text-[#F8FAFC] placeholder-[#71717A] focus:outline-none focus:border-[#FACC15]"
             />
           </div>
           <button
             type="submit"
             disabled={!chatInput.trim() || isAiThinking}
-            className="px-5 py-3 bg-[#F5C928] hover:bg-[#f7d348] disabled:opacity-50 text-[#080809] font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+            className="px-5 py-3 bg-[#FACC15] hover:bg-[#EAB308] disabled:opacity-50 text-[#080808] font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
           >
             <span>Ask</span>
             <Send className="w-3.5 h-3.5" />
@@ -587,16 +587,16 @@ export function SalonOwnerView() {
       </div>
 
       {/* SECTION 1: WORKER PERFORMANCE */}
-      <div className="bg-[#0D0D0F] border border-[#27272A] p-6 rounded-2xl space-y-4 shadow-xl">
+      <div className="bg-[#101010] border border-[#27272A] p-6 rounded-2xl space-y-4 shadow-xl">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#27272A]">
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-serif font-bold text-[#F5F4F0]">Worker Performance & Sales</h2>
-              <span className="px-2.5 py-0.5 rounded-full bg-[#171719] text-[#F5C928] border border-[#27272A] text-xs font-mono">
+              <h2 className="text-lg font-serif font-bold text-[#F8FAFC]">Worker Performance & Sales</h2>
+              <span className="px-2.5 py-0.5 rounded-full bg-[#181818] text-[#FACC15] border border-[#27272A] text-xs font-mono">
                 {timeRange === "month" ? "Per Month" : "Per Week"}
               </span>
             </div>
-            <p className="text-xs text-[#7E8B9C] mt-0.5">
+            <p className="text-xs text-[#71717A] mt-0.5">
               See exactly how many services each worker gave, how many clients they served, and how much money they brought to your salon.
             </p>
           </div>
@@ -606,7 +606,7 @@ export function SalonOwnerView() {
         <div className="overflow-x-auto rounded-xl border border-[#27272A]">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-[#111113] border-b border-[#27272A] text-[#7E8B9C] font-mono uppercase text-[10px] tracking-wider">
+              <tr className="bg-[#151515] border-b border-[#27272A] text-[#71717A] font-mono uppercase text-[10px] tracking-wider">
                 <th className="py-3.5 px-4">Worker / Stylist</th>
                 <th className="py-3.5 px-4">Services Given</th>
                 <th className="py-3.5 px-4">Customers Handled</th>
@@ -618,7 +618,7 @@ export function SalonOwnerView() {
             </thead>
             <tbody className="divide-y divide-[#27272A] font-medium">
               {workerAnalytics.map((w) => (
-                <tr key={w.id} className="hover:bg-[#171719] transition-colors">
+                <tr key={w.id} className="hover:bg-[#181818] transition-colors">
                   <td className="py-3.5 px-4">
                     <div className="flex items-center gap-3">
                       <img
@@ -627,28 +627,28 @@ export function SalonOwnerView() {
                         className="w-9 h-9 rounded-lg object-cover border border-[#27272A] shrink-0"
                       />
                       <div>
-                        <div className="font-bold text-[#F5F4F0] text-xs">{w.name}</div>
-                        <div className="text-[10px] text-[#7E8B9C]">{w.role}</div>
+                        <div className="font-bold text-[#F8FAFC] text-xs">{w.name}</div>
+                        <div className="text-[10px] text-[#71717A]">{w.role}</div>
                       </div>
                     </div>
                   </td>
 
                   <td className="py-3.5 px-4">
-                    <div className="font-bold text-[#F5F4F0] text-sm font-mono">
+                    <div className="font-bold text-[#F8FAFC] text-sm font-mono">
                       {w.servicesGiven}
                     </div>
-                    <div className="text-[10px] text-[#7E8B9C] font-mono">completed</div>
+                    <div className="text-[10px] text-[#71717A] font-mono">completed</div>
                   </td>
 
                   <td className="py-3.5 px-4">
-                    <div className="font-bold text-[#F5C928] text-sm font-mono">
+                    <div className="font-bold text-[#FACC15] text-sm font-mono">
                       {w.customersHandled}
                     </div>
-                    <div className="text-[10px] text-[#7E8B9C] font-mono">clients in chair</div>
+                    <div className="text-[10px] text-[#71717A] font-mono">clients in chair</div>
                   </td>
 
                   <td className="py-3.5 px-4">
-                    <div className="font-bold text-[#F5F4F0] text-sm font-mono">
+                    <div className="font-bold text-[#F8FAFC] text-sm font-mono">
                       {formatCurrency(w.revenueGenerated)}
                     </div>
                     <div className="text-[10px] text-emerald-400 font-mono">
@@ -657,23 +657,23 @@ export function SalonOwnerView() {
                   </td>
 
                   <td className="py-3.5 px-4">
-                    <div className="font-bold text-[#F5C928] text-xs font-mono">
+                    <div className="font-bold text-[#FACC15] text-xs font-mono">
                       {formatCurrency(w.commissionEarned)}
                     </div>
-                    <div className="text-[10px] text-[#7E8B9C] font-mono">
+                    <div className="text-[10px] text-[#71717A] font-mono">
                       Rate: {w.commissionRate}%
                     </div>
                   </td>
 
                   <td className="py-3.5 px-4">
-                    <span className="px-2.5 py-1 rounded-full bg-[#171719] text-[#A3A3AD] border border-[#27272A] text-[11px] font-mono font-bold">
+                    <span className="px-2.5 py-1 rounded-full bg-[#181818] text-[#A1A1AA] border border-[#27272A] text-[11px] font-mono font-bold">
                       {w.topService}
                     </span>
                   </td>
 
                   <td className="py-3.5 px-4 text-center">
-                    <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-[#171719] border border-[#27272A] text-[#F5C928] font-bold text-xs font-mono">
-                      <Star className="w-3 h-3 fill-[#F5C928]" />
+                    <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-[#181818] border border-[#27272A] text-[#FACC15] font-bold text-xs font-mono">
+                      <Star className="w-3 h-3 fill-[#FACC15]" />
                       <span>{w.rating}</span>
                     </div>
                   </td>
@@ -687,17 +687,17 @@ export function SalonOwnerView() {
       {/* SECTION 2: BEST SERVICES VS WORST SERVICES */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* BEST SERVICES */}
-        <div className="bg-[#0D0D0F] border border-[#27272A] p-6 rounded-2xl space-y-4 shadow-xl">
+        <div className="bg-[#101010] border border-[#27272A] p-6 rounded-2xl space-y-4 shadow-xl">
           <div className="flex items-center justify-between pb-3 border-b border-[#27272A]">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center font-bold">
                 <Flame className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="font-serif font-bold text-sm sm:text-base text-[#F5F4F0]">
+                <h3 className="font-serif font-bold text-sm sm:text-base text-[#F8FAFC]">
                   Best Performing Services
                 </h3>
-                <p className="text-[11px] text-[#7E8B9C]">
+                <p className="text-[11px] text-[#71717A]">
                   Highest bookings & maximum revenue for your salon.
                 </p>
               </div>
@@ -711,15 +711,15 @@ export function SalonOwnerView() {
             {bestServices.map((bs, index) => (
               <div
                 key={bs.id}
-                className="p-3.5 rounded-xl bg-[#111113] border border-[#27272A] hover:border-emerald-500/40 transition-all flex items-center justify-between gap-3"
+                className="p-3.5 rounded-xl bg-[#151515] border border-[#27272A] hover:border-emerald-500/40 transition-all flex items-center justify-between gap-3"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-lg bg-[#171719] border border-[#27272A] text-[#F5C928] flex items-center justify-center font-bold text-xs font-mono shrink-0">
+                  <div className="w-7 h-7 rounded-lg bg-[#181818] border border-[#27272A] text-[#FACC15] flex items-center justify-center font-bold text-xs font-mono shrink-0">
                     #{index + 1}
                   </div>
                   <div>
-                    <div className="font-bold text-xs text-[#F5F4F0]">{bs.name}</div>
-                    <div className="text-[10px] text-[#7E8B9C] font-mono flex items-center gap-2 mt-0.5">
+                    <div className="font-bold text-xs text-[#F8FAFC]">{bs.name}</div>
+                    <div className="text-[10px] text-[#71717A] font-mono flex items-center gap-2 mt-0.5">
                       <span>{bs.category}</span>
                       <span>•</span>
                       <span className="text-emerald-400">{bs.trend}</span>
@@ -728,10 +728,10 @@ export function SalonOwnerView() {
                 </div>
 
                 <div className="text-right shrink-0">
-                  <div className="font-mono font-bold text-[#F5C928] text-xs">
+                  <div className="font-mono font-bold text-[#FACC15] text-xs">
                     {formatCurrency(bs.revenue)}
                   </div>
-                  <div className="text-[10px] text-[#7E8B9C] font-mono">
+                  <div className="text-[10px] text-[#71717A] font-mono">
                     {bs.bookings} bookings
                   </div>
                 </div>
@@ -741,22 +741,22 @@ export function SalonOwnerView() {
         </div>
 
         {/* WORST / SLOW SERVICES */}
-        <div className="bg-[#0D0D0F] border border-[#27272A] p-6 rounded-2xl space-y-4 shadow-xl">
+        <div className="bg-[#101010] border border-[#27272A] p-6 rounded-2xl space-y-4 shadow-xl">
           <div className="flex items-center justify-between pb-3 border-b border-[#27272A]">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-[#F5C928]/30 text-[#F5C928] flex items-center justify-center font-bold">
+              <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-[#FACC15]/30 text-[#FACC15] flex items-center justify-center font-bold">
                 <AlertTriangle className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="font-serif font-bold text-sm sm:text-base text-[#F5F4F0]">
+                <h3 className="font-serif font-bold text-sm sm:text-base text-[#F8FAFC]">
                   Slow / Underperforming Services
                 </h3>
-                <p className="text-[11px] text-[#7E8B9C]">
+                <p className="text-[11px] text-[#71717A]">
                   Services with lowest demand & practical owner advice.
                 </p>
               </div>
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#171719] text-[#F5C928] border border-[#27272A]">
+            <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#181818] text-[#FACC15] border border-[#27272A]">
               Needs Attention
             </span>
           </div>
@@ -765,17 +765,17 @@ export function SalonOwnerView() {
             {slowServices.map((ss, index) => (
               <div
                 key={ss.id}
-                className="p-3.5 rounded-xl bg-[#111113] border border-[#27272A] hover:border-[#F5C928]/40 transition-all space-y-2"
+                className="p-3.5 rounded-xl bg-[#151515] border border-[#27272A] hover:border-[#FACC15]/40 transition-all space-y-2"
               >
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <div className="font-bold text-xs text-[#F5F4F0]">{ss.name}</div>
-                    <div className="text-[10px] text-[#7E8B9C] font-mono">
+                    <div className="font-bold text-xs text-[#F8FAFC]">{ss.name}</div>
+                    <div className="text-[10px] text-[#71717A] font-mono">
                       {ss.category} • {ss.issue}
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <div className="font-bold text-[#F5C928] text-xs font-mono">
+                    <div className="font-bold text-[#FACC15] text-xs font-mono">
                       {formatCurrency(ss.revenue)}
                     </div>
                     <div className="text-[10px] text-rose-400 font-mono">
@@ -784,8 +784,8 @@ export function SalonOwnerView() {
                   </div>
                 </div>
 
-                <div className="p-2 rounded-lg bg-[#080809] border border-[#27272A] text-[11px] text-[#A3A3AD] flex items-start gap-1.5 font-medium">
-                  <span className="font-bold text-[#F5C928] shrink-0 font-mono">💡 Advice:</span>
+                <div className="p-2 rounded-lg bg-[#080808] border border-[#27272A] text-[11px] text-[#A1A1AA] flex items-start gap-1.5 font-medium">
+                  <span className="font-bold text-[#FACC15] shrink-0 font-mono">💡 Advice:</span>
                   <span>{ss.ownerTip}</span>
                 </div>
               </div>
@@ -795,20 +795,20 @@ export function SalonOwnerView() {
       </div>
 
       {/* SECTION 3: SALON STOCK OVERVIEW */}
-      <div className="bg-[#0D0D0F] border border-[#27272A] p-6 rounded-2xl space-y-4 shadow-xl">
+      <div className="bg-[#101010] border border-[#27272A] p-6 rounded-2xl space-y-4 shadow-xl">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#27272A]">
           <div>
-            <h3 className="font-serif font-bold text-sm sm:text-base text-[#F5F4F0]">
+            <h3 className="font-serif font-bold text-sm sm:text-base text-[#F8FAFC]">
               Salon Stock & Supply Alerts
             </h3>
-            <p className="text-xs text-[#7E8B9C]">
+            <p className="text-xs text-[#71717A]">
               Check shampoo bottles, hair color tubes, and retail creams so your stylists never run out.
             </p>
           </div>
 
           <button
             onClick={() => showToast("Stock report and supplier purchase order created!")}
-            className="px-4 py-2 bg-[#F5C928] hover:bg-[#f7d348] text-[#080809] font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
+            className="px-4 py-2 bg-[#FACC15] hover:bg-[#EAB308] text-[#080808] font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
           >
             <Send className="w-3.5 h-3.5" />
             <span>Order Stock via WhatsApp</span>
@@ -823,12 +823,12 @@ export function SalonOwnerView() {
                 key={item.id}
                 className={`p-4 rounded-xl border transition-all ${
                   isLow
-                    ? "bg-[#111113] border-rose-500/40"
-                    : "bg-[#111113] border-[#27272A]"
+                    ? "bg-[#151515] border-rose-500/40"
+                    : "bg-[#151515] border-[#27272A]"
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#171719] text-[#A3A3AD] border border-[#27272A]">
+                  <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#181818] text-[#A1A1AA] border border-[#27272A]">
                     {item.usageType}
                   </span>
                   {isLow ? (
@@ -843,26 +843,26 @@ export function SalonOwnerView() {
                 </div>
 
                 <div className="mt-3">
-                  <div className="font-bold text-xs text-[#F5F4F0] truncate">
+                  <div className="font-bold text-xs text-[#F8FAFC] truncate">
                     {item.name}
                   </div>
-                  <div className="text-[10px] text-[#7E8B9C] font-mono">{item.brand}</div>
+                  <div className="text-[10px] text-[#71717A] font-mono">{item.brand}</div>
                 </div>
 
                 <div className="mt-3 flex items-center justify-between text-xs pt-2 border-t border-[#27272A] font-mono">
                   <div>
-                    <span className="text-[#7E8B9C] text-[10px] block">Current Units</span>
+                    <span className="text-[#71717A] text-[10px] block">Current Units</span>
                     <span
                       className={`font-bold text-sm ${
-                        isLow ? "text-rose-400" : "text-[#F5C928]"
+                        isLow ? "text-rose-400" : "text-[#FACC15]"
                       }`}
                     >
                       {item.currentStock} {item.unit}
                     </span>
                   </div>
                   <div className="text-right">
-                    <span className="text-[#7E8B9C] text-[10px] block">Min Limit</span>
-                    <span className="font-bold text-[#A3A3AD] text-sm">
+                    <span className="text-[#71717A] text-[10px] block">Min Limit</span>
+                    <span className="font-bold text-[#A1A1AA] text-sm">
                       {item.minThreshold} {item.unit}
                     </span>
                   </div>
@@ -874,25 +874,25 @@ export function SalonOwnerView() {
       </div>
 
       {/* SECTION 4: CLIENT FEEDBACK & RATINGS */}
-      <div className="bg-[#0D0D0F] border border-[#27272A] p-6 rounded-2xl space-y-6 shadow-xl">
+      <div className="bg-[#101010] border border-[#27272A] p-6 rounded-2xl space-y-6 shadow-xl">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#27272A]">
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-serif font-bold text-base sm:text-lg text-[#F5F4F0]">
+              <h3 className="font-serif font-bold text-base sm:text-lg text-[#F8FAFC]">
                 Customer Feedback & Staff Ratings
               </h3>
               <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
                 Live WhatsApp Feed
               </span>
             </div>
-            <p className="text-xs text-[#7E8B9C] mt-0.5">
+            <p className="text-xs text-[#71717A] mt-0.5">
               Ratings and notes tapped by clients right after their visit from WhatsApp bills.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs font-mono text-[#7E8B9C]">Total Reviews:</span>
-            <span className="px-3 py-1 rounded-full bg-[#171719] border border-[#27272A] text-[#F5C928] font-mono font-bold text-xs">
+            <span className="text-xs font-mono text-[#71717A]">Total Reviews:</span>
+            <span className="px-3 py-1 rounded-full bg-[#181818] border border-[#27272A] text-[#FACC15] font-mono font-bold text-xs">
               {feedbacks.length + 180} Verified
             </span>
           </div>
@@ -900,25 +900,25 @@ export function SalonOwnerView() {
 
         {/* 4 Scoreboard Numbers */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-4 rounded-xl bg-[#111113] border border-[#27272A] space-y-1">
-            <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-wider block">
+          <div className="p-4 rounded-xl bg-[#151515] border border-[#27272A] space-y-1">
+            <span className="text-[10px] font-mono font-bold text-[#71717A] uppercase tracking-wider block">
               Overall Salon Rating
             </span>
             <div className="flex items-center gap-2">
-              <span className="text-2xl sm:text-3xl font-mono font-bold text-[#F5F4F0]">
+              <span className="text-2xl sm:text-3xl font-mono font-bold text-[#F8FAFC]">
                 4.9
               </span>
-              <div className="flex text-[#F5C928]">
+              <div className="flex text-[#FACC15]">
                 {[1, 2, 3, 4, 5].map((s) => (
-                  <Star key={s} className="w-4 h-4 fill-[#F5C928]" />
+                  <Star key={s} className="w-4 h-4 fill-[#FACC15]" />
                 ))}
               </div>
             </div>
-            <p className="text-[11px] text-[#7E8B9C] font-mono">96% of clients gave 5 stars</p>
+            <p className="text-[11px] text-[#71717A] font-mono">96% of clients gave 5 stars</p>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#111113] border border-[#27272A] space-y-1">
-            <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-wider block">
+          <div className="p-4 rounded-xl bg-[#151515] border border-[#27272A] space-y-1">
+            <span className="text-[10px] font-mono font-bold text-[#71717A] uppercase tracking-wider block">
               Staff Friendliness Score
             </span>
             <div className="text-2xl sm:text-3xl font-mono font-bold text-emerald-400">
@@ -930,37 +930,37 @@ export function SalonOwnerView() {
             </p>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#111113] border border-[#27272A] space-y-1">
-            <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-wider block">
+          <div className="p-4 rounded-xl bg-[#151515] border border-[#27272A] space-y-1">
+            <span className="text-[10px] font-mono font-bold text-[#71717A] uppercase tracking-wider block">
               Stylist Service Quality
             </span>
-            <div className="text-2xl sm:text-3xl font-mono font-bold text-[#F5C928]">
+            <div className="text-2xl sm:text-3xl font-mono font-bold text-[#FACC15]">
               4.9 ★
             </div>
-            <p className="text-[11px] text-[#7E8B9C] font-mono">Precise haircuts & color work</p>
+            <p className="text-[11px] text-[#71717A] font-mono">Precise haircuts & color work</p>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#111113] border border-[#27272A] space-y-1">
-            <span className="text-[10px] font-mono font-bold text-[#7E8B9C] uppercase tracking-wider block">
+          <div className="p-4 rounded-xl bg-[#151515] border border-[#27272A] space-y-1">
+            <span className="text-[10px] font-mono font-bold text-[#71717A] uppercase tracking-wider block">
               Salon Hygiene & Ambience
             </span>
-            <div className="text-2xl sm:text-3xl font-mono font-bold text-[#F5F4F0]">
+            <div className="text-2xl sm:text-3xl font-mono font-bold text-[#F8FAFC]">
               4.8 ★
             </div>
-            <p className="text-[11px] text-[#7E8B9C] font-mono">Loved music, coffee & vibe</p>
+            <p className="text-[11px] text-[#71717A] font-mono">Loved music, coffee & vibe</p>
           </div>
         </div>
 
         {/* Worker-by-Worker Customer Feedback Table */}
         <div className="space-y-3">
-          <h4 className="text-xs font-mono font-bold text-[#A3A3AD] uppercase tracking-wider">
+          <h4 className="text-xs font-mono font-bold text-[#A1A1AA] uppercase tracking-wider">
             Worker-by-Worker Client Satisfaction
           </h4>
 
           <div className="overflow-x-auto rounded-xl border border-[#27272A]">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-[#111113] border-b border-[#27272A] text-[#7E8B9C] font-mono uppercase text-[10px] tracking-wider">
+                <tr className="bg-[#151515] border-b border-[#27272A] text-[#71717A] font-mono uppercase text-[10px] tracking-wider">
                   <th className="py-3 px-4">Worker / Stylist</th>
                   <th className="py-3 px-4">Service Rating</th>
                   <th className="py-3 px-4">Staff Friendliness</th>
@@ -970,25 +970,25 @@ export function SalonOwnerView() {
               </thead>
               <tbody className="divide-y divide-[#27272A] font-medium">
                 {workerAnalytics.map((w) => (
-                  <tr key={w.id} className="hover:bg-[#171719] transition-colors">
-                    <td className="py-3 px-4 font-bold text-[#F5F4F0] flex items-center gap-2.5">
+                  <tr key={w.id} className="hover:bg-[#181818] transition-colors">
+                    <td className="py-3 px-4 font-bold text-[#F8FAFC] flex items-center gap-2.5">
                       <img src={w.avatar} alt={w.name} className="w-7 h-7 rounded-lg object-cover border border-[#27272A]" />
                       <span>{w.name}</span>
                     </td>
                     <td className="py-3 px-4">
-                      <div className="inline-flex items-center gap-1 font-mono font-bold text-[#F5C928] bg-[#171719] border border-[#27272A] px-2 py-0.5 rounded-md">
-                        <Star className="w-3 h-3 fill-[#F5C928]" />
+                      <div className="inline-flex items-center gap-1 font-mono font-bold text-[#FACC15] bg-[#181818] border border-[#27272A] px-2 py-0.5 rounded-md">
+                        <Star className="w-3 h-3 fill-[#FACC15]" />
                         <span>{w.rating} / 5.0</span>
                       </div>
                     </td>
                     <td className="py-3 px-4 text-emerald-400 font-mono font-bold">
                       99% Friendly
                     </td>
-                    <td className="py-3 px-4 text-[#A3A3AD] font-mono">
+                    <td className="py-3 px-4 text-[#A1A1AA] font-mono">
                       {Math.round(w.customersHandled * 0.7)} reviews
                     </td>
                     <td className="py-3 px-4">
-                      <span className="px-2 py-0.5 rounded-full bg-[#171719] border border-[#27272A] text-[#A3A3AD] text-[10px] font-mono">
+                      <span className="px-2 py-0.5 rounded-full bg-[#181818] border border-[#27272A] text-[#A1A1AA] text-[10px] font-mono">
                         "Great listener, gentle hands ✨"
                       </span>
                     </td>
@@ -1001,49 +1001,49 @@ export function SalonOwnerView() {
 
         {/* Improvements & Recent Feedback */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-          <div className="p-4 rounded-xl bg-[#111113] border border-[#27272A] space-y-3">
-            <h4 className="text-xs font-mono font-bold text-[#A3A3AD] uppercase tracking-wider flex items-center gap-1.5">
-              <Lightbulb className="w-3.5 h-3.5 text-[#F5C928]" />
+          <div className="p-4 rounded-xl bg-[#151515] border border-[#27272A] space-y-3">
+            <h4 className="text-xs font-mono font-bold text-[#A1A1AA] uppercase tracking-wider flex items-center gap-1.5">
+              <Lightbulb className="w-3.5 h-3.5 text-[#FACC15]" />
               <span>What Clients Say We Can Improve</span>
             </h4>
 
             <div className="space-y-2 text-xs">
               <div>
-                <div className="flex justify-between font-bold text-[#A3A3AD] mb-1 text-[11px]">
+                <div className="flex justify-between font-bold text-[#A1A1AA] mb-1 text-[11px]">
                   <span>Everything was perfect & loved styling ✨</span>
                   <span className="font-mono text-emerald-400">86%</span>
                 </div>
-                <div className="w-full h-2 rounded-full bg-[#171719] border border-[#27272A] overflow-hidden">
+                <div className="w-full h-2 rounded-full bg-[#181818] border border-[#27272A] overflow-hidden">
                   <div className="h-full bg-emerald-500 rounded-full" style={{ width: "86%" }}></div>
                 </div>
               </div>
 
               <div>
-                <div className="flex justify-between font-bold text-[#A3A3AD] mb-1 text-[11px]">
+                <div className="flex justify-between font-bold text-[#A1A1AA] mb-1 text-[11px]">
                   <span>Very polite & courteous staff 💖</span>
                   <span className="font-mono text-emerald-400">94%</span>
                 </div>
-                <div className="w-full h-2 rounded-full bg-[#171719] border border-[#27272A] overflow-hidden">
+                <div className="w-full h-2 rounded-full bg-[#181818] border border-[#27272A] overflow-hidden">
                   <div className="h-full bg-emerald-500 rounded-full" style={{ width: "94%" }}></div>
                 </div>
               </div>
 
               <div>
-                <div className="flex justify-between font-bold text-[#A3A3AD] mb-1 text-[11px]">
+                <div className="flex justify-between font-bold text-[#A1A1AA] mb-1 text-[11px]">
                   <span>Slight wait time during peak hours (5-10m) ⏱️</span>
-                  <span className="font-mono text-[#F5C928]">12%</span>
+                  <span className="font-mono text-[#FACC15]">12%</span>
                 </div>
-                <div className="w-full h-2 rounded-full bg-[#171719] border border-[#27272A] overflow-hidden">
-                  <div className="h-full bg-[#F5C928] rounded-full" style={{ width: "12%" }}></div>
+                <div className="w-full h-2 rounded-full bg-[#181818] border border-[#27272A] overflow-hidden">
+                  <div className="h-full bg-[#FACC15] rounded-full" style={{ width: "12%" }}></div>
                 </div>
               </div>
 
               <div>
-                <div className="flex justify-between font-bold text-[#A3A3AD] mb-1 text-[11px]">
+                <div className="flex justify-between font-bold text-[#A1A1AA] mb-1 text-[11px]">
                   <span>Music a bit loud on Saturday evenings 🎵</span>
-                  <span className="font-mono text-[#7E8B9C]">5%</span>
+                  <span className="font-mono text-[#71717A]">5%</span>
                 </div>
-                <div className="w-full h-2 rounded-full bg-[#171719] border border-[#27272A] overflow-hidden">
+                <div className="w-full h-2 rounded-full bg-[#181818] border border-[#27272A] overflow-hidden">
                   <div className="h-full bg-[#27272A] rounded-full" style={{ width: "5%" }}></div>
                 </div>
               </div>
@@ -1051,9 +1051,9 @@ export function SalonOwnerView() {
           </div>
 
           {/* Live Recent Feedback Stream */}
-          <div className="p-4 rounded-xl bg-[#111113] border border-[#27272A] space-y-3">
-            <h4 className="text-xs font-mono font-bold text-[#A3A3AD] uppercase tracking-wider flex items-center gap-1.5">
-              <MessageSquare className="w-3.5 h-3.5 text-[#F5C928]" />
+          <div className="p-4 rounded-xl bg-[#151515] border border-[#27272A] space-y-3">
+            <h4 className="text-xs font-mono font-bold text-[#A1A1AA] uppercase tracking-wider flex items-center gap-1.5">
+              <MessageSquare className="w-3.5 h-3.5 text-[#FACC15]" />
               <span>Recent WhatsApp Feedback Entries</span>
             </h4>
 
@@ -1061,16 +1061,16 @@ export function SalonOwnerView() {
               {feedbacks.slice(0, 3).map((fb) => (
                 <div
                   key={fb.id}
-                  className="p-3 rounded-lg bg-[#080809] border border-[#27272A] space-y-1.5"
+                  className="p-3 rounded-lg bg-[#080808] border border-[#27272A] space-y-1.5"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="font-bold text-xs text-[#F5F4F0]">
+                    <div className="font-bold text-xs text-[#F8FAFC]">
                       {fb.customerName}{" "}
-                      <span className="font-normal text-[#7E8B9C]">
+                      <span className="font-normal text-[#71717A]">
                         • styled by {fb.staffName}
                       </span>
                     </div>
-                    <div className="flex items-center text-[#F5C928] text-[10px] font-bold font-mono">
+                    <div className="flex items-center text-[#FACC15] text-[10px] font-bold font-mono">
                       <span>{fb.serviceRating} ★</span>
                     </div>
                   </div>
@@ -1079,7 +1079,7 @@ export function SalonOwnerView() {
                     {(fb.improvementTags || fb.tags || []).map((tag: any, tIdx: number) => (
                       <span
                         key={tIdx}
-                        className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-[#171719] text-emerald-400 border border-emerald-500/20"
+                        className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-[#181818] text-emerald-400 border border-emerald-500/20"
                       >
                         {tag}
                       </span>
@@ -1087,12 +1087,12 @@ export function SalonOwnerView() {
                   </div>
 
                   {fb.comment && (
-                    <p className="text-[11px] text-[#A3A3AD] italic">
+                    <p className="text-[11px] text-[#A1A1AA] italic">
                       "{fb.comment}"
                     </p>
                   )}
 
-                  <div className="flex items-center justify-between text-[10px] text-[#7E8B9C] pt-1 border-t border-[#27272A] font-mono">
+                  <div className="flex items-center justify-between text-[10px] text-[#71717A] pt-1 border-t border-[#27272A] font-mono">
                     <span>{fb.date}</span>
                     <button
                       onClick={() => {
@@ -1103,7 +1103,7 @@ export function SalonOwnerView() {
                           "_blank"
                         );
                       }}
-                      className="text-[#F5C928] hover:underline cursor-pointer"
+                      className="text-[#FACC15] hover:underline cursor-pointer"
                     >
                       Thank via WhatsApp →
                     </button>

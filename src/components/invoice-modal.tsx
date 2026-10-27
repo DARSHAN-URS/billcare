@@ -118,26 +118,26 @@ export function InvoiceModal({ invoice, salon, onClose }: InvoiceModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-2.5 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl bg-[#0D0D0F] rounded-2xl sm:rounded-3xl shadow-2xl border border-[#27272A] overflow-hidden my-4 sm:my-8 max-h-[92vh] flex flex-col">
+      <div className="relative w-full max-w-2xl bg-[#101010] rounded-2xl sm:rounded-3xl shadow-2xl border border-[#27272A] overflow-hidden my-4 sm:my-8 max-h-[92vh] flex flex-col">
         {/* Top Obsidian Action Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-6 py-3.5 sm:py-4 bg-[#080809] text-white border-b border-[#27272A] shrink-0">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-6 py-3.5 sm:py-4 bg-[#080808] text-white border-b border-[#27272A] shrink-0">
           <div className="flex items-center gap-3">
-            <span className="p-2 rounded-xl bg-[#F5C928]/10 text-[#F5C928] border border-[#F5C928]/25">
-              <Crown className="w-4 h-4 text-[#F5C928] fill-[#F5C928]" />
+            <span className="p-2 rounded-xl bg-[#FACC15]/10 text-[#FACC15] border border-[#FACC15]/25">
+              <Crown className="w-4 h-4 text-[#FACC15] fill-[#FACC15]" />
             </span>
             <div>
-              <h3 className="font-serif font-bold text-sm tracking-wide text-[#F5F4F0]">Official Tax Invoice & Certificate</h3>
-              <p className="text-[11px] text-[#A3A3AD] font-mono">{invoice.invoiceNumber}</p>
+              <h3 className="font-serif font-bold text-sm tracking-wide text-[#F8FAFC]">Official Tax Invoice & Certificate</h3>
+              <p className="text-[11px] text-[#A1A1AA] font-mono">{invoice.invoiceNumber}</p>
             </div>
           </div>
           {/* Format Switcher: A4 vs 80mm Thermal */}
-          <div className="flex items-center bg-[#171719] p-1 rounded-xl border border-[#27272A] self-start sm:self-auto">
+          <div className="flex items-center bg-[#181818] p-1 rounded-xl border border-[#27272A] self-start sm:self-auto">
             <button
               onClick={() => setReceiptMode("a4")}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                 receiptMode === "a4"
-                  ? "bg-[#F5C928] text-slate-950 shadow-sm"
-                  : "text-[#A3A3AD] hover:text-[#F5F4F0]"
+                  ? "bg-[#FACC15] text-slate-950 shadow-sm"
+                  : "text-[#A1A1AA] hover:text-[#F8FAFC]"
               }`}
             >
               <FileText className="w-3.5 h-3.5" />
@@ -147,8 +147,8 @@ export function InvoiceModal({ invoice, salon, onClose }: InvoiceModalProps) {
               onClick={() => setReceiptMode("thermal")}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                 receiptMode === "thermal"
-                  ? "bg-[#F5C928] text-slate-950 shadow-sm"
-                  : "text-[#A3A3AD] hover:text-[#F5F4F0]"
+                  ? "bg-[#FACC15] text-slate-950 shadow-sm"
+                  : "text-[#A1A1AA] hover:text-[#F8FAFC]"
               }`}
             >
               <Receipt className="w-3.5 h-3.5" />
@@ -172,31 +172,31 @@ export function InvoiceModal({ invoice, salon, onClose }: InvoiceModalProps) {
             <button
               onClick={handleGenerateRazorpayPayment}
               disabled={isGeneratingPayment}
-              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-[#171719] hover:bg-[#27272A] text-[#F5C928] border border-[#F5C928]/30 rounded-xl transition-all shadow-md disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-[#181818] hover:bg-[#27272A] text-[#FACC15] border border-[#FACC15]/30 rounded-xl transition-all shadow-md disabled:opacity-50 cursor-pointer"
               title="Generate live Razorpay UPI QR & Payment Link"
             >
-              <QrCode className="w-3.5 h-3.5 text-[#F5C928]" />
+              <QrCode className="w-3.5 h-3.5 text-[#FACC15]" />
               <span>{isGeneratingPayment ? "Generating..." : "Razorpay UPI"}</span>
             </button>
 
             <button
               onClick={handleShareWhatsApp}
-              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-[#111113] hover:bg-[#171719] text-[#F5F4F0] rounded-xl transition-all border border-[#27272A]"
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-[#151515] hover:bg-[#181818] text-[#F8FAFC] rounded-xl transition-all border border-[#27272A]"
               title="Copy or share via WhatsApp web client"
             >
-              <Share2 className="w-3.5 h-3.5 text-[#A3A3AD]" />
+              <Share2 className="w-3.5 h-3.5 text-[#A1A1AA]" />
               {copied ? "Copied!" : "Web Share"}
             </button>
             <button
               onClick={handlePrint}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold bg-gradient-to-r from-[#F5C928] to-[#E5B81D] hover:opacity-95 text-slate-950 rounded-xl transition-all shadow-md shadow-[#F5C928]/20 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold bg-gradient-to-r from-[#FACC15] to-[#E5B81D] hover:opacity-95 text-slate-950 rounded-xl transition-all shadow-md shadow-[#FACC15]/20 cursor-pointer"
             >
               <Printer className="w-3.5 h-3.5" />
               {receiptMode === "thermal" ? "Print 80mm Slip" : "Print Invoice"}
             </button>
             <button
               onClick={onClose}
-              className="p-2 text-[#A3A3AD] hover:text-white hover:bg-[#171719] rounded-xl transition-colors ml-1 cursor-pointer"
+              className="p-2 text-[#A1A1AA] hover:text-white hover:bg-[#181818] rounded-xl transition-colors ml-1 cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>

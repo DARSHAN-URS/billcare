@@ -188,28 +188,28 @@ export function ZenotiEnterpriseModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-6 animate-in fade-in duration-200">
-      <div className="bg-[#0D0D0F] rounded-3xl shadow-2xl border border-[#27272A] w-full max-w-5xl max-h-[92vh] overflow-hidden flex flex-col text-[#F5F4F0]">
+      <div className="bg-[#101010] rounded-3xl shadow-2xl border border-[#27272A] w-full max-w-5xl max-h-[92vh] overflow-hidden flex flex-col text-[#F8FAFC]">
         {/* Top Header Banner */}
-        <div className="p-5 sm:p-6 bg-gradient-to-r from-[#080809] via-[#0D0D0F] to-[#111113] text-white border-b border-[#27272A] relative shrink-0">
+        <div className="p-5 sm:p-6 bg-gradient-to-r from-[#080808] via-[#101010] to-[#151515] text-white border-b border-[#27272A] relative shrink-0">
           <button
             onClick={onClose}
-            className="absolute top-5 right-5 p-2 rounded-full bg-[#171719] hover:bg-[#27272A] text-[#A3A3AD] hover:text-white transition-colors cursor-pointer"
+            className="absolute top-5 right-5 p-2 rounded-full bg-[#181818] hover:bg-[#27272A] text-[#A1A1AA] hover:text-white transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
 
-          <div className="flex items-center gap-2 text-[#F5C928] font-bold text-[11px] uppercase tracking-wider mb-1">
-            <Building2 className="w-4 h-4 text-[#F5C928]" />
+          <div className="flex items-center gap-2 text-[#FACC15] font-bold text-[11px] uppercase tracking-wider mb-1">
+            <Building2 className="w-4 h-4 text-[#FACC15]" />
             <span>Zenoti-Type Enterprise Architecture</span>
-            <span className="px-2 py-0.5 rounded-full bg-[#F5C928]/10 text-[#F5C928] text-[10px] border border-[#F5C928]/20">
+            <span className="px-2 py-0.5 rounded-full bg-[#FACC15]/10 text-[#FACC15] text-[10px] border border-[#FACC15]/20">
               MULTI-LOCATION CHAIN SUITE
             </span>
           </div>
 
-          <h2 className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-[#F5F4F0]">
+          <h2 className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-[#F8FAFC]">
             Enterprise Salon Onboarding & Multi-Center Hub
           </h2>
-          <p className="text-xs text-[#A3A3AD] max-w-2xl mt-1 leading-relaxed">
+          <p className="text-xs text-[#A1A1AA] max-w-2xl mt-1 leading-relaxed">
             Architected for luxury salon chains, medical spas, and franchise networks. Manage multiple centers under one unified corporate brand with consolidated P&L, cross-branch client roaming, and clinical consent charts.
           </p>
 
@@ -217,13 +217,13 @@ export function ZenotiEnterpriseModal({
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 pt-4 border-t border-[#27272A]">
             <div>
               <div className="text-[10px] font-bold text-[#71717A] uppercase">Active Centers</div>
-              <div className="text-base sm:text-lg font-bold font-mono text-[#F5F4F0]">
+              <div className="text-base sm:text-lg font-bold font-mono text-[#F8FAFC]">
                 {centers.length} Locations
               </div>
             </div>
             <div>
               <div className="text-[10px] font-bold text-[#71717A] uppercase">Total Capacity</div>
-              <div className="text-base sm:text-lg font-bold font-mono text-[#F5F4F0]">
+              <div className="text-base sm:text-lg font-bold font-mono text-[#F8FAFC]">
                 {totalChairsCapacity} Chairs
               </div>
             </div>
@@ -235,7 +235,7 @@ export function ZenotiEnterpriseModal({
             </div>
             <div>
               <div className="text-[10px] font-bold text-[#71717A] uppercase">Active Center</div>
-              <div className="text-xs sm:text-sm font-bold text-[#F5C928] truncate">
+              <div className="text-xs sm:text-sm font-bold text-[#FACC15] truncate">
                 {activeCenter}
               </div>
             </div>
@@ -243,7 +243,7 @@ export function ZenotiEnterpriseModal({
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex border-b border-[#27272A] bg-[#080809] px-6 overflow-x-auto shrink-0">
+        <div className="flex border-b border-[#27272A] bg-[#080808] px-6 overflow-x-auto shrink-0">
           {[
             { id: "centers", label: "Multi-Center Hierarchy", icon: Building2 },
             { id: "migration", label: "Zenoti 1-Click Migration", icon: UploadCloud },
@@ -258,11 +258,11 @@ export function ZenotiEnterpriseModal({
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`flex items-center gap-2 py-3 px-4 text-xs font-semibold border-b-2 transition-all whitespace-nowrap cursor-pointer ${
                   isActive
-                    ? "border-[#F5C928] text-[#F5C928] bg-[#111113]"
-                    : "border-transparent text-[#A3A3AD] hover:text-[#F5F4F0]"
+                    ? "border-[#FACC15] text-[#FACC15] bg-[#151515]"
+                    : "border-transparent text-[#A1A1AA] hover:text-[#F8FAFC]"
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? "text-[#F5C928]" : "text-[#71717A]"}`} />
+                <Icon className={`w-4 h-4 ${isActive ? "text-[#FACC15]" : "text-[#71717A]"}`} />
                 <span>{tab.label}</span>
               </button>
             );
@@ -270,22 +270,22 @@ export function ZenotiEnterpriseModal({
         </div>
 
         {/* Tab Content Body */}
-        <div className="flex-1 overflow-y-auto p-5 sm:p-6 bg-[#080809]">
+        <div className="flex-1 overflow-y-auto p-5 sm:p-6 bg-[#080808]">
           {/* TAB 1: MULTI-CENTER HIERARCHY */}
           {activeTab === "centers" && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-serif text-sm font-bold text-[#F5F4F0] uppercase tracking-wider">
+                  <h3 className="font-serif text-sm font-bold text-[#F8FAFC] uppercase tracking-wider">
                     Enterprise Locations & Franchises
                   </h3>
-                  <p className="text-xs text-[#A3A3AD]">
+                  <p className="text-xs text-[#A1A1AA]">
                     Switch between studios to view center-specific appointments or aggregate all into a master group ledger.
                   </p>
                 </div>
                 <button
                   onClick={() => setShowAddCenterForm(!showAddCenterForm)}
-                  className="px-3.5 py-2 bg-gradient-to-r from-[#F5C928] to-[#E5B81D] hover:opacity-95 text-slate-950 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                  className="px-3.5 py-2 bg-gradient-to-r from-[#FACC15] to-[#E5B81D] hover:opacity-95 text-slate-950 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Onboard New Center</span>
@@ -296,17 +296,17 @@ export function ZenotiEnterpriseModal({
               {showAddCenterForm && (
                 <form
                   onSubmit={handleAddNewCenter}
-                  className="bg-[#111113] border border-[#F5C928]/40 rounded-2xl p-5 shadow-sm space-y-4 animate-in slide-in-from-top-2"
+                  className="bg-[#151515] border border-[#FACC15]/40 rounded-2xl p-5 shadow-sm space-y-4 animate-in slide-in-from-top-2"
                 >
                   <div className="flex items-center justify-between pb-2 border-b border-[#27272A]">
-                    <span className="text-xs font-bold text-[#F5F4F0] flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-[#F5C928]" />
+                    <span className="text-xs font-bold text-[#F8FAFC] flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-[#FACC15]" />
                       Provision New Studio Location (Zenoti Architecture)
                     </span>
                     <button
                       type="button"
                       onClick={() => setShowAddCenterForm(false)}
-                      className="text-[#A3A3AD] hover:text-white text-xs font-semibold cursor-pointer"
+                      className="text-[#A1A1AA] hover:text-white text-xs font-semibold cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -314,22 +314,22 @@ export function ZenotiEnterpriseModal({
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                     <div>
-                      <label className="font-semibold text-[#A3A3AD] block mb-1">Center Brand / Name</label>
+                      <label className="font-semibold text-[#A1A1AA] block mb-1">Center Brand / Name</label>
                       <input
                         type="text"
                         value={newCenterName}
                         onChange={(e) => setNewCenterName(e.target.value)}
                         placeholder="e.g. Koramangala Premier Studio"
                         required
-                        className="w-full bg-[#080809] border border-[#27272A] rounded-xl px-3 py-2 text-[#F5F4F0] focus:outline-none focus:border-[#F5C928]"
+                        className="w-full bg-[#080808] border border-[#27272A] rounded-xl px-3 py-2 text-[#F8FAFC] focus:outline-none focus:border-[#FACC15]"
                       />
                     </div>
                     <div>
-                      <label className="font-semibold text-[#A3A3AD] block mb-1">City Hub</label>
+                      <label className="font-semibold text-[#A1A1AA] block mb-1">City Hub</label>
                       <select
                         value={newCenterCity}
                         onChange={(e) => setNewCenterCity(e.target.value)}
-                        className="w-full bg-[#080809] border border-[#27272A] rounded-xl px-3 py-2 text-[#F5F4F0] focus:outline-none focus:border-[#F5C928]"
+                        className="w-full bg-[#080808] border border-[#27272A] rounded-xl px-3 py-2 text-[#F8FAFC] focus:outline-none focus:border-[#FACC15]"
                       >
                         <option value="Mumbai">Mumbai</option>
                         <option value="Bengaluru">Bengaluru</option>
@@ -339,37 +339,37 @@ export function ZenotiEnterpriseModal({
                       </select>
                     </div>
                     <div>
-                      <label className="font-semibold text-[#A3A3AD] block mb-1">Styling Chairs Capacity</label>
+                      <label className="font-semibold text-[#A1A1AA] block mb-1">Styling Chairs Capacity</label>
                       <input
                         type="number"
                         min="1"
                         max="50"
                         value={newCenterChairs}
                         onChange={(e) => setNewCenterChairs(parseInt(e.target.value) || 6)}
-                        className="w-full bg-[#080809] border border-[#27272A] rounded-xl px-3 py-2 text-[#F5F4F0] focus:outline-none focus:border-[#F5C928]"
+                        className="w-full bg-[#080808] border border-[#27272A] rounded-xl px-3 py-2 text-[#F8FAFC] focus:outline-none focus:border-[#FACC15]"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                     <div>
-                      <label className="font-semibold text-[#A3A3AD] block mb-1">Street Address</label>
+                      <label className="font-semibold text-[#A1A1AA] block mb-1">Street Address</label>
                       <input
                         type="text"
                         value={newCenterAddress}
                         onChange={(e) => setNewCenterAddress(e.target.value)}
                         placeholder="e.g. 5th Block, Koramangala Galleria"
-                        className="w-full bg-[#080809] border border-[#27272A] rounded-xl px-3 py-2 text-[#F5F4F0] focus:outline-none focus:border-[#F5C928]"
+                        className="w-full bg-[#080808] border border-[#27272A] rounded-xl px-3 py-2 text-[#F8FAFC] focus:outline-none focus:border-[#FACC15]"
                       />
                     </div>
                     <div>
-                      <label className="font-semibold text-[#A3A3AD] block mb-1">Branch GSTIN / Tax ID</label>
+                      <label className="font-semibold text-[#A1A1AA] block mb-1">Branch GSTIN / Tax ID</label>
                       <input
                         type="text"
                         value={newCenterGstin}
                         onChange={(e) => setNewCenterGstin(e.target.value)}
                         placeholder="29AABCB1234F1Z8"
-                        className="w-full bg-[#080809] border border-[#27272A] rounded-xl px-3 py-2 text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-mono"
+                        className="w-full bg-[#080808] border border-[#27272A] rounded-xl px-3 py-2 text-[#F8FAFC] focus:outline-none focus:border-[#FACC15] font-mono"
                       />
                     </div>
                   </div>
@@ -377,7 +377,7 @@ export function ZenotiEnterpriseModal({
                   <div className="flex justify-end gap-2 pt-2">
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-gradient-to-r from-[#F5C928] to-[#E5B81D] hover:opacity-95 text-slate-950 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                      className="px-4 py-2 bg-gradient-to-r from-[#FACC15] to-[#E5B81D] hover:opacity-95 text-slate-950 rounded-xl text-xs font-bold transition-all cursor-pointer"
                     >
                       Deploy Center to Network
                     </button>
@@ -394,24 +394,24 @@ export function ZenotiEnterpriseModal({
                 }}
                 className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
                   activeCenter.includes("All Centers")
-                    ? "bg-[#171719] border-[#F5C928] shadow-sm shadow-[#F5C928]/10"
-                    : "bg-[#111113] border-[#27272A] hover:border-[#3F3F46]"
+                    ? "bg-[#181818] border-[#FACC15] shadow-sm shadow-[#FACC15]/10"
+                    : "bg-[#151515] border-[#27272A] hover:border-[#3F3F46]"
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#080809] border border-[#F5C928]/30 text-[#F5C928] flex items-center justify-center font-bold">
-                    <Building2 className="w-5 h-5 text-[#F5C928]" />
+                  <div className="w-10 h-10 rounded-xl bg-[#080808] border border-[#FACC15]/30 text-[#FACC15] flex items-center justify-center font-bold">
+                    <Building2 className="w-5 h-5 text-[#FACC15]" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-serif font-bold text-sm text-[#F5F4F0]">
+                      <span className="font-serif font-bold text-sm text-[#F8FAFC]">
                         All Centers (Consolidated Enterprise Group)
                       </span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#F5C928]/15 text-[#F5C928] border border-[#F5C928]/30">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FACC15]/15 text-[#FACC15] border border-[#FACC15]/30">
                         HQ MASTER LEDGER
                       </span>
                     </div>
-                    <div className="text-xs text-[#A3A3AD] flex items-center gap-3 mt-0.5">
+                    <div className="text-xs text-[#A1A1AA] flex items-center gap-3 mt-0.5">
                       <span>{centers.length} Studio Locations</span>
                       <span>•</span>
                       <span>{totalChairsCapacity} Total Chairs</span>
@@ -425,11 +425,11 @@ export function ZenotiEnterpriseModal({
 
                 <div className="flex items-center gap-2">
                   {activeCenter.includes("All Centers") ? (
-                    <span className="text-xs font-bold text-[#F5C928] flex items-center gap-1">
-                      <CheckCircle2 className="w-4 h-4 text-[#F5C928]" /> Active View
+                    <span className="text-xs font-bold text-[#FACC15] flex items-center gap-1">
+                      <CheckCircle2 className="w-4 h-4 text-[#FACC15]" /> Active View
                     </span>
                   ) : (
-                    <button className="text-xs font-semibold text-[#A3A3AD] hover:text-white">
+                    <button className="text-xs font-semibold text-[#A1A1AA] hover:text-white">
                       View Consolidated Roll-up →
                     </button>
                   )}
@@ -443,15 +443,15 @@ export function ZenotiEnterpriseModal({
                   return (
                     <div
                       key={center.id}
-                      className={`bg-[#111113] rounded-2xl border p-4 transition-all flex flex-col justify-between space-y-3 ${
+                      className={`bg-[#151515] rounded-2xl border p-4 transition-all flex flex-col justify-between space-y-3 ${
                         isSelected
-                          ? "border-[#F5C928] shadow-md ring-1 ring-[#F5C928]/30"
+                          ? "border-[#FACC15] shadow-md ring-1 ring-[#FACC15]/30"
                           : "border-[#27272A] hover:border-[#3F3F46]"
                       }`}
                     >
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#171719] text-[#A3A3AD] border border-[#27272A] font-mono">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#181818] text-[#A1A1AA] border border-[#27272A] font-mono">
                             {center.city.toUpperCase()}
                           </span>
                           <span className="text-[10px] font-bold text-emerald-400 flex items-center gap-1">
@@ -460,30 +460,30 @@ export function ZenotiEnterpriseModal({
                           </span>
                         </div>
 
-                        <h4 className="font-serif font-bold text-sm text-[#F5F4F0] tracking-tight leading-snug">
+                        <h4 className="font-serif font-bold text-sm text-[#F8FAFC] tracking-tight leading-snug">
                           {center.name}
                         </h4>
-                        <p className="text-[11px] text-[#A3A3AD] line-clamp-1">{center.address}</p>
+                        <p className="text-[11px] text-[#A1A1AA] line-clamp-1">{center.address}</p>
                       </div>
 
                       <div className="pt-2 border-t border-[#27272A] grid grid-cols-2 gap-2 text-xs">
                         <div>
                           <span className="text-[10px] text-[#71717A] block uppercase font-semibold">Capacity</span>
-                          <span className="font-bold text-[#F5F4F0]">{center.chairs} Chairs</span>
+                          <span className="font-bold text-[#F8FAFC]">{center.chairs} Chairs</span>
                         </div>
                         <div>
                           <span className="text-[10px] text-[#71717A] block uppercase font-semibold">Active Staff</span>
-                          <span className="font-bold text-[#F5F4F0]">{center.activeStylists} Stylists</span>
+                          <span className="font-bold text-[#F8FAFC]">{center.activeStylists} Stylists</span>
                         </div>
                         <div>
                           <span className="text-[10px] text-[#71717A] block uppercase font-semibold">Monthly Vol</span>
-                          <span className="font-bold text-[#F5C928] font-mono">
+                          <span className="font-bold text-[#FACC15] font-mono">
                             {center.monthlyRevenue > 0 ? formatCurrency(center.monthlyRevenue) : "New Hub"}
                           </span>
                         </div>
                         <div>
                           <span className="text-[10px] text-[#71717A] block uppercase font-semibold">Director</span>
-                          <span className="font-medium text-[#A3A3AD] truncate block">{center.manager}</span>
+                          <span className="font-medium text-[#A1A1AA] truncate block">{center.manager}</span>
                         </div>
                       </div>
 
@@ -495,8 +495,8 @@ export function ZenotiEnterpriseModal({
                         }}
                         className={`w-full py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                           isSelected
-                            ? "bg-[#171719] text-[#F5C928] border border-[#F5C928]/40 cursor-default"
-                            : "bg-[#171719] hover:bg-[#27272A] text-[#F5F4F0] border border-[#27272A]"
+                            ? "bg-[#181818] text-[#FACC15] border border-[#FACC15]/40 cursor-default"
+                            : "bg-[#181818] hover:bg-[#27272A] text-[#F8FAFC] border border-[#27272A]"
                         }`}
                       >
                         {isSelected ? "Current Workspace" : "Switch to this Center"}
@@ -512,20 +512,20 @@ export function ZenotiEnterpriseModal({
           {activeTab === "migration" && (
             <div className="max-w-2xl mx-auto space-y-6">
               <div className="text-center space-y-1">
-                <div className="w-12 h-12 rounded-2xl bg-[#171719] border border-[#27272A] text-[#F5C928] flex items-center justify-center mx-auto mb-2">
+                <div className="w-12 h-12 rounded-2xl bg-[#181818] border border-[#27272A] text-[#FACC15] flex items-center justify-center mx-auto mb-2">
                   <UploadCloud className="w-6 h-6" />
                 </div>
-                <h3 className="font-serif text-base font-bold text-[#F5F4F0]">
+                <h3 className="font-serif text-base font-bold text-[#F8FAFC]">
                   Concierge Migration from Competitor Platforms
                 </h3>
-                <p className="text-xs text-[#A3A3AD] max-w-md mx-auto">
+                <p className="text-xs text-[#A1A1AA] max-w-md mx-auto">
                   Moving from Zenoti, Fresha, Phorest, or Vagaro? Our enterprise ETL engine imports your client formula history, retail inventory balances, and staff rosters in seconds.
                 </p>
               </div>
 
               {/* Platform Selector */}
-              <div className="bg-[#111113] border border-[#27272A] rounded-2xl p-4 space-y-3">
-                <label className="text-xs font-bold text-[#F5F4F0] block">Select Current Salon Platform</label>
+              <div className="bg-[#151515] border border-[#27272A] rounded-2xl p-4 space-y-3">
+                <label className="text-xs font-bold text-[#F8FAFC] block">Select Current Salon Platform</label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {["Zenoti", "Fresha", "Phorest", "Vagaro", "Salonist", "Mindbody", "Lakme POS", "Excel/CSV"].map(
                     (plat) => (
@@ -535,8 +535,8 @@ export function ZenotiEnterpriseModal({
                         onClick={() => setMigrationPlatform(plat)}
                         className={`p-2.5 rounded-xl border text-xs font-bold transition-all text-center cursor-pointer ${
                           migrationPlatform === plat
-                            ? "bg-[#F5C928] text-slate-950 border-[#F5C928] shadow-xs"
-                            : "bg-[#080809] hover:bg-[#171719] border-[#27272A] text-[#A3A3AD]"
+                            ? "bg-[#FACC15] text-slate-950 border-[#FACC15] shadow-xs"
+                            : "bg-[#080808] hover:bg-[#181818] border-[#27272A] text-[#A1A1AA]"
                         }`}
                       >
                         {plat}
@@ -547,24 +547,24 @@ export function ZenotiEnterpriseModal({
               </div>
 
               {/* Step checklist */}
-              <div className="bg-[#111113] border border-[#27272A] rounded-2xl p-4 space-y-3 text-xs">
-                <span className="font-bold text-[#F5F4F0] block mb-1">
+              <div className="bg-[#151515] border border-[#27272A] rounded-2xl p-4 space-y-3 text-xs">
+                <span className="font-bold text-[#F8FAFC] block mb-1">
                   Automated Migration Extraction Protocol ({migrationPlatform})
                 </span>
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-[#A3A3AD]">
+                  <div className="flex items-center gap-2 text-[#A1A1AA]">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                     <span>Client Database & VIP Tiering (428 client profiles identified)</span>
                   </div>
-                  <div className="flex items-center gap-2 text-[#A3A3AD]">
+                  <div className="flex items-center gap-2 text-[#A1A1AA]">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                     <span>Technical Chemical Formulas (64 Balayage, Tint & Bleach recipes)</span>
                   </div>
-                  <div className="flex items-center gap-2 text-[#A3A3AD]">
+                  <div className="flex items-center gap-2 text-[#A1A1AA]">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                     <span>Back-Bar Chemical Stock & Retail Barcodes (48 SKUs mapped)</span>
                   </div>
-                  <div className="flex items-center gap-2 text-[#A3A3AD]">
+                  <div className="flex items-center gap-2 text-[#A1A1AA]">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                     <span>Staff Commission Tiers & Working Schedules</span>
                   </div>
@@ -576,7 +576,7 @@ export function ZenotiEnterpriseModal({
                 <button
                   onClick={handleSimulateMigration}
                   disabled={isMigrating || migrationComplete}
-                  className="px-6 py-3 bg-gradient-to-r from-[#F5C928] to-[#E5B81D] hover:opacity-95 text-slate-950 text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 mx-auto cursor-pointer disabled:opacity-60"
+                  className="px-6 py-3 bg-gradient-to-r from-[#FACC15] to-[#E5B81D] hover:opacity-95 text-slate-950 text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 mx-auto cursor-pointer disabled:opacity-60"
                 >
                   {isMigrating ? (
                     <span>Parsing and Encrypting Data from {migrationPlatform}...</span>
@@ -599,22 +599,22 @@ export function ZenotiEnterpriseModal({
           {activeTab === "clinical" && (
             <div className="max-w-2xl mx-auto space-y-5">
               <div>
-                <h3 className="font-serif text-sm font-bold text-[#F5F4F0] uppercase tracking-wider">
+                <h3 className="font-serif text-sm font-bold text-[#F8FAFC] uppercase tracking-wider">
                   Zenoti-Grade Digital Consultation & Consent Chart
                 </h3>
-                <p className="text-xs text-[#A3A3AD]">
+                <p className="text-xs text-[#A1A1AA]">
                   Required for chemical peels, balayage, keratin smoothing, and medical aesthetic treatments before client sits in chair.
                 </p>
               </div>
 
-              <div className="bg-[#111113] border border-[#27272A] rounded-2xl p-5 space-y-4 text-xs">
+              <div className="bg-[#151515] border border-[#27272A] rounded-2xl p-5 space-y-4 text-xs">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="font-semibold text-[#A3A3AD] block mb-1">Client Profile</label>
+                    <label className="font-semibold text-[#A1A1AA] block mb-1">Client Profile</label>
                     <select
                       value={consentCustomer}
                       onChange={(e) => setConsentCustomer(e.target.value)}
-                      className="w-full bg-[#080809] border border-[#27272A] rounded-xl p-2 font-semibold text-[#F5F4F0] focus:border-[#F5C928] focus:outline-none"
+                      className="w-full bg-[#080808] border border-[#27272A] rounded-xl p-2 font-semibold text-[#F8FAFC] focus:border-[#FACC15] focus:outline-none"
                     >
                       <option value="Ananya Deshmukh">Ananya Deshmukh (VIP Silver)</option>
                       <option value="Meera Krishnan">Meera Krishnan (HydraFacial Member)</option>
@@ -622,33 +622,33 @@ export function ZenotiEnterpriseModal({
                     </select>
                   </div>
                   <div>
-                    <label className="font-semibold text-[#A3A3AD] block mb-1">Service / Treatment</label>
+                    <label className="font-semibold text-[#A1A1AA] block mb-1">Service / Treatment</label>
                     <input
                       type="text"
                       value={consentTreatment}
                       onChange={(e) => setConsentTreatment(e.target.value)}
-                      className="w-full bg-[#080809] border border-[#27272A] rounded-xl p-2 font-medium text-[#F5F4F0] focus:border-[#F5C928] focus:outline-none"
+                      className="w-full bg-[#080808] border border-[#27272A] rounded-xl p-2 font-medium text-[#F8FAFC] focus:border-[#FACC15] focus:outline-none"
                     />
                   </div>
                 </div>
 
                 {/* Contraindications Checklist */}
-                <div className="bg-[#080809] border border-[#27272A] rounded-xl p-3.5 space-y-2">
-                  <div className="font-bold text-[#F5F4F0] flex items-center gap-1.5">
-                    <AlertTriangle className="w-3.5 h-3.5 text-[#F5C928]" />
+                <div className="bg-[#080808] border border-[#27272A] rounded-xl p-3.5 space-y-2">
+                  <div className="font-bold text-[#F8FAFC] flex items-center gap-1.5">
+                    <AlertTriangle className="w-3.5 h-3.5 text-[#FACC15]" />
                     <span>Clinical Pre-Service Contraindications Check</span>
                   </div>
-                  <div className="space-y-1.5 text-[11px] text-[#A3A3AD]">
+                  <div className="space-y-1.5 text-[11px] text-[#A1A1AA]">
                     <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" defaultChecked className="rounded accent-[#F5C928]" />
+                      <input type="checkbox" defaultChecked className="rounded accent-[#FACC15]" />
                       <span>48-Hour Patch Test Verified (Passed without erythema)</span>
                     </label>
                     <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" defaultChecked className="rounded accent-[#F5C928]" />
+                      <input type="checkbox" defaultChecked className="rounded accent-[#FACC15]" />
                       <span>No active retinoid use or chemical exfoliation in past 5 days</span>
                     </label>
                     <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" defaultChecked className="rounded accent-[#F5C928]" />
+                      <input type="checkbox" defaultChecked className="rounded accent-[#FACC15]" />
                       <span>Informed consent acknowledged for developer lifting & bond processing</span>
                     </label>
                   </div>
@@ -656,7 +656,7 @@ export function ZenotiEnterpriseModal({
 
                 {/* Digital Signature */}
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-[#A3A3AD] flex items-center justify-between">
+                  <label className="font-semibold text-[#A1A1AA] flex items-center justify-between">
                     <span>Client Digital Signature (Touch / Pen Pad)</span>
                     {hasSigned && <span className="text-emerald-400 text-[11px] font-bold">✓ Signed & Timestamped</span>}
                   </label>
@@ -668,13 +668,13 @@ export function ZenotiEnterpriseModal({
                     }}
                     className={`h-24 rounded-xl border-2 border-dashed flex items-center justify-center transition-all cursor-pointer ${
                       hasSigned
-                        ? "bg-[#171719] border-emerald-500/50 text-[#F5F4F0]"
-                        : "bg-[#080809] border-[#27272A] hover:border-[#3F3F46] text-[#71717A]"
+                        ? "bg-[#181818] border-emerald-500/50 text-[#F8FAFC]"
+                        : "bg-[#080808] border-[#27272A] hover:border-[#3F3F46] text-[#71717A]"
                     }`}
                   >
                     {hasSigned ? (
                       <div className="text-center">
-                        <span className="font-serif italic text-base font-bold text-[#F5F4F0]">
+                        <span className="font-serif italic text-base font-bold text-[#F8FAFC]">
                           Ananya Deshmukh
                         </span>
                         <div className="text-[10px] text-[#71717A] font-mono">
@@ -682,8 +682,8 @@ export function ZenotiEnterpriseModal({
                         </div>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-2 text-xs font-medium text-[#A3A3AD]">
-                        <PenTool className="w-4 h-4 text-[#F5C928]" />
+                      <div className="flex items-center gap-2 text-xs font-medium text-[#A1A1AA]">
+                        <PenTool className="w-4 h-4 text-[#FACC15]" />
                         <span>Click to sign digital consent on tablet / phone</span>
                       </div>
                     )}
@@ -698,10 +698,10 @@ export function ZenotiEnterpriseModal({
             <div className="space-y-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-serif text-sm font-bold text-[#F5F4F0] uppercase tracking-wider">
+                  <h3 className="font-serif text-sm font-bold text-[#F8FAFC] uppercase tracking-wider">
                     Prepaid Series, Memberships & Packages
                   </h3>
-                  <p className="text-xs text-[#A3A3AD]">
+                  <p className="text-xs text-[#A1A1AA]">
                     Zenoti-style prepaid treatment packs. Track remaining session balances and auto-deduct sessions during POS checkout.
                   </p>
                 </div>
@@ -711,24 +711,24 @@ export function ZenotiEnterpriseModal({
                 {packages.map((pkg) => (
                   <div
                     key={pkg.id}
-                    className="bg-[#111113] border border-[#27272A] rounded-2xl p-4 flex flex-col justify-between space-y-3 shadow-2xs hover:border-[#F5C928]/40 transition-colors"
+                    className="bg-[#151515] border border-[#27272A] rounded-2xl p-4 flex flex-col justify-between space-y-3 shadow-2xs hover:border-[#FACC15]/40 transition-colors"
                   >
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#F5C928]/15 text-[#F5C928] border border-[#F5C928]/30">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FACC15]/15 text-[#FACC15] border border-[#FACC15]/30">
                           {pkg.discount}
                         </span>
                         <span className="text-xs font-mono font-medium text-[#71717A]">
                           {pkg.sessions} Sessions
                         </span>
                       </div>
-                      <h4 className="font-serif font-bold text-sm text-[#F5F4F0] leading-tight">
+                      <h4 className="font-serif font-bold text-sm text-[#F8FAFC] leading-tight">
                         {pkg.name}
                       </h4>
-                      <div className="text-base font-bold text-[#F5C928] font-mono">
+                      <div className="text-base font-bold text-[#FACC15] font-mono">
                         {formatCurrency(pkg.price)}
                       </div>
-                      <p className="text-[11px] text-[#A3A3AD] line-clamp-2 leading-relaxed">
+                      <p className="text-[11px] text-[#A1A1AA] line-clamp-2 leading-relaxed">
                         {pkg.includes}
                       </p>
                     </div>
@@ -737,7 +737,7 @@ export function ZenotiEnterpriseModal({
                       <span className="text-[#71717A]">{pkg.activeMembers} Active Clients</span>
                       <button
                         onClick={() => showToast(`Enrolled client into ${pkg.name}`)}
-                        className="font-bold text-[#F5C928] hover:underline cursor-pointer"
+                        className="font-bold text-[#FACC15] hover:underline cursor-pointer"
                       >
                         Enroll Client →
                       </button>
@@ -750,14 +750,14 @@ export function ZenotiEnterpriseModal({
         </div>
 
         {/* Modal Footer */}
-        <div className="p-4 bg-[#080809] border-t border-[#27272A] flex items-center justify-between text-xs shrink-0">
-          <div className="flex items-center gap-2 text-[#A3A3AD]">
+        <div className="p-4 bg-[#080808] border-t border-[#27272A] flex items-center justify-between text-xs shrink-0">
+          <div className="flex items-center gap-2 text-[#A1A1AA]">
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
             <span>Multi-tenant isolation active across all branches & franchises</span>
           </div>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-[#171719] hover:bg-[#27272A] text-[#F5F4F0] border border-[#27272A] rounded-xl font-semibold cursor-pointer transition-colors"
+            className="px-4 py-2 bg-[#181818] hover:bg-[#27272A] text-[#F8FAFC] border border-[#27272A] rounded-xl font-semibold cursor-pointer transition-colors"
           >
             Done
           </button>
