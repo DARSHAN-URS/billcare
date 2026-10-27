@@ -42,9 +42,9 @@ export function AuthSplitLayout({
             </Link>
           </div>
 
-          {/* Editorial / Value Proposition (Strictly Minimal) */}
-          <div className="relative z-10 my-auto py-8 max-w-md space-y-8">
-            <div className="space-y-3">
+          {/* Editorial / Value Proposition (Lifted upward) */}
+          <div className="relative z-10 mt-8 xl:mt-12 mb-auto max-w-md space-y-6">
+            <div className="space-y-2.5">
               <h1 className="text-3xl xl:text-4xl font-semibold tracking-tight text-[#F8FAFC] leading-snug">
                 {headline}
               </h1>
@@ -73,7 +73,7 @@ export function AuthSplitLayout({
           </div>
 
           {/* Left Footer: Minimal brand indicator */}
-          <div className="relative z-10 text-xs text-[#71717A] flex items-center justify-between">
+          <div className="relative z-10 pt-6 text-xs text-[#71717A] flex items-center justify-between">
             <span>© {new Date().getFullYear()} Bill Care Technologies Inc.</span>
             <span className="font-mono text-[11px] tracking-wider text-[#71717A]">B2B SALON OS</span>
           </div>
@@ -91,8 +91,8 @@ export function AuthSplitLayout({
             </span>
           </div>
 
-          {/* Vertically Centered Form Content */}
-          <div className="w-full max-w-[420px] mx-auto my-auto py-4">
+          {/* Form Content (Lifted upward to match left side) */}
+          <div className="w-full max-w-[420px] mx-auto mt-4 lg:mt-8 xl:mt-12 mb-auto py-2">
             {children}
           </div>
 
