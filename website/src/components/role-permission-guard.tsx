@@ -19,7 +19,7 @@ export function RolePermissionGuard({ tab, tabLabel, onNavigateToAllowedTab }: R
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center p-4">
-      <div className="max-w-xl w-full bg-[#111113] border border-[#27272A] rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden backdrop-blur-xl">
+      <div className="max-w-xl w-full bg-[#151515] border border-[#27272A] rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden backdrop-blur-xl">
         {/* Ambient Top Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-72 h-32 bg-amber-500/10 blur-[60px] pointer-events-none" />
 
@@ -37,7 +37,7 @@ export function RolePermissionGuard({ tab, tabLabel, onNavigateToAllowedTab }: R
             <h2 className="text-xl sm:text-2xl font-serif font-medium text-white tracking-tight">
               Access Restricted: {tabLabel}
             </h2>
-            <p className="text-xs sm:text-sm text-[#A3A3AD] max-w-md mx-auto leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#A1A1AA] max-w-md mx-auto leading-relaxed">
               This module contains confidential salon operational records restricted to{" "}
               <span className="text-amber-300 font-semibold">{requiredRole}</span> permissions.
             </p>
@@ -46,7 +46,7 @@ export function RolePermissionGuard({ tab, tabLabel, onNavigateToAllowedTab }: R
           {/* Role Comparison Pill */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left bg-[#0A0A0C] border border-[#222226] rounded-xl p-3.5">
             <div className="space-y-1">
-              <span className="text-[10px] font-mono text-[#7E8B9C] uppercase tracking-wider block">
+              <span className="text-[10px] font-mono text-[#71717A] uppercase tracking-wider block">
                 Your Current Role
               </span>
               <div className="flex items-center gap-2">
@@ -56,7 +56,7 @@ export function RolePermissionGuard({ tab, tabLabel, onNavigateToAllowedTab }: R
               </div>
             </div>
             <div className="space-y-1">
-              <span className="text-[10px] font-mono text-[#7E8B9C] uppercase tracking-wider block">
+              <span className="text-[10px] font-mono text-[#71717A] uppercase tracking-wider block">
                 Required Authorization
               </span>
               <div className="flex items-center gap-2">
@@ -69,7 +69,7 @@ export function RolePermissionGuard({ tab, tabLabel, onNavigateToAllowedTab }: R
           </div>
 
           {/* Explanation Notes */}
-          <div className="bg-[#171719]/60 border border-[#27272A]/80 rounded-xl p-3.5 text-left text-xs text-[#A3A3AD] space-y-2">
+          <div className="bg-[#181818]/60 border border-[#27272A]/80 rounded-xl p-3.5 text-left text-xs text-[#A1A1AA] space-y-2">
             <div className="font-medium text-white flex items-center gap-1.5 text-xs">
               <KeyRound className="w-3.5 h-3.5 text-amber-400" />
               <span>Why is this feature isolated?</span>
@@ -116,7 +116,7 @@ export function RolePermissionGuard({ tab, tabLabel, onNavigateToAllowedTab }: R
 
           {/* Quick Role Switcher Buttons for Pair-Programming & Live Testing */}
           <div className="pt-2 border-t border-[#27272A] space-y-2.5">
-            <span className="text-[11px] font-mono text-[#7E8B9C] block">
+            <span className="text-[11px] font-mono text-[#71717A] block">
               Quickly test this feature as another role:
             </span>
             <div className="flex flex-wrap items-center justify-center gap-2">

@@ -171,44 +171,44 @@ export function UpiCounterQrModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg bg-[#0D0D0F] text-[#F5F4F0] rounded-3xl shadow-2xl border border-[#27272A] overflow-hidden my-auto flex flex-col">
+      <div className="relative w-full max-w-lg bg-[#101010] text-[#F8FAFC] rounded-3xl shadow-2xl border border-[#27272A] overflow-hidden my-auto flex flex-col">
         {/* Countertop Obsidian Top Bar */}
-        <div className="flex items-center justify-between px-5 py-4 bg-[#080809] border-b border-[#27272A]">
+        <div className="flex items-center justify-between px-5 py-4 bg-[#080808] border-b border-[#27272A]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#F5C928]/10 border border-[#F5C928]/25 flex items-center justify-center text-[#F5C928]">
+            <div className="w-10 h-10 rounded-2xl bg-[#FACC15]/10 border border-[#FACC15]/25 flex items-center justify-center text-[#FACC15]">
               <QrCode className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-serif font-bold text-sm text-[#F5F4F0] tracking-wide">
+                <h3 className="font-serif font-bold text-sm text-[#F8FAFC] tracking-wide">
                   Dynamic UPI Payment Terminal
                 </h3>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#F5C928]/15 text-[#F5C928] border border-[#F5C928]/30">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FACC15]/15 text-[#FACC15] border border-[#FACC15]/30">
                   NPCI Certified
                 </span>
               </div>
-              <p className="text-[11px] text-[#A3A3AD]">
+              <p className="text-[11px] text-[#A1A1AA]">
                 {salonName} • {invoiceNumber}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl text-[#A3A3AD] hover:text-white hover:bg-[#171719] transition-colors cursor-pointer"
+            className="p-1.5 rounded-xl text-[#A1A1AA] hover:text-white hover:bg-[#181818] transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Tab Selector: Dynamic QR vs Direct Bank Transfer */}
-        <div className="flex border-b border-[#27272A] bg-[#080809] p-1.5 gap-1.5">
+        <div className="flex border-b border-[#27272A] bg-[#080808] p-1.5 gap-1.5">
           <button
             type="button"
             onClick={() => setActiveTab("qr")}
             className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               activeTab === "qr"
-                ? "bg-gradient-to-r from-[#F5C928] to-[#E5B81D] text-slate-950 font-bold shadow-md shadow-[#F5C928]/15"
-                : "text-[#A3A3AD] hover:text-[#F5F4F0] hover:bg-[#171719]"
+                ? "bg-gradient-to-r from-[#FACC15] to-[#E5B81D] text-slate-950 font-bold shadow-md shadow-[#FACC15]/15"
+                : "text-[#A1A1AA] hover:text-[#F8FAFC] hover:bg-[#181818]"
             }`}
           >
             <QrCode className="w-3.5 h-3.5" />
@@ -219,8 +219,8 @@ export function UpiCounterQrModal({
             onClick={() => setActiveTab("bank")}
             className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               activeTab === "bank"
-                ? "bg-gradient-to-r from-[#F5C928] to-[#E5B81D] text-slate-950 font-bold shadow-md shadow-[#F5C928]/15"
-                : "text-[#A3A3AD] hover:text-[#F5F4F0] hover:bg-[#171719]"
+                ? "bg-gradient-to-r from-[#FACC15] to-[#E5B81D] text-slate-950 font-bold shadow-md shadow-[#FACC15]/15"
+                : "text-[#A1A1AA] hover:text-[#F8FAFC] hover:bg-[#181818]"
             }`}
           >
             <Building2 className="w-3.5 h-3.5" />
@@ -231,21 +231,21 @@ export function UpiCounterQrModal({
         {/* Modal Body */}
         <div className="p-5 space-y-4">
           {/* Amount Locked Display Banner */}
-          <div className="bg-[#111113] p-4 rounded-2xl border border-[#27272A] flex items-center justify-between">
+          <div className="bg-[#151515] p-4 rounded-2xl border border-[#27272A] flex items-center justify-between">
             <div>
-              <span className="text-[11px] font-bold text-[#A3A3AD] block uppercase tracking-wider">
+              <span className="text-[11px] font-bold text-[#A1A1AA] block uppercase tracking-wider">
                 {isSplitPayment ? "Remaining UPI Balance (Locked in QR)" : "Total Bill Amount (Locked)"}
               </span>
               <div className="text-3xl font-serif font-black text-white font-mono tracking-tight flex items-baseline gap-2 mt-0.5">
-                <span className="text-[#F5C928]">{formatCurrency(amount)}</span>
+                <span className="text-[#FACC15]">{formatCurrency(amount)}</span>
                 {isSplitPayment && totalBillAmount && (
-                  <span className="text-xs text-[#A3A3AD] font-normal">
+                  <span className="text-xs text-[#A1A1AA] font-normal">
                     (Total Bill: {formatCurrency(totalBillAmount)})
                   </span>
                 )}
               </div>
-              <div className="text-[11px] text-[#A3A3AD] flex flex-wrap items-center gap-2 mt-1">
-                <span>Client: <b className="text-[#F5F4F0]">{customerName}</b> {customerPhone ? `(${customerPhone})` : ""}</span>
+              <div className="text-[11px] text-[#A1A1AA] flex flex-wrap items-center gap-2 mt-1">
+                <span>Client: <b className="text-[#F8FAFC]">{customerName}</b> {customerPhone ? `(${customerPhone})` : ""}</span>
                 {isSplitPayment && cashCollected !== undefined && (
                   <span className="px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold">
                     💵 Cash Received: {formatCurrency(cashCollected)}
@@ -254,7 +254,7 @@ export function UpiCounterQrModal({
               </div>
             </div>
             <div className="text-right">
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-[#F5C928]/10 border border-[#F5C928]/30 text-[#F5C928] text-[11px] font-bold">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-[#FACC15]/10 border border-[#FACC15]/30 text-[#FACC15] text-[11px] font-bold">
                 <Lock className="w-3 h-3" /> Locked
               </span>
               <div className="text-[10px] text-[#71717A] mt-1 font-mono">
@@ -427,7 +427,7 @@ export function UpiCounterQrModal({
 
           {/* Optional UTR / Bank Reference Input */}
           <div className="pt-2 border-t border-[#27272A]">
-            <label className="text-[11px] font-bold text-[#A3A3AD] block mb-1">
+            <label className="text-[11px] font-bold text-[#A1A1AA] block mb-1">
               Bank Ref / UTR / Order Note (Optional)
             </label>
             <input
@@ -435,7 +435,7 @@ export function UpiCounterQrModal({
               value={manualUtr}
               onChange={(e) => setManualUtr(e.target.value)}
               placeholder="e.g. 423489110294 or leave blank for auto-ref"
-              className="w-full px-3 py-2 bg-[#080809] border border-[#27272A] rounded-xl text-xs font-mono text-[#F5F4F0] focus:outline-none focus:border-[#F5C928]"
+              className="w-full px-3 py-2 bg-[#080808] border border-[#27272A] rounded-xl text-xs font-mono text-[#F8FAFC] focus:outline-none focus:border-[#FACC15]"
             />
           </div>
 
@@ -445,7 +445,7 @@ export function UpiCounterQrModal({
               type="button"
               onClick={handleConfirmPayment}
               disabled={isVerifying}
-              className="w-full py-3.5 px-4 bg-gradient-to-r from-[#F5C928] via-[#F0C120] to-[#E5B81D] hover:opacity-95 text-slate-950 font-bold text-sm rounded-2xl shadow-xl shadow-[#F5C928]/20 flex items-center justify-center gap-2 transition-all cursor-pointer transform active:scale-[0.99] disabled:opacity-50"
+              className="w-full py-3.5 px-4 bg-gradient-to-r from-[#FACC15] via-[#F0C120] to-[#E5B81D] hover:opacity-95 text-slate-950 font-bold text-sm rounded-2xl shadow-xl shadow-[#FACC15]/20 flex items-center justify-center gap-2 transition-all cursor-pointer transform active:scale-[0.99] disabled:opacity-50"
             >
               {isVerifying ? (
                 <>
@@ -467,7 +467,7 @@ export function UpiCounterQrModal({
             <button
               type="button"
               onClick={onClose}
-              className="w-full py-2.5 px-3 bg-[#171719] hover:bg-[#27272A] text-[#A3A3AD] hover:text-white font-semibold text-xs rounded-xl border border-[#27272A] transition-all cursor-pointer"
+              className="w-full py-2.5 px-3 bg-[#181818] hover:bg-[#27272A] text-[#A1A1AA] hover:text-white font-semibold text-xs rounded-xl border border-[#27272A] transition-all cursor-pointer"
             >
               Cancel / Select Different Payment Method
             </button>

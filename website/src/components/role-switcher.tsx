@@ -70,8 +70,8 @@ export function RoleSwitcher({ variant = "pill", onRoleSwitched }: RoleSwitcherP
 
   if (variant === "sidebar") {
     return (
-      <div className="bg-[#111113] border border-[#27272A] rounded-xl p-2.5 space-y-2">
-        <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-[#7E8B9C]">
+      <div className="bg-[#151515] border border-[#27272A] rounded-xl p-2.5 space-y-2">
+        <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-[#71717A]">
           <span>Role View Mode</span>
           <span className="text-amber-300 flex items-center gap-1">
             <Sparkles className="w-2.5 h-2.5" />
@@ -91,7 +91,7 @@ export function RoleSwitcher({ variant = "pill", onRoleSwitched }: RoleSwitcherP
                 className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-md text-[10px] font-medium transition-all ${
                   isSelected
                     ? "bg-[#1F1F24] text-white shadow-sm font-semibold border border-white/10"
-                    : "text-[#7E8B9C] hover:text-[#F5F4F0] hover:bg-white/5"
+                    : "text-[#71717A] hover:text-[#F8FAFC] hover:bg-white/5"
                 }`}
               >
                 <Icon
@@ -102,7 +102,7 @@ export function RoleSwitcher({ variant = "pill", onRoleSwitched }: RoleSwitcherP
                         : r.role === "manager"
                         ? "text-blue-400"
                         : "text-emerald-400"
-                      : "text-[#7E8B9C]"
+                      : "text-[#71717A]"
                   }`}
                 />
                 <span className="truncate w-full text-center capitalize">{r.role}</span>
@@ -126,13 +126,13 @@ export function RoleSwitcher({ variant = "pill", onRoleSwitched }: RoleSwitcherP
         <span className="hidden sm:inline font-mono uppercase tracking-wider text-[11px]">
           {currentConfig.shortTitle}
         </span>
-        <ChevronDown className={`w-3 h-3 text-[#A3A3AD] transition-transform ${isOpen ? "rotate-180" : ""}`} />
+        <ChevronDown className={`w-3 h-3 text-[#A1A1AA] transition-transform ${isOpen ? "rotate-180" : ""}`} />
       </button>
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-72 bg-[#121215] border border-[#27272A] rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in-50 zoom-in-95 backdrop-blur-xl">
           <div className="px-2.5 py-1.5 border-b border-[#222226] mb-1.5 flex items-center justify-between">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-[#7E8B9C]">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-[#71717A]">
               Role-Based Access
             </span>
             <span className="text-[9px] font-mono text-amber-300 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
@@ -152,7 +152,7 @@ export function RoleSwitcher({ variant = "pill", onRoleSwitched }: RoleSwitcherP
                   className={`w-full flex items-center justify-between p-2 rounded-xl text-left transition-all ${
                     isSelected
                       ? "bg-[#1C1C22] text-white border border-white/10"
-                      : "text-[#A3A3AD] hover:bg-white/5 hover:text-white"
+                      : "text-[#A1A1AA] hover:bg-white/5 hover:text-white"
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
@@ -163,7 +163,7 @@ export function RoleSwitcher({ variant = "pill", onRoleSwitched }: RoleSwitcherP
                       <div className="text-xs font-semibold truncate flex items-center gap-1.5">
                         <span>{r.title}</span>
                       </div>
-                      <div className="text-[10px] text-[#7E8B9C] truncate font-light">
+                      <div className="text-[10px] text-[#71717A] truncate font-light">
                         {r.subtitle}
                       </div>
                     </div>
@@ -174,7 +174,7 @@ export function RoleSwitcher({ variant = "pill", onRoleSwitched }: RoleSwitcherP
             })}
           </div>
 
-          <div className="mt-2 pt-2 border-t border-[#222226] px-2 text-[10px] text-[#7E8B9C] font-mono leading-tight">
+          <div className="mt-2 pt-2 border-t border-[#222226] px-2 text-[10px] text-[#71717A] font-mono leading-tight">
             Role isolation automatically filters navigation tabs and guards financial ledgers.
           </div>
         </div>

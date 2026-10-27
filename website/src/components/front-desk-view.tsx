@@ -292,25 +292,25 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
   };
 
   return (
-    <div className="space-y-6 text-[#F5F4F0]">
+    <div className="space-y-6 text-[#F8FAFC]">
       {/* ============================================================ */}
       {/* FRONT DESK RECEPTIONIST HEADER */}
       {/* ============================================================ */}
-      <div className="relative overflow-hidden bg-[#0D0D0F] border border-[#27272A] p-7 sm:p-8 rounded-2xl shadow-2xl">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-[#F5C928]/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="relative overflow-hidden bg-[#101010] border border-[#27272A] p-7 sm:p-8 rounded-2xl shadow-2xl">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-[#FACC15]/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2.5">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#171719] border border-[#27272A] text-xs font-mono tracking-wider">
-              <span className="w-2 h-2 rounded-full bg-[#35C995] animate-pulse" />
-              <span className="text-[#35C995] font-semibold">Receptionist Floor Terminal</span>
-              <span className="text-[#7E8B9C]">•</span>
-              <span className="text-[#A3A3AD]">Live Front Desk</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#181818] border border-[#27272A] text-xs font-mono tracking-wider">
+              <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
+              <span className="text-[#10B981] font-semibold">Receptionist Floor Terminal</span>
+              <span className="text-[#71717A]">•</span>
+              <span className="text-[#A1A1AA]">Live Front Desk</span>
             </div>
-            <h1 className="font-serif text-2xl sm:text-3xl font-normal text-[#F5F4F0] tracking-tight">
+            <h1 className="font-serif text-2xl sm:text-3xl font-normal text-[#F8FAFC] tracking-tight">
               Customer Enters Salon Workflow
             </h1>
-            <p className="text-xs sm:text-sm text-[#A3A3AD] font-light max-w-xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#A1A1AA] font-light max-w-xl leading-relaxed">
               1-Tap client check-in with automatic returning customer detection, stylist chair allotment, technical service records, and instant WhatsApp billing.
             </p>
           </div>
@@ -324,7 +324,7 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
                 setDetectedCustomer(null);
                 setIsNewCustomer(false);
               }}
-              className="px-5 py-3 bg-[#F5C928] hover:bg-[#FFDA50] text-[#080809] font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg transition-all flex items-center gap-2 cursor-pointer"
+              className="px-5 py-3 bg-[#FACC15] hover:bg-[#EAB308] text-[#080808] font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg transition-all flex items-center gap-2 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>+ Customer Enters Salon</span>
@@ -332,9 +332,9 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
 
             <button
               onClick={() => onNavigateTab("pos")}
-              className="px-5 py-3 bg-[#171719] hover:bg-[#1D1D20] text-[#F5F4F0] font-semibold text-xs rounded-xl border border-[#27272A] hover:border-[#F5C928]/50 transition-all flex items-center gap-2 cursor-pointer"
+              className="px-5 py-3 bg-[#181818] hover:bg-[#1C1C1C] text-[#F8FAFC] font-semibold text-xs rounded-xl border border-[#27272A] hover:border-[#FACC15]/50 transition-all flex items-center gap-2 cursor-pointer"
             >
-              <Receipt className="w-4 h-4 text-[#F5C928]" />
+              <Receipt className="w-4 h-4 text-[#FACC15]" />
               <span>Direct POS Bill</span>
             </button>
           </div>
@@ -347,62 +347,62 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div
           onClick={() => setFilterStatus("Confirmed")}
-          className={`bg-[#111113] p-5 rounded-2xl cursor-pointer border transition-all ${
+          className={`bg-[#151515] p-5 rounded-2xl cursor-pointer border transition-all ${
             filterStatus === "Confirmed"
-              ? "border-[#87B8E8] bg-[#171719]"
+              ? "border-[#60A5FA] bg-[#181818]"
               : "border-[#27272A] hover:border-[#343438]"
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-mono uppercase tracking-wider text-[#7E8B9C]">
+            <span className="text-[11px] font-mono uppercase tracking-wider text-[#71717A]">
               Waiting in Lounge
             </span>
-            <span className="w-2.5 h-2.5 rounded-full bg-[#87B8E8]" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#60A5FA]" />
           </div>
-          <div className="font-serif text-3xl font-medium text-[#F5F4F0] mt-2">
-            {confirmedCount} <span className="text-sm font-sans font-light text-[#7E8B9C]">Clients</span>
+          <div className="font-serif text-3xl font-medium text-[#F8FAFC] mt-2">
+            {confirmedCount} <span className="text-sm font-sans font-light text-[#71717A]">Clients</span>
           </div>
-          <p className="text-xs text-[#87B8E8] font-mono mt-1">Ready to be seated →</p>
+          <p className="text-xs text-[#60A5FA] font-mono mt-1">Ready to be seated →</p>
         </div>
 
         <div
           onClick={() => setFilterStatus("In-Service")}
-          className={`bg-[#111113] p-5 rounded-2xl cursor-pointer border transition-all ${
+          className={`bg-[#151515] p-5 rounded-2xl cursor-pointer border transition-all ${
             filterStatus === "In-Service"
-              ? "border-[#F5C928] bg-[#171719]"
+              ? "border-[#FACC15] bg-[#181818]"
               : "border-[#27272A] hover:border-[#343438]"
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-mono uppercase tracking-wider text-[#7E8B9C]">
+            <span className="text-[11px] font-mono uppercase tracking-wider text-[#71717A]">
               Currently in Chair
             </span>
-            <span className="w-2.5 h-2.5 rounded-full bg-[#F5C928] animate-pulse" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#FACC15] animate-pulse" />
           </div>
-          <div className="font-serif text-3xl font-medium text-[#F5C928] mt-2">
-            {inServiceCount} <span className="text-sm font-sans font-light text-[#7E8B9C]">Clients</span>
+          <div className="font-serif text-3xl font-medium text-[#FACC15] mt-2">
+            {inServiceCount} <span className="text-sm font-sans font-light text-[#71717A]">Clients</span>
           </div>
-          <p className="text-xs text-[#F5C928] font-mono mt-1">Services being rendered →</p>
+          <p className="text-xs text-[#FACC15] font-mono mt-1">Services being rendered →</p>
         </div>
 
         <div
           onClick={() => setFilterStatus("Completed")}
-          className={`bg-[#111113] p-5 rounded-2xl cursor-pointer border transition-all ${
+          className={`bg-[#151515] p-5 rounded-2xl cursor-pointer border transition-all ${
             filterStatus === "Completed"
-              ? "border-[#35C995] bg-[#171719]"
+              ? "border-[#10B981] bg-[#181818]"
               : "border-[#27272A] hover:border-[#343438]"
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-mono uppercase tracking-wider text-[#7E8B9C]">
+            <span className="text-[11px] font-mono uppercase tracking-wider text-[#71717A]">
               Finished & Billed Today
             </span>
-            <span className="w-2.5 h-2.5 rounded-full bg-[#35C995]" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#10B981]" />
           </div>
-          <div className="font-serif text-3xl font-medium text-[#35C995] mt-2">
-            {completedCount} <span className="text-sm font-sans font-light text-[#7E8B9C]">Clients</span>
+          <div className="font-serif text-3xl font-medium text-[#10B981] mt-2">
+            {completedCount} <span className="text-sm font-sans font-light text-[#71717A]">Clients</span>
           </div>
-          <p className="text-xs text-[#35C995] font-mono mt-1">WhatsApp receipt sent →</p>
+          <p className="text-xs text-[#10B981] font-mono mt-1">WhatsApp receipt sent →</p>
         </div>
       </div>
 
@@ -412,33 +412,33 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left 8 Cols: Live Appointments & Queue */}
         <div className="lg:col-span-8 space-y-4">
-          <div className="bg-[#111113] border border-[#27272A] p-6 rounded-2xl space-y-4">
+          <div className="bg-[#151515] border border-[#27272A] p-6 rounded-2xl space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#27272A]">
               <div>
-                <h2 className="font-serif text-lg font-normal text-[#F5F4F0] tracking-tight">
+                <h2 className="font-serif text-lg font-normal text-[#F8FAFC] tracking-tight">
                   Salon Floor Queue & Chairs
                 </h2>
-                <p className="text-xs text-[#7E8B9C] font-light">
+                <p className="text-xs text-[#71717A] font-light">
                   Step 1: Seat Client → Step 2: Fill Services Taken → Step 3: QR Bill & WhatsApp
                 </p>
               </div>
 
               {/* Search in queue */}
               <div className="relative max-w-xs w-full">
-                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#7E8B9C]" />
+                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#71717A]" />
                 <input
                   type="text"
                   placeholder="Search by client or stylist..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 text-xs bg-[#171719] border border-[#27272A] rounded-xl text-[#F5F4F0] placeholder-[#7E8B9C] focus:outline-none focus:border-[#F5C928] font-sans"
+                  className="w-full pl-9 pr-3 py-2 text-xs bg-[#181818] border border-[#27272A] rounded-xl text-[#F8FAFC] placeholder-[#71717A] focus:outline-none focus:border-[#FACC15] font-sans"
                 />
               </div>
             </div>
 
             {/* List of Clients */}
             {filteredAppointments.length === 0 ? (
-              <div className="text-center py-12 text-[#7E8B9C] text-xs font-mono">
+              <div className="text-center py-12 text-[#71717A] text-xs font-mono">
                 No clients in this list. Click '+ Customer Enters Salon' to add one!
               </div>
             ) : (
@@ -453,10 +453,10 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
                       key={apt.id}
                       className={`p-4 rounded-xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
                         isInChair
-                          ? "bg-[#171719] border-[#F5C928]/40 shadow-sm"
+                          ? "bg-[#181818] border-[#FACC15]/40 shadow-sm"
                           : isWaiting
-                          ? "bg-[#171719] border-[#87B8E8]/40 shadow-sm"
-                          : "bg-[#111113] border-[#27272A] opacity-75"
+                          ? "bg-[#181818] border-[#60A5FA]/40 shadow-sm"
+                          : "bg-[#151515] border-[#27272A] opacity-75"
                       }`}
                     >
                       {/* Left client details */}
@@ -464,51 +464,51 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
                         <div
                           className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 ${
                             isInChair
-                              ? "bg-[#F5C928]/20 text-[#F5C928] border border-[#F5C928]/30"
+                              ? "bg-[#FACC15]/20 text-[#FACC15] border border-[#FACC15]/30"
                               : isWaiting
-                              ? "bg-[#87B8E8]/20 text-[#87B8E8] border border-[#87B8E8]/30"
-                              : "bg-[#35C995]/20 text-[#35C995] border border-[#35C995]/30"
+                              ? "bg-[#60A5FA]/20 text-[#60A5FA] border border-[#60A5FA]/30"
+                              : "bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/30"
                           }`}
                         >
                           {isInChair ? (
-                            <Scissors className="w-5 h-5 text-[#F5C928]" />
+                            <Scissors className="w-5 h-5 text-[#FACC15]" />
                           ) : isWaiting ? (
-                            <Clock className="w-5 h-5 text-[#87B8E8]" />
+                            <Clock className="w-5 h-5 text-[#60A5FA]" />
                           ) : (
-                            <Check className="w-5 h-5 text-[#35C995]" />
+                            <Check className="w-5 h-5 text-[#10B981]" />
                           )}
                         </div>
 
                         <div>
                           <div className="flex items-center gap-2">
-                            <h3 className="font-sans font-medium text-sm text-[#F5F4F0]">
+                            <h3 className="font-sans font-medium text-sm text-[#F8FAFC]">
                               {apt.customerName}
                             </h3>
                             <span
                               className={`text-[9px] font-mono px-2 py-0.5 rounded-full uppercase tracking-wider ${
                                 isInChair
-                                  ? "bg-[#F5C928]/15 text-[#F5C928] border border-[#F5C928]/30"
+                                  ? "bg-[#FACC15]/15 text-[#FACC15] border border-[#FACC15]/30"
                                   : isWaiting
-                                  ? "bg-[#87B8E8]/15 text-[#87B8E8] border border-[#87B8E8]/30"
-                                  : "bg-[#35C995]/15 text-[#35C995] border border-[#35C995]/30"
+                                  ? "bg-[#60A5FA]/15 text-[#60A5FA] border border-[#60A5FA]/30"
+                                  : "bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30"
                               }`}
                             >
                               {isInChair ? "In Chair" : isWaiting ? "Waiting" : "Billed & Done"}
                             </span>
                           </div>
 
-                          <div className="text-xs text-[#A3A3AD] mt-1 flex flex-wrap items-center gap-2 font-light">
-                            <span className="font-normal text-[#F5F4F0]">{apt.serviceName}</span>
+                          <div className="text-xs text-[#A1A1AA] mt-1 flex flex-wrap items-center gap-2 font-light">
+                            <span className="font-normal text-[#F8FAFC]">{apt.serviceName}</span>
                             <span>•</span>
-                            <span>Stylist: <span className="text-[#F5C928]">{apt.staffName}</span></span>
+                            <span>Stylist: <span className="text-[#FACC15]">{apt.staffName}</span></span>
                             <span>•</span>
-                            <span className="font-mono font-medium text-[#F5C928]">
+                            <span className="font-mono font-medium text-[#FACC15]">
                               {formatCurrency(apt.price)}
                             </span>
                           </div>
 
-                          <div className="text-[11px] text-[#7E8B9C] mt-0.5 flex items-center gap-2 font-mono">
-                            <Phone className="w-3 h-3 text-[#7E8B9C]" />
+                          <div className="text-[11px] text-[#71717A] mt-0.5 flex items-center gap-2 font-mono">
+                            <Phone className="w-3 h-3 text-[#71717A]" />
                             <span>{apt.customerPhone}</span>
                             <span>•</span>
                             <span>Time: {apt.time}</span>
@@ -525,7 +525,7 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
                               updateAppointmentStatus(apt.id, "In-Service");
                               showToast(`${apt.customerName} seated in chair with ${apt.staffName}!`);
                             }}
-                            className="px-4 py-2 bg-[#F5C928] hover:bg-[#FFDA50] text-[#080809] font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+                            className="px-4 py-2 bg-[#FACC15] hover:bg-[#EAB308] text-[#080808] font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
                           >
                             <PlayCircle className="w-4 h-4" />
                             <span>Allot & Seat</span>
@@ -537,16 +537,16 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
                           <>
                             <button
                               onClick={() => handleOpenServicesModal(apt)}
-                              className="px-3 py-2 bg-[#171719] hover:bg-[#1D1D20] text-[#F5F4F0] border border-[#27272A] font-medium text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+                              className="px-3 py-2 bg-[#181818] hover:bg-[#1C1C1C] text-[#F8FAFC] border border-[#27272A] font-medium text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
                               title="Add or change services customer took"
                             >
-                              <Scissors className="w-3.5 h-3.5 text-[#F5C928]" />
+                              <Scissors className="w-3.5 h-3.5 text-[#FACC15]" />
                               <span>Fill Services</span>
                             </button>
 
                             <button
                               onClick={() => handleOpenBillingModal(apt)}
-                              className="px-4 py-2 bg-[#35C995] hover:bg-[#2EB885] text-[#080809] font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+                              className="px-4 py-2 bg-[#10B981] hover:bg-[#2EB885] text-[#080808] font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
                             >
                               <QrCode className="w-4 h-4" />
                               <span>QR Bill & Done</span>
@@ -567,7 +567,7 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
                                 "_blank"
                               );
                             }}
-                            className="px-3 py-2 bg-[#171719] hover:bg-[#1D1D20] text-[#35C995] font-mono text-xs rounded-xl border border-[#27272A] hover:border-[#35C995]/40 transition-all flex items-center gap-1.5 cursor-pointer"
+                            className="px-3 py-2 bg-[#181818] hover:bg-[#1C1C1C] text-[#10B981] font-mono text-xs rounded-xl border border-[#27272A] hover:border-[#10B981]/40 transition-all flex items-center gap-1.5 cursor-pointer"
                           >
                             <MessageSquare className="w-3.5 h-3.5" />
                             <span>WhatsApp Again</span>
@@ -584,15 +584,15 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
 
         {/* Right 4 Cols: Real-Time Stylist Chair Availability Board */}
         <div className="lg:col-span-4 space-y-4">
-          <div className="bg-[#111113] border border-[#27272A] p-6 rounded-2xl space-y-4">
+          <div className="bg-[#151515] border border-[#27272A] p-6 rounded-2xl space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-[#27272A]">
               <div>
-                <h3 className="font-serif text-lg font-normal text-[#F5F4F0]">Chair Availability</h3>
-                <p className="text-[11px] text-[#7E8B9C] font-mono">
+                <h3 className="font-serif text-lg font-normal text-[#F8FAFC]">Chair Availability</h3>
+                <p className="text-[11px] text-[#71717A] font-mono">
                   {freeStaff.length} Free • {busyStaffNames.length} In-Service
                 </p>
               </div>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#171719] text-[#35C995] border border-[#27272A]">
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#181818] text-[#10B981] border border-[#27272A]">
                 Floor Matrix
               </span>
             </div>
@@ -606,7 +606,7 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
                 return (
                   <div
                     key={s.id}
-                    className="p-3 rounded-xl bg-[#171719] border border-[#27272A] flex items-center justify-between gap-3 text-xs"
+                    className="p-3 rounded-xl bg-[#181818] border border-[#27272A] flex items-center justify-between gap-3 text-xs"
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       <img
@@ -615,8 +615,8 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
                         className="w-8 h-8 rounded-lg object-cover border border-[#27272A] shrink-0"
                       />
                       <div className="min-w-0">
-                        <div className="font-medium text-[#F5F4F0] truncate">{s.name}</div>
-                        <div className="text-[10px] text-[#7E8B9C] truncate">
+                        <div className="font-medium text-[#F8FAFC] truncate">{s.name}</div>
+                        <div className="text-[10px] text-[#71717A] truncate">
                           {s.specialty?.[0] || s.role}
                         </div>
                       </div>
@@ -624,8 +624,8 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
 
                     <div>
                       {isBusy ? (
-                        <span className="px-2.5 py-1 rounded-full bg-[#F5C928]/15 text-[#F5C928] border border-[#F5C928]/30 text-[10px] font-mono font-medium flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#F5C928] animate-pulse" />
+                        <span className="px-2.5 py-1 rounded-full bg-[#FACC15]/15 text-[#FACC15] border border-[#FACC15]/30 text-[10px] font-mono font-medium flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#FACC15] animate-pulse" />
                           In Chair
                         </span>
                       ) : isClockedIn ? (
@@ -634,13 +634,13 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
                             setWalkInStaff(s.name);
                             setShowWalkInModal(true);
                           }}
-                          className="px-2.5 py-1 rounded-full bg-[#35C995]/15 hover:bg-[#35C995]/25 text-[#35C995] border border-[#35C995]/30 text-[10px] font-mono font-medium transition-all flex items-center gap-1 cursor-pointer"
+                          className="px-2.5 py-1 rounded-full bg-[#10B981]/15 hover:bg-[#10B981]/25 text-[#10B981] border border-[#10B981]/30 text-[10px] font-mono font-medium transition-all flex items-center gap-1 cursor-pointer"
                         >
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#35C995]" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
                           Free • Allot
                         </button>
                       ) : (
-                        <span className="px-2 py-0.5 rounded-full bg-[#27272A] text-[#7E8B9C] text-[10px] font-mono">
+                        <span className="px-2 py-0.5 rounded-full bg-[#27272A] text-[#71717A] text-[10px] font-mono">
                           Off Shift
                         </span>
                       )}
@@ -658,20 +658,20 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
       {/* ============================================================ */}
       {showWalkInModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#111113] border border-[#27272A] text-[#F5F4F0] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#151515] border border-[#27272A] text-[#F8FAFC] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
             <div className="flex items-center justify-between pb-3 border-b border-[#27272A]">
               <div>
-                <h3 className="font-serif text-lg font-normal text-[#F5F4F0]">
+                <h3 className="font-serif text-lg font-normal text-[#F8FAFC]">
                   Customer Enters Salon
                 </h3>
-                <p className="text-xs text-[#7E8B9C] font-light">
+                <p className="text-xs text-[#71717A] font-light">
                   Type phone or name — returning customers are automatically recognized.
                 </p>
               </div>
               <button
                 onClick={() => setShowWalkInModal(false)}
-                className="w-8 h-8 rounded-xl bg-[#171719] hover:bg-[#1D1D20] text-[#7E8B9C] hover:text-[#F5F4F0] border border-[#27272A] flex items-center justify-center transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-xl bg-[#181818] hover:bg-[#1C1C1C] text-[#71717A] hover:text-[#F8FAFC] border border-[#27272A] flex items-center justify-center transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -679,17 +679,17 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
 
             {/* Smart Search Box */}
             <div className="space-y-1.5">
-              <label className="text-xs font-mono text-[#A3A3AD]">
+              <label className="text-xs font-mono text-[#A1A1AA]">
                 Search Customer Phone Number or Name
               </label>
               <div className="relative">
-                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#7E8B9C]" />
+                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#71717A]" />
                 <input
                   type="text"
                   placeholder="e.g. 9845012890 or Ananya..."
                   value={lookupInput}
                   onChange={(e) => handleLookupChange(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-[#171719] border border-[#27272A] rounded-xl text-xs font-medium text-[#F5F4F0] placeholder-[#7E8B9C] focus:outline-none focus:border-[#F5C928]"
+                  className="w-full pl-10 pr-4 py-2.5 bg-[#181818] border border-[#27272A] rounded-xl text-xs font-medium text-[#F8FAFC] placeholder-[#71717A] focus:outline-none focus:border-[#FACC15]"
                   autoFocus
                 />
               </div>
@@ -697,31 +697,31 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
 
             {/* CASE A: OLD CUSTOMER FOUND! */}
             {detectedCustomer && (
-              <div className="p-4 rounded-xl bg-[#171719] border border-[#35C995]/40 space-y-2.5 animate-in fade-in">
+              <div className="p-4 rounded-xl bg-[#181818] border border-[#10B981]/40 space-y-2.5 animate-in fade-in">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-[#35C995] font-mono text-xs">
-                    <Sparkles className="w-4 h-4 text-[#35C995]" />
+                  <div className="flex items-center gap-1.5 text-[#10B981] font-mono text-xs">
+                    <Sparkles className="w-4 h-4 text-[#10B981]" />
                     <span>Returning Client Recognized</span>
                   </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#35C995]/15 text-[#35C995] border border-[#35C995]/30">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30">
                     {detectedCustomer.visitsCount || detectedCustomer.totalVisits || 1} Past Visits
                   </span>
                 </div>
 
-                <div className="text-xs text-[#A3A3AD] space-y-1">
+                <div className="text-xs text-[#A1A1AA] space-y-1">
                   <div>
-                    <span className="font-medium text-[#F5F4F0]">{detectedCustomer.name}</span> •{" "}
+                    <span className="font-medium text-[#F8FAFC]">{detectedCustomer.name}</span> •{" "}
                     <span className="font-mono">{detectedCustomer.phone}</span>
                   </div>
-                  <div className="text-[11px] text-[#7E8B9C]">
+                  <div className="text-[11px] text-[#71717A]">
                     Preferred Stylist:{" "}
-                    <span className="text-[#F5C928]">
+                    <span className="text-[#FACC15]">
                       {detectedCustomer.preferredStaff || "Priya Sharma"}
                     </span>{" "}
                     • Last Service: {detectedCustomer.lastService || "Consultation"}
                   </div>
                   {detectedCustomer.formulaNotes && (
-                    <div className="text-[11px] text-[#F5C928] bg-[#F5C928]/10 p-2 rounded-lg border border-[#F5C928]/20 font-mono">
+                    <div className="text-[11px] text-[#FACC15] bg-[#FACC15]/10 p-2 rounded-lg border border-[#FACC15]/20 font-mono">
                       Technical Formula: {detectedCustomer.formulaNotes}
                     </div>
                   )}
@@ -731,32 +731,32 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
 
             {/* CASE B: NEW CUSTOMER DETECTED */}
             {isNewCustomer && (
-              <div className="p-4 rounded-xl bg-[#171719] border border-[#87B8E8]/40 space-y-3 animate-in fade-in">
-                <div className="flex items-center gap-1.5 text-[#87B8E8] font-mono text-xs">
-                  <User className="w-4 h-4 text-[#87B8E8]" />
+              <div className="p-4 rounded-xl bg-[#181818] border border-[#60A5FA]/40 space-y-3 animate-in fade-in">
+                <div className="flex items-center gap-1.5 text-[#60A5FA] font-mono text-xs">
+                  <User className="w-4 h-4 text-[#60A5FA]" />
                   <span>New Client Entry</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-[11px] font-mono text-[#A3A3AD]">Client Name *</label>
+                    <label className="text-[11px] font-mono text-[#A1A1AA]">Client Name *</label>
                     <input
                       type="text"
                       placeholder="e.g. Rahul Mehta"
                       value={walkInName}
                       onChange={(e) => setWalkInName(e.target.value)}
-                      className="w-full px-3 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-xs text-[#F5F4F0] focus:outline-none focus:border-[#F5C928]"
+                      className="w-full px-3 py-2 bg-[#151515] border border-[#27272A] rounded-xl text-xs text-[#F8FAFC] focus:outline-none focus:border-[#FACC15]"
                       required
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[11px] font-mono text-[#A3A3AD]">WhatsApp Number *</label>
+                    <label className="text-[11px] font-mono text-[#A1A1AA]">WhatsApp Number *</label>
                     <input
                       type="text"
                       placeholder="+91 98..."
                       value={walkInPhone}
                       onChange={(e) => setWalkInPhone(e.target.value)}
-                      className="w-full px-3 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-xs text-[#F5F4F0] focus:outline-none focus:border-[#F5C928] font-mono"
+                      className="w-full px-3 py-2 bg-[#151515] border border-[#27272A] rounded-xl text-xs text-[#F8FAFC] focus:outline-none focus:border-[#FACC15] font-mono"
                       required
                     />
                   </div>
@@ -769,14 +769,14 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* Initial Service */}
                 <div className="space-y-1">
-                  <label className="text-xs font-mono text-[#A3A3AD]">Service Expected</label>
+                  <label className="text-xs font-mono text-[#A1A1AA]">Service Expected</label>
                   <select
                     value={walkInService}
                     onChange={(e) => setWalkInService(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#171719] border border-[#27272A] rounded-xl text-xs text-[#F5F4F0] focus:outline-none focus:border-[#F5C928]"
+                    className="w-full px-3 py-2 bg-[#181818] border border-[#27272A] rounded-xl text-xs text-[#F8FAFC] focus:outline-none focus:border-[#FACC15]"
                   >
                     {services.map((s) => (
-                      <option key={s.id} value={s.name} className="bg-[#111113]">
+                      <option key={s.id} value={s.name} className="bg-[#151515]">
                         {s.name} ({formatCurrency(s.price)})
                       </option>
                     ))}
@@ -785,18 +785,18 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
 
                 {/* Available Stylist / Chair */}
                 <div className="space-y-1">
-                  <label className="text-xs font-mono text-[#A3A3AD]">
+                  <label className="text-xs font-mono text-[#A1A1AA]">
                     Assign Stylist ({freeStaff.length} Free)
                   </label>
                   <select
                     value={walkInStaff}
                     onChange={(e) => setWalkInStaff(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#171719] border border-[#27272A] rounded-xl text-xs text-[#F5F4F0] focus:outline-none focus:border-[#F5C928]"
+                    className="w-full px-3 py-2 bg-[#181818] border border-[#27272A] rounded-xl text-xs text-[#F8FAFC] focus:outline-none focus:border-[#FACC15]"
                   >
                     {staff.map((s) => {
                       const isFree = freeStaff.some((f) => f.id === s.id);
                       return (
-                        <option key={s.id} value={s.name} className="bg-[#111113]">
+                        <option key={s.id} value={s.name} className="bg-[#151515]">
                           {s.name} {isFree ? "• [FREE CHAIR]" : "• [Busy]"}
                         </option>
                       );
@@ -810,14 +810,14 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
                 <button
                   type="button"
                   onClick={() => setShowWalkInModal(false)}
-                  className="px-4 py-2.5 rounded-xl text-xs font-medium text-[#7E8B9C] hover:text-[#F5F4F0] hover:bg-[#171719] transition-colors cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl text-xs font-medium text-[#71717A] hover:text-[#F8FAFC] hover:bg-[#181818] transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={!walkInName.trim()}
-                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#F5C928] hover:bg-[#FFDA50] text-[#080809] uppercase tracking-wider shadow-md disabled:opacity-50 transition-all flex items-center gap-1.5 cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#FACC15] hover:bg-[#EAB308] text-[#080808] uppercase tracking-wider shadow-md disabled:opacity-50 transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   <PlayCircle className="w-4 h-4" />
                   <span>Allot Chair & Begin</span>
@@ -833,19 +833,19 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
       {/* ============================================================ */}
       {serviceModalApt && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#111113] border border-[#27272A] text-[#F5F4F0] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-[#151515] border border-[#27272A] text-[#F8FAFC] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between pb-3 border-b border-[#27272A]">
               <div>
-                <h3 className="font-serif text-lg font-normal text-[#F5F4F0]">
+                <h3 className="font-serif text-lg font-normal text-[#F8FAFC]">
                   Services Taken • {serviceModalApt.customerName}
                 </h3>
-                <p className="text-xs text-[#7E8B9C] font-light">
+                <p className="text-xs text-[#71717A] font-light">
                   Select all services provided during this appointment session.
                 </p>
               </div>
               <button
                 onClick={() => setServiceModalApt(null)}
-                className="w-8 h-8 rounded-xl bg-[#171719] hover:bg-[#1D1D20] text-[#7E8B9C] hover:text-[#F5F4F0] border border-[#27272A] flex items-center justify-center cursor-pointer"
+                className="w-8 h-8 rounded-xl bg-[#181818] hover:bg-[#1C1C1C] text-[#71717A] hover:text-[#F8FAFC] border border-[#27272A] flex items-center justify-center cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -853,7 +853,7 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
 
             {/* Quick Service Selection Pills */}
             <div className="space-y-2">
-              <label className="text-xs font-mono text-[#A3A3AD]">Services Performed:</label>
+              <label className="text-xs font-mono text-[#A1A1AA]">Services Performed:</label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-60 overflow-y-auto p-1">
                 {services.map((srv) => {
                   const isSelected = selectedServiceList.includes(srv.name);
@@ -864,8 +864,8 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
                       onClick={() => handleToggleService(srv.name)}
                       className={`p-2.5 rounded-xl text-xs text-left border transition-all flex items-center justify-between cursor-pointer ${
                         isSelected
-                          ? "bg-[#171719] text-[#F5C928] border-[#F5C928] shadow-sm font-semibold"
-                          : "bg-[#111113] text-[#A3A3AD] border-[#27272A] hover:border-[#343438]"
+                          ? "bg-[#181818] text-[#FACC15] border-[#FACC15] shadow-sm font-semibold"
+                          : "bg-[#151515] text-[#A1A1AA] border-[#27272A] hover:border-[#343438]"
                       }`}
                     >
                       <span className="truncate">{srv.name}</span>
@@ -879,9 +879,9 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
             </div>
 
             {/* Total Calculation */}
-            <div className="p-3.5 rounded-xl bg-[#171719] border border-[#27272A] flex items-center justify-between font-mono">
-              <span className="text-xs text-[#7E8B9C]">Updated Session Total:</span>
-              <span className="text-lg font-serif text-[#F5C928] font-medium">
+            <div className="p-3.5 rounded-xl bg-[#181818] border border-[#27272A] flex items-center justify-between font-mono">
+              <span className="text-xs text-[#71717A]">Updated Session Total:</span>
+              <span className="text-lg font-serif text-[#FACC15] font-medium">
                 {formatCurrency(
                   selectedServiceList.reduce((acc, sName) => {
                     const match = services.find((s) => s.name === sName);
@@ -895,13 +895,13 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#27272A]">
               <button
                 onClick={() => setServiceModalApt(null)}
-                className="px-4 py-2 text-xs font-medium text-[#7E8B9C] hover:text-[#F5F4F0] hover:bg-[#171719] rounded-xl cursor-pointer"
+                className="px-4 py-2 text-xs font-medium text-[#71717A] hover:text-[#F8FAFC] hover:bg-[#181818] rounded-xl cursor-pointer"
               >
                 Close
               </button>
               <button
                 onClick={handleSaveServicesAndProceedToBill}
-                className="px-5 py-2.5 bg-[#F5C928] hover:bg-[#FFDA50] text-[#080809] font-bold text-xs uppercase tracking-wider rounded-xl shadow-md flex items-center gap-1.5 cursor-pointer"
+                className="px-5 py-2.5 bg-[#FACC15] hover:bg-[#EAB308] text-[#080808] font-bold text-xs uppercase tracking-wider rounded-xl shadow-md flex items-center gap-1.5 cursor-pointer"
               >
                 <Receipt className="w-4 h-4" />
                 <span>Save & Proceed to Billing</span>
@@ -916,53 +916,53 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
       {/* ============================================================ */}
       {billingApt && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#111113] border border-[#27272A] text-[#F5F4F0] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#151515] border border-[#27272A] text-[#F8FAFC] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             {/* Header */}
             <div className="flex items-center justify-between pb-3 border-b border-[#27272A]">
               <div>
-                <h3 className="font-serif text-lg font-normal text-[#F5F4F0]">
+                <h3 className="font-serif text-lg font-normal text-[#F8FAFC]">
                   Billing & Settlement • {billingApt.customerName}
                 </h3>
-                <p className="text-xs text-[#7E8B9C] font-mono">{billingApt.serviceName}</p>
+                <p className="text-xs text-[#71717A] font-mono">{billingApt.serviceName}</p>
               </div>
               <button
                 onClick={() => setBillingApt(null)}
-                className="w-8 h-8 rounded-xl bg-[#171719] hover:bg-[#1D1D20] text-[#7E8B9C] hover:text-[#F5F4F0] border border-[#27272A] flex items-center justify-center cursor-pointer"
+                className="w-8 h-8 rounded-xl bg-[#181818] hover:bg-[#1C1C1C] text-[#71717A] hover:text-[#F8FAFC] border border-[#27272A] flex items-center justify-center cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Total to pay banner */}
-            <div className="p-4 rounded-xl bg-[#171719] border border-[#27272A] flex items-center justify-between">
+            <div className="p-4 rounded-xl bg-[#181818] border border-[#27272A] flex items-center justify-between">
               <div>
-                <span className="text-[10px] text-[#7E8B9C] block uppercase font-mono tracking-wider">
+                <span className="text-[10px] text-[#71717A] block uppercase font-mono tracking-wider">
                   Payable Amount
                 </span>
-                <span className="text-2xl font-serif text-[#F5C928] font-medium">
+                <span className="text-2xl font-serif text-[#FACC15] font-medium">
                   {formatCurrency(finalBillAmount)}
                 </span>
               </div>
-              <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-[#35C995] text-xs font-mono border border-emerald-500/20">
+              <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-[#10B981] text-xs font-mono border border-emerald-500/20">
                 GST Included
               </span>
             </div>
 
             {/* Shop QR Display */}
-            <div className="p-4 rounded-xl bg-[#171719] border border-[#27272A] flex flex-col sm:flex-row items-center gap-4">
+            <div className="p-4 rounded-xl bg-[#181818] border border-[#27272A] flex flex-col sm:flex-row items-center gap-4">
               <div className="w-24 h-24 bg-white p-2 rounded-xl flex flex-col items-center justify-center shrink-0">
                 <QrCode className="w-16 h-16 text-black" />
                 <span className="text-[7px] font-mono uppercase text-slate-800 font-bold mt-0.5">UPI QR</span>
               </div>
 
               <div className="space-y-1 text-center sm:text-left">
-                <div className="font-serif text-sm text-[#F5F4F0]">
+                <div className="font-serif text-sm text-[#F8FAFC]">
                   {salon.name} Counter QR
                 </div>
-                <div className="text-[11px] text-[#A3A3AD] font-mono">
+                <div className="text-[11px] text-[#A1A1AA] font-mono">
                   UPI ID: billcare.{salon.slug || "demo"}@axisbank
                 </div>
-                <p className="text-[11px] text-[#35C995] font-light">
+                <p className="text-[11px] text-[#10B981] font-light">
                   Customer can scan instantly via Google Pay, PhonePe, or Paytm.
                 </p>
               </div>
@@ -970,7 +970,7 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
 
             {/* Payment Method Selector */}
             <div className="space-y-2">
-              <label className="text-xs font-mono text-[#A3A3AD]">Tender Type:</label>
+              <label className="text-xs font-mono text-[#A1A1AA]">Tender Type:</label>
               <div className="grid grid-cols-3 gap-2">
                 {(["UPI", "Cash", "Split"] as const).map((method) => (
                   <button
@@ -991,8 +991,8 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
                     }}
                     className={`py-2 px-3 rounded-xl text-xs font-mono uppercase transition-all cursor-pointer border ${
                       payMethod === method
-                        ? "bg-[#F5C928] text-[#080809] border-[#F5C928] font-bold"
-                        : "bg-[#171719] text-[#A3A3AD] border-[#27272A] hover:border-[#343438]"
+                        ? "bg-[#FACC15] text-[#080808] border-[#FACC15] font-bold"
+                        : "bg-[#181818] text-[#A1A1AA] border-[#27272A] hover:border-[#343438]"
                     }`}
                   >
                     {method}
@@ -1003,31 +1003,31 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
 
             {/* Split input fields */}
             {payMethod === "Split" && (
-              <div className="p-3.5 rounded-xl bg-[#171719] border border-[#F5C928]/30 space-y-3">
-                <span className="text-xs font-mono text-[#F5C928] block">
+              <div className="p-3.5 rounded-xl bg-[#181818] border border-[#FACC15]/30 space-y-3">
+                <span className="text-xs font-mono text-[#FACC15] block">
                   Split Payment Breakdown
                 </span>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-[11px] font-mono text-[#A3A3AD]">Cash (₹)</label>
+                    <label className="text-[11px] font-mono text-[#A1A1AA]">Cash (₹)</label>
                     <input
                       type="number"
                       value={cashAmount}
                       onChange={(e) => handleCashChange(Number(e.target.value))}
-                      className="w-full px-3 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-xs font-mono text-[#F5F4F0] focus:outline-none focus:border-[#F5C928]"
+                      className="w-full px-3 py-2 bg-[#151515] border border-[#27272A] rounded-xl text-xs font-mono text-[#F8FAFC] focus:outline-none focus:border-[#FACC15]"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[11px] font-mono text-[#A3A3AD]">UPI (₹)</label>
+                    <label className="text-[11px] font-mono text-[#A1A1AA]">UPI (₹)</label>
                     <input
                       type="number"
                       value={upiAmount}
                       onChange={(e) => handleUpiChange(Number(e.target.value))}
-                      className="w-full px-3 py-2 bg-[#111113] border border-[#27272A] rounded-xl text-xs font-mono text-[#F5F4F0] focus:outline-none focus:border-[#F5C928]"
+                      className="w-full px-3 py-2 bg-[#151515] border border-[#27272A] rounded-xl text-xs font-mono text-[#F8FAFC] focus:outline-none focus:border-[#FACC15]"
                     />
                   </div>
                 </div>
-                <div className="text-[11px] text-[#A3A3AD] font-mono">
+                <div className="text-[11px] text-[#A1A1AA] font-mono">
                   Allocated: {formatCurrency(cashAmount + upiAmount)} / {formatCurrency(finalBillAmount)}
                 </div>
               </div>
@@ -1038,14 +1038,14 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
               <button
                 type="button"
                 onClick={() => setBillingApt(null)}
-                className="px-4 py-2.5 rounded-xl text-xs font-medium text-[#7E8B9C] hover:text-[#F5F4F0] hover:bg-[#171719] cursor-pointer"
+                className="px-4 py-2.5 rounded-xl text-xs font-medium text-[#71717A] hover:text-[#F8FAFC] hover:bg-[#181818] cursor-pointer"
               >
                 Back
               </button>
               <button
                 type="button"
                 onClick={handleCompleteBillAndSendWhatsApp}
-                className="px-5 py-2.5 bg-[#35C995] hover:bg-[#2EB885] text-[#080809] font-bold text-xs uppercase tracking-wider rounded-xl shadow-md flex items-center gap-1.5 cursor-pointer"
+                className="px-5 py-2.5 bg-[#10B981] hover:bg-[#2EB885] text-[#080808] font-bold text-xs uppercase tracking-wider rounded-xl shadow-md flex items-center gap-1.5 cursor-pointer"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 <span>Complete & Send WhatsApp Bill</span>
@@ -1060,35 +1060,35 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
       {/* ============================================================ */}
       {whatsappSentModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#111113] border border-[#27272A] text-[#F5F4F0] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-[#151515] border border-[#27272A] text-[#F8FAFC] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between pb-3 border-b border-[#27272A]">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-[#35C995] border border-emerald-500/20 flex items-center justify-center font-bold">
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-[#10B981] border border-emerald-500/20 flex items-center justify-center font-bold">
                   <Check className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="font-serif text-lg font-normal text-[#F5F4F0]">Service Finalized</h3>
-                  <p className="text-xs text-[#7E8B9C] font-light">
+                  <h3 className="font-serif text-lg font-normal text-[#F8FAFC]">Service Finalized</h3>
+                  <p className="text-xs text-[#71717A] font-light">
                     Chair released for next client • WhatsApp message prepared
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setWhatsappSentModal(null)}
-                className="w-8 h-8 rounded-xl bg-[#171719] hover:bg-[#1D1D20] text-[#7E8B9C] hover:text-[#F5F4F0] border border-[#27272A] flex items-center justify-center cursor-pointer"
+                className="w-8 h-8 rounded-xl bg-[#181818] hover:bg-[#1C1C1C] text-[#71717A] hover:text-[#F8FAFC] border border-[#27272A] flex items-center justify-center cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* WhatsApp Message Preview Card */}
-            <div className="p-4 rounded-xl bg-[#171719] border border-[#35C995]/30 space-y-2">
-              <div className="flex items-center gap-2 text-[#35C995] font-mono text-xs">
+            <div className="p-4 rounded-xl bg-[#181818] border border-[#10B981]/30 space-y-2">
+              <div className="flex items-center gap-2 text-[#10B981] font-mono text-xs">
                 <MessageSquare className="w-4 h-4" />
                 <span>WhatsApp Message Content:</span>
               </div>
 
-              <div className="p-3 bg-[#111113] rounded-xl text-xs text-[#F5F4F0] font-sans leading-relaxed whitespace-pre-line border border-[#27272A]">
+              <div className="p-3 bg-[#151515] rounded-xl text-xs text-[#F8FAFC] font-sans leading-relaxed whitespace-pre-line border border-[#27272A]">
                 {whatsappSentModal.messageText}
               </div>
             </div>
@@ -1097,7 +1097,7 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#27272A]">
               <button
                 onClick={() => setWhatsappSentModal(null)}
-                className="px-4 py-2 text-xs font-medium text-[#7E8B9C] hover:text-[#F5F4F0] hover:bg-[#171719] rounded-xl cursor-pointer"
+                className="px-4 py-2 text-xs font-medium text-[#71717A] hover:text-[#F8FAFC] hover:bg-[#181818] rounded-xl cursor-pointer"
               >
                 Done / Next Client
               </button>
