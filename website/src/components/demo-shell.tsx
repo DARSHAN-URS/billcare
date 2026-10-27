@@ -344,23 +344,23 @@ export function DemoShell({ initialTab = "frontdesk" }: DemoShellProps) {
   // Filter items for command palette search
   const filteredCustomersSearch = searchQuery.trim()
     ? customers.filter((c) =>
-        c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.phone.includes(searchQuery)
-      ).slice(0, 4)
+      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.phone.includes(searchQuery)
+    ).slice(0, 4)
     : [];
 
   const filteredServicesSearch = searchQuery.trim()
     ? services.filter((s) =>
-        s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        s.category.toLowerCase().includes(searchQuery.toLowerCase())
-      ).slice(0, 4)
+      s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.category.toLowerCase().includes(searchQuery.toLowerCase())
+    ).slice(0, 4)
     : [];
 
   const filteredInventorySearch = searchQuery.trim()
     ? inventory.filter((i) =>
-        i.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        i.sku.toLowerCase().includes(searchQuery.toLowerCase())
-      ).slice(0, 4)
+      i.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      i.sku.toLowerCase().includes(searchQuery.toLowerCase())
+    ).slice(0, 4)
     : [];
 
   if (!user) {
@@ -390,9 +390,8 @@ export function DemoShell({ initialTab = "frontdesk" }: DemoShellProps) {
         {/* DESKTOP SIDE NAVIGATION BAR */}
         {/* ============================================================ */}
         <aside
-          className={`hidden lg:flex bg-[#101010] border-r border-[#27272A] flex-col justify-between shrink-0 h-screen sticky top-0 z-30 shadow-2xl transition-all duration-200 ${
-            isSidebarCollapsed ? "w-20" : "w-64 xl:w-72"
-          }`}
+          className={`hidden lg:flex bg-[#101010] border-r border-[#27272A] flex-col justify-between shrink-0 h-screen sticky top-0 z-30 shadow-2xl transition-all duration-200 ${isSidebarCollapsed ? "w-20" : "w-64 xl:w-72"
+            }`}
         >
           {/* Top Brand & Branch Header */}
           <div className="p-4 border-b border-[#27272A] space-y-3.5">
@@ -448,9 +447,8 @@ export function DemoShell({ initialTab = "frontdesk" }: DemoShellProps) {
             {/* Quick POS Checkout CTA */}
             <button
               onClick={() => handleSelectTab("pos")}
-              className={`w-full py-2.5 bg-[#FACC15] hover:bg-[#EAB308] text-[#080808] font-bold text-xs uppercase tracking-wider rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                isSidebarCollapsed ? "px-0" : "px-3"
-              }`}
+              className={`w-full py-2.5 bg-[#FACC15] hover:bg-[#EAB308] text-[#080808] font-bold text-xs uppercase tracking-wider rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer ${isSidebarCollapsed ? "px-0" : "px-3"
+                }`}
               title="Quick POS Checkout"
             >
               <Receipt className="w-4 h-4 shrink-0" />
@@ -499,13 +497,11 @@ export function DemoShell({ initialTab = "frontdesk" }: DemoShellProps) {
                           <button
                             key={item.label}
                             onClick={() => handleSelectTab(item.id)}
-                            className={`w-full flex items-center ${
-                              isSidebarCollapsed ? "justify-center px-0 py-2.5" : "justify-between px-3 py-2"
-                            } rounded-xl text-xs transition-all text-left cursor-pointer group ${
-                              isActive
+                            className={`w-full flex items-center ${isSidebarCollapsed ? "justify-center px-0 py-2.5" : "justify-between px-3 py-2"
+                              } rounded-xl text-xs transition-all text-left cursor-pointer group ${isActive
                                 ? "bg-[#F59E0B]/10 text-[#F59E0B] border-l-2 border-[#F59E0B]"
                                 : "text-[#52525B] hover:text-[#A1A1AA] hover:bg-[#151515]"
-                            }`}
+                              }`}
                             title={`Locked: ${item.label}`}
                           >
                             <div className="flex items-center gap-2.5">
@@ -531,28 +527,24 @@ export function DemoShell({ initialTab = "frontdesk" }: DemoShellProps) {
                               handleSelectTab(item.id);
                             }
                           }}
-                          className={`w-full flex items-center ${
-                            isSidebarCollapsed ? "justify-center px-0 py-2.5" : "justify-between px-3 py-2"
-                          } rounded-xl text-xs font-medium transition-all text-left cursor-pointer ${
-                            isActive
+                          className={`w-full flex items-center ${isSidebarCollapsed ? "justify-center px-0 py-2.5" : "justify-between px-3 py-2"
+                            } rounded-xl text-xs font-medium transition-all text-left cursor-pointer ${isActive
                               ? "bg-[#151515] text-[#F8FAFC] border-l-2 border-[#FACC15] shadow-sm font-semibold"
                               : "text-[#A1A1AA] hover:text-[#F8FAFC] hover:bg-[#1C1C1C]"
-                          }`}
+                            }`}
                           title={item.label}
                         >
                           <div className="flex items-center gap-2.5">
                             <Icon
-                              className={`w-4 h-4 shrink-0 ${
-                                isActive ? "text-[#FACC15]" : "text-[#71717A]"
-                              }`}
+                              className={`w-4 h-4 shrink-0 ${isActive ? "text-[#FACC15]" : "text-[#71717A]"
+                                }`}
                             />
                             {!isSidebarCollapsed && <span>{item.label}</span>}
                           </div>
                           {!isSidebarCollapsed && item.badge && (
                             <span
-                              className={`text-[9px] font-mono px-1.5 py-0.5 rounded-full border ${
-                                item.badgeColor || "bg-[#181818] text-[#A1A1AA] border-[#27272A]"
-                              }`}
+                              className={`text-[9px] font-mono px-1.5 py-0.5 rounded-full border ${item.badgeColor || "bg-[#181818] text-[#A1A1AA] border-[#27272A]"
+                                }`}
                             >
                               {item.badge}
                             </span>
@@ -570,9 +562,8 @@ export function DemoShell({ initialTab = "frontdesk" }: DemoShellProps) {
           <div className="p-3 border-t border-[#27272A] bg-[#080808] space-y-2">
             {/* Authenticated User Card */}
             <div
-              className={`flex items-center ${
-                isSidebarCollapsed ? "justify-center p-1.5" : "justify-between p-2.5"
-              } bg-[#151515] border border-[#27272A] rounded-xl shadow-sm`}
+              className={`flex items-center ${isSidebarCollapsed ? "justify-center p-1.5" : "justify-between p-2.5"
+                } bg-[#151515] border border-[#27272A] rounded-xl shadow-sm`}
             >
               <div className="flex items-center gap-2 min-w-0">
                 <div className="w-7 h-7 rounded-lg bg-[#FACC15] text-[#080808] flex items-center justify-center text-xs font-black shrink-0">
@@ -675,11 +666,10 @@ export function DemoShell({ initialTab = "frontdesk" }: DemoShellProps) {
                                   handleSelectTab(item.id);
                                   setMobileMenuOpen(false);
                                 }}
-                                className={`w-full flex items-center justify-between p-2 rounded-xl text-xs transition-all ${
-                                  isActive
+                                className={`w-full flex items-center justify-between p-2 rounded-xl text-xs transition-all ${isActive
                                     ? "bg-[#F59E0B]/10 text-[#F59E0B] border-l-2 border-[#F59E0B]"
                                     : "text-[#52525B] hover:bg-[#151515]"
-                                }`}
+                                  }`}
                               >
                                 <div className="flex items-center gap-2.5">
                                   <Lock className="w-3.5 h-3.5 text-[#52525B]" />
@@ -703,11 +693,10 @@ export function DemoShell({ initialTab = "frontdesk" }: DemoShellProps) {
                                 }
                                 setMobileMenuOpen(false);
                               }}
-                              className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-semibold transition-all ${
-                                isActive
+                              className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-semibold transition-all ${isActive
                                   ? "bg-[#151515] text-[#F8FAFC] border-l-2 border-[#FACC15]"
                                   : "text-[#A1A1AA] hover:bg-[#1C1C1C] hover:text-[#F8FAFC]"
-                              }`}
+                                }`}
                             >
                               <div className="flex items-center gap-2.5">
                                 <Icon className={`w-4 h-4 ${isActive ? "text-[#FACC15]" : "text-[#71717A]"}`} />
@@ -877,17 +866,15 @@ export function DemoShell({ initialTab = "frontdesk" }: DemoShellProps) {
 
                 {/* Live Database Status Indicator */}
                 <div
-                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-mono ${
-                    isBackendConnected
+                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-mono ${isBackendConnected
                       ? "bg-[#10B981]/10 border-[#10B981]/20 text-[#10B981]"
                       : "bg-[#151515] border-[#27272A] text-[#71717A]"
-                  }`}
+                    }`}
                   title={isBackendConnected ? "Connected to live API backend" : "Connecting to backend..."}
                 >
                   <span
-                    className={`w-2 h-2 rounded-full ${
-                      isBackendConnected ? "bg-[#10B981] animate-pulse" : "bg-[#F59E0B]"
-                    }`}
+                    className={`w-2 h-2 rounded-full ${isBackendConnected ? "bg-[#10B981] animate-pulse" : "bg-[#F59E0B]"
+                      }`}
                   />
                   <span className="hidden sm:inline text-[11px]">
                     {isBackendConnected ? "Live Cloud" : "Connecting..."}
