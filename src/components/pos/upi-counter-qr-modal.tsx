@@ -54,7 +54,7 @@ export function UpiCounterQrModal({
   customerPhone,
   invoiceNumber,
   salonName,
-  upiId = "billcare.pos@icici",
+  upiId = "",
   isSplitPayment = false,
   totalBillAmount,
   cashCollected,

@@ -6,7 +6,6 @@ import { InvoiceItem, Invoice } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
 import { InvoiceModal } from "./invoice-modal";
 import { ClientFormulaModal } from "./client-formula-modal";
-import { UpiCounterQrModal } from "./pos/upi-counter-qr-modal";
 import {
   CreditCard,
   QrCode,
@@ -32,7 +31,12 @@ import {
   Crown,
   Zap,
   X,
+  Copy,
+  Check,
+  ExternalLink,
+  AlertCircle,
 } from "lucide-react";
+import QRCode from "qrcode";
 
 export function PosView() {
   const { salon, staff, services, inventory, customers, invoices, createInvoice } = useBillCare();
@@ -56,23 +60,24 @@ export function PosView() {
   const [discountCode, setDiscountCode] = useState<string>("");
   const [appliedDiscount, setAppliedDiscount] = useState<number>(0);
   const [discountMessage, setDiscountMessage] = useState<string>("");
-  const [paymentMethod, setPaymentMethod] = useState<"Cash" | "UPI" | "Card" | "Split">("UPI");
-  const [splitCashAmount, setSplitCashAmount] = useState<number>(1000);
-  const [splitCardAmount, setSplitCardAmount] = useState<number>(0);
-  const [splitMethod, setSplitMethod] = useState<"cash_upi" | "cash_card" | "upi_card" | "three_way">("cash_upi");
+  // Payment & Dynamic Checkout States
+  const isCashAvailable = salon.paymentSettings?.cashEnabled ?? (salon as any).cashEnabled ?? true;
+  const isUpiConfigured = Boolean(salon.upiId && salon.upiId.trim());
+  const isUpiAvailable = Boolean(isUpiConfigured && (salon.paymentSettings?.upiEnabled ?? (salon as any).upiEnabled ?? false));
+
+  const [paymentMethod, setPaymentMethod] = useState<"CASH" | "UPI">(isUpiAvailable ? "UPI" : "CASH");
   const [cashTendered, setCashTendered] = useState<number>(0);
+  const [upiQrDataUrl, setUpiQrDataUrl] = useState<string>("");
+  const [upiIntentUri, setUpiIntentUri] = useState<string>("");
+  const [copiedUpi, setCopiedUpi] = useState<boolean>(false);
+  const [upiConfirmedByStaff, setUpiConfirmedByStaff] = useState<boolean>(false);
+  const [manualUtr, setManualUtr] = useState<string>("");
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+
   const [tipPercentage, setTipPercentage] = useState<number | null>(null);
   const [tipAmount, setTipAmount] = useState<number>(0);
   const [redeemLoyalty, setRedeemLoyalty] = useState<boolean>(false);
   const [showFormulaModal, setShowFormulaModal] = useState<boolean>(false);
-  const [showUpiQrModal, setShowUpiQrModal] = useState<boolean>(false);
-
-  // Custom Item Modal
-  const [showCustomItemModal, setShowCustomItemModal] = useState<boolean>(false);
-  const [customItemName, setCustomItemName] = useState<string>("");
-  const [customItemPrice, setCustomItemPrice] = useState<number>(500);
-  const [customItemType, setCustomItemType] = useState<"service" | "product">("service");
-  const [customItemStaffId, setCustomItemStaffId] = useState<string>("");
 
   // Active view modal for completed invoice
   const [activeInvoice, setActiveInvoice] = useState<any>(null);
@@ -86,6 +91,48 @@ export function PosView() {
   const totalDiscount = appliedDiscount + loyaltyDiscount;
   const gstAmount = Math.round(subtotal * 0.05); // 5% GST (CGST 2.5% + SGST 2.5%)
   const grandTotal = Math.max(0, subtotal - totalDiscount + gstAmount + tipAmount);
+
+  // Sync selected method if one is disabled
+  React.useEffect(() => {
+    if (!isUpiAvailable && paymentMethod === "UPI") {
+      setPaymentMethod("CASH");
+    }
+  }, [isUpiAvailable, paymentMethod]);
+
+  // Set default cash tendered to grandTotal when cart changes
+  React.useEffect(() => {
+    if (grandTotal > 0 && (cashTendered === 0 || cashTendered < grandTotal)) {
+      setCashTendered(grandTotal);
+    }
+  }, [grandTotal]);
+
+  // Generate dynamic UPI intent & QR Code
+  React.useEffect(() => {
+    if (isUpiAvailable && salon.upiId && grandTotal > 0) {
+      const vpa = salon.upiId.trim();
+      const payeeName = salon.paymentSettings?.upiPayeeName || salon.name;
+      const invoiceRef = `BC-INV-${Date.now().toString().slice(-6)}`;
+      const intent = `upi://pay?pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(payeeName)}&am=${grandTotal.toFixed(2)}&cu=INR&tn=${encodeURIComponent(invoiceRef)}`;
+      setUpiIntentUri(intent);
+      QRCode.toDataURL(intent, {
+        width: 240,
+        margin: 1,
+        color: { dark: "#000000", light: "#FFFFFF" }
+      })
+        .then(setUpiQrDataUrl)
+        .catch(() => setUpiQrDataUrl(""));
+    } else {
+      setUpiIntentUri("");
+      setUpiQrDataUrl("");
+    }
+  }, [isUpiAvailable, salon.upiId, salon.paymentSettings?.upiPayeeName, salon.name, grandTotal]);
+
+  // Custom Item Modal
+  const [showCustomItemModal, setShowCustomItemModal] = useState<boolean>(false);
+  const [customItemName, setCustomItemName] = useState<string>("");
+  const [customItemPrice, setCustomItemPrice] = useState<number>(500);
+  const [customItemType, setCustomItemType] = useState<"service" | "product">("service");
+  const [customItemStaffId, setCustomItemStaffId] = useState<string>("");
 
   // Cart Operations
   const addToCart = (
@@ -185,34 +232,50 @@ export function PosView() {
     }
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = (asPending: boolean = false) => {
+    setCheckoutError(null);
     if (cart.length === 0) {
-      alert("Cart is empty! Please select at least one service or retail product.");
+      setCheckoutError("Cart is empty! Please select at least one service or retail product.");
       return;
     }
 
-    if (paymentMethod === "UPI") {
-      setShowUpiQrModal(true);
-      return;
-    }
-
-    if (paymentMethod === "Split") {
-      const upiDue =
-        splitMethod === "cash_card"
-          ? 0
-          : Math.max(0, grandTotal - (splitMethod === "upi_card" ? 0 : splitCashAmount) - (splitMethod === "cash_upi" ? 0 : splitCardAmount));
-      if (upiDue > 0) {
-        setShowUpiQrModal(true);
+    if (paymentMethod === "CASH") {
+      if (cashTendered < grandTotal) {
+        setCheckoutError(`Insufficient cash received. Final payable amount is ${formatCurrency(grandTotal)}, but only ${formatCurrency(cashTendered)} was entered. Change cannot be negative.`);
         return;
       }
-    }
+      finalizeCheckout("CASH", {
+        amountReceived: cashTendered,
+        changeGiven: Math.max(0, cashTendered - grandTotal),
+        status: "paid",
+      });
+    } else if (paymentMethod === "UPI") {
+      if (asPending) {
+        finalizeCheckout("UPI", {
+          status: "pending",
+          transactionReference: manualUtr.trim() || undefined,
+        });
+        return;
+      }
 
-    finalizeCheckout(paymentMethod);
+      if (!upiConfirmedByStaff) {
+        setCheckoutError("Payment verification required: Please check the counter UPI app/SMS notification to verify receipt of funds, then check the confirmation box below.");
+        return;
+      }
+
+      finalizeCheckout("UPI", {
+        status: "paid",
+        transactionReference: manualUtr.trim() || undefined,
+        explicitVerification: true,
+      });
+    }
   };
 
-  const finalizeCheckout = (method: string, txnRef?: string) => {
+  const finalizeCheckout = (method: "CASH" | "UPI", extraDetails: any = {}) => {
     if (isSubmitting) return;
     setIsSubmitting(true);
+    setCheckoutError(null);
+
     try {
       const customerName = isWalkIn ? customCustomerName || "Walk-in Guest" : selectedCustomer?.name || "Guest";
       const customerPhone = isWalkIn ? customCustomerPhone || "+91 90000 00000" : selectedCustomer?.phone || "+91 90000 00000";
@@ -223,7 +286,13 @@ export function PosView() {
         (selectedCustomer?.loyaltyPoints || 0) + pointsEarned - (redeemLoyalty ? loyaltyDiscount * 2 : 0)
       );
 
+      const status = extraDetails.status || "paid";
+      const amountReceived = extraDetails.amountReceived ?? (method === "CASH" ? cashTendered : grandTotal);
+      const changeGiven = extraDetails.changeGiven ?? (method === "CASH" ? Math.max(0, cashTendered - grandTotal) : 0);
+      const txnRef = extraDetails.transactionReference || (method === "CASH" ? `BC-CASH-${Date.now().toString().slice(-6)}` : `BC-UPI-${Date.now().toString().slice(-6)}`);
+
       const newInvoice = createInvoice({
+        customerId: isWalkIn ? "cst_walkin" : selectedCustomer?.id,
         customerName,
         customerPhone,
         items: cart,
@@ -232,25 +301,11 @@ export function PosView() {
         gstAmount,
         total: grandTotal,
         paymentMethod: method,
-        splitDetails:
-          method === "Split"
-            ? {
-                cash: splitMethod === "upi_card" ? 0 : splitCashAmount,
-                card: splitMethod === "cash_upi" ? 0 : splitCardAmount,
-                upi:
-                  splitMethod === "cash_card"
-                    ? 0
-                    : Math.max(0, grandTotal - (splitMethod === "upi_card" ? 0 : splitCashAmount) - (splitMethod === "cash_upi" ? 0 : splitCardAmount)),
-              }
-            : method === "Cash"
-            ? {
-                cash: grandTotal,
-                tendered: cashTendered > grandTotal ? cashTendered : grandTotal,
-                change: cashTendered > grandTotal ? cashTendered - grandTotal : 0,
-              }
-            : undefined,
-        notes: txnRef ? `UPI / Bank Ref: ${txnRef}` : undefined,
-        status: "Paid",
+        status: status,
+        amountReceived,
+        changeGiven,
+        paymentReference: txnRef,
+        notes: txnRef ? `${method} Ref: ${txnRef}` : undefined,
         loyaltyPointsEarned: pointsEarned,
         loyaltyPointsBalance: balancePoints,
       } as any);
@@ -264,9 +319,13 @@ export function PosView() {
       setDiscountCode("");
       setDiscountMessage("");
       setCashTendered(0);
+      setUpiConfirmedByStaff(false);
+      setManualUtr("");
 
       // Open Printable/Viewable Invoice Modal
       setActiveInvoice(newInvoice);
+    } catch (err: any) {
+      setCheckoutError(err.message || "Checkout failed. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -852,235 +911,354 @@ export function PosView() {
                 </div>
               </div>
 
-              {/* Payment Mode Selector */}
-              <div>
-                <label className="text-xs font-mono font-bold text-[#A1A1AA] uppercase tracking-wider block mb-2">
-                  Payment Method
-                </label>
-                <div className="grid grid-cols-4 gap-2">
-                  <button
-                    onClick={() => setPaymentMethod("UPI")}
-                    className={`py-2.5 px-1 rounded-xl text-xs font-bold flex flex-col items-center gap-1 border transition-all ${
-                      paymentMethod === "UPI"
-                        ? "bg-[#FACC15] text-[#080808] border-[#FACC15] shadow-md"
-                        : "bg-[#151515] text-[#A1A1AA] border-[#27272A] hover:bg-[#181818]"
-                    }`}
-                  >
-                    <QrCode className="w-4 h-4" /> UPI / QR
-                  </button>
-                  <button
-                    onClick={() => setPaymentMethod("Card")}
-                    className={`py-2.5 px-1 rounded-xl text-xs font-bold flex flex-col items-center gap-1 border transition-all ${
-                      paymentMethod === "Card"
-                        ? "bg-[#FACC15] text-[#080808] border-[#FACC15] shadow-md"
-                        : "bg-[#151515] text-[#A1A1AA] border-[#27272A] hover:bg-[#181818]"
-                    }`}
-                  >
-                    <CreditCard className="w-4 h-4" /> POS Card
-                  </button>
-                  <button
-                    onClick={() => setPaymentMethod("Cash")}
-                    className={`py-2.5 px-1 rounded-xl text-xs font-bold flex flex-col items-center gap-1 border transition-all ${
-                      paymentMethod === "Cash"
-                        ? "bg-[#FACC15] text-[#080808] border-[#FACC15] shadow-md"
-                        : "bg-[#151515] text-[#A1A1AA] border-[#27272A] hover:bg-[#181818]"
-                    }`}
-                  >
-                    <Banknote className="w-4 h-4" /> Cash
-                  </button>
-                  <button
-                    onClick={() => setPaymentMethod("Split")}
-                    className={`py-2.5 px-1 rounded-xl text-xs font-bold flex flex-col items-center gap-1 border transition-all ${
-                      paymentMethod === "Split"
-                        ? "bg-[#FACC15] text-[#080808] border-[#FACC15] shadow-md"
-                        : "bg-[#151515] text-[#A1A1AA] border-[#27272A] hover:bg-[#181818]"
-                    }`}
-                  >
-                    <Split className="w-4 h-4" /> Split Pay
-                  </button>
+              {/* Error Banner */}
+              {checkoutError && (
+                <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-xs text-red-400 flex items-start gap-2 animate-in fade-in">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span className="leading-relaxed">{checkoutError}</span>
                 </div>
+              )}
 
-                {/* Dynamic UPI Preview Banner */}
-                {paymentMethod === "UPI" && (
-                  <div className="mt-3 p-3.5 bg-[#151515] border border-[#27272A] rounded-xl flex items-center justify-between gap-3 animate-in fade-in">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
-                        <QrCode className="w-5 h-5" />
+              {/* STEP 2: Select a Payment Method (2 Selectable Cards) */}
+              <div className="space-y-2">
+                <label className="text-xs font-mono font-bold text-[#A1A1AA] uppercase tracking-wider block">
+                  Step 2: Select Payment Method
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  {/* CASH CARD */}
+                  <div
+                    onClick={() => {
+                      if (isCashAvailable) {
+                        setPaymentMethod("CASH");
+                        setCheckoutError(null);
+                      }
+                    }}
+                    className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between ${
+                      paymentMethod === "CASH"
+                        ? "bg-[#181818] border-[#FACC15] ring-1 ring-[#FACC15] shadow-lg shadow-[#FACC15]/5"
+                        : "bg-[#121212] border-[#27272A] hover:border-[#3F3F46] opacity-80"
+                    } ${!isCashAvailable ? "opacity-40 cursor-not-allowed" : ""}`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                        <Banknote className="w-5 h-5" />
                       </div>
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-bold text-[#F8FAFC]">Dynamic Amount QR</span>
-                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
-                            {formatCurrency(grandTotal)}
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-[#71717A] font-mono">
-                          Merchant: <span className="text-[#F8FAFC] font-bold">{salon.upiId || "billcare.pos@icici"}</span>
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setShowUpiQrModal(true)}
-                      disabled={cart.length === 0}
-                      className="px-3 py-2 bg-emerald-500 hover:bg-emerald-400 text-[#080808] font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shrink-0"
-                    >
-                      <QrCode className="w-3.5 h-3.5" />
-                      <span>Show QR Stand</span>
-                    </button>
-                  </div>
-                )}
-
-                {/* Cash Tendered & Change Return Calculator */}
-                {paymentMethod === "Cash" && (
-                  <div className="mt-3 p-3.5 bg-[#151515] border border-[#27272A] rounded-xl space-y-3 animate-in fade-in">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-[#F8FAFC] flex items-center gap-1.5">
-                        <Banknote className="w-4 h-4 text-emerald-400" /> Cash Tendered by Guest
-                      </span>
-                      {cashTendered > grandTotal && (
-                        <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                          Return Change: {formatCurrency(cashTendered - grandTotal)}
+                      {paymentMethod === "CASH" && (
+                        <span className="w-5 h-5 rounded-full bg-[#FACC15] text-[#080808] flex items-center justify-center">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
                         </span>
                       )}
                     </div>
-
-                    <div className="flex items-center gap-2">
-                      <div className="relative flex-1">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[#71717A]">₹</span>
-                        <input
-                          type="number"
-                          placeholder={String(grandTotal)}
-                          value={cashTendered || ""}
-                          onChange={(e) => setCashTendered(Number(e.target.value) || 0)}
-                          className="w-full pl-7 pr-3 py-2 text-xs bg-[#181818] border border-[#27272A] rounded-xl font-mono font-bold text-[#F8FAFC] focus:outline-none focus:border-[#FACC15]"
-                        />
+                    <div className="mt-2.5">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm font-bold text-[#F8FAFC]">Cash</span>
+                        <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400">
+                          Counter
+                        </span>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => setCashTendered(grandTotal)}
-                          className="px-2.5 py-2 text-[11px] font-mono font-bold bg-[#181818] hover:bg-[#27272A] text-[#FACC15] rounded-xl border border-[#27272A] transition-colors cursor-pointer"
-                        >
-                          Exact
-                        </button>
-                        {[500, 1000, 2000].map((note) => (
-                          <button
-                            key={note}
-                            type="button"
-                            onClick={() => setCashTendered(note)}
-                            className="px-2.5 py-2 text-[11px] font-mono font-bold bg-[#181818] hover:bg-[#27272A] text-[#A1A1AA] hover:text-[#F8FAFC] rounded-xl border border-[#27272A] transition-colors cursor-pointer"
-                          >
-                            ₹{note}
-                          </button>
-                        ))}
-                      </div>
+                      <p className="text-[11px] text-[#71717A] mt-0.5 leading-tight">
+                        Customer pays at the salon counter.
+                      </p>
                     </div>
                   </div>
+
+                  {/* UPI QR CARD */}
+                  <div
+                    onClick={() => {
+                      if (isUpiAvailable) {
+                        setPaymentMethod("UPI");
+                        setCheckoutError(null);
+                      }
+                    }}
+                    className={`p-3.5 rounded-2xl border transition-all flex flex-col justify-between ${
+                      paymentMethod === "UPI"
+                        ? "bg-[#181818] border-[#FACC15] ring-1 ring-[#FACC15] shadow-lg shadow-[#FACC15]/5"
+                        : "bg-[#121212] border-[#27272A] hover:border-[#3F3F46] opacity-80"
+                    } ${
+                      isUpiAvailable
+                        ? "cursor-pointer"
+                        : "opacity-40 cursor-not-allowed border-dashed"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="w-9 h-9 rounded-xl bg-[#FACC15]/10 border border-[#FACC15]/30 flex items-center justify-center text-[#FACC15]">
+                        <QrCode className="w-5 h-5" />
+                      </div>
+                      {paymentMethod === "UPI" ? (
+                        <span className="w-5 h-5 rounded-full bg-[#FACC15] text-[#080808] flex items-center justify-center">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        </span>
+                      ) : !isUpiAvailable ? (
+                        <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                          Unavailable
+                        </span>
+                      ) : null}
+                    </div>
+                    <div className="mt-2.5">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm font-bold text-[#F8FAFC]">UPI QR</span>
+                        <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-[#FACC15]/20 text-[#FACC15]">
+                          Direct
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-[#71717A] mt-0.5 leading-tight">
+                        Customer scans and pays using a UPI app.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {!isUpiAvailable && (
+                  <div className="p-2.5 bg-[#141414] border border-[#27272A] rounded-xl text-[11px] text-[#A1A1AA] flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span>
+                      UPI QR is currently disabled or unconfigured. Salon Manager can configure the salon UPI ID in{" "}
+                      <span className="text-[#FACC15] font-semibold">Settings → Salon Customer Payment Methods</span>.
+                    </span>
+                  </div>
                 )}
+              </div>
 
-                {/* Split Configuration */}
-                {paymentMethod === "Split" && (
-                  <div className="mt-3 p-4 bg-[#151515] rounded-xl border border-[#27272A] text-xs space-y-3 animate-in fade-in">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-[#F8FAFC] flex items-center gap-1.5">
-                        <Split className="w-3.5 h-3.5 text-[#FACC15]" />
-                        Split Payment Distribution
+              {/* STEP 3: Dynamically Render Selected Flow */}
+              {/* FLOW A: CASH COLLECTION */}
+              {paymentMethod === "CASH" && (
+                <div className="p-4 bg-[#141414] border border-[#27272A] rounded-2xl space-y-4 animate-in fade-in">
+                  <div className="flex items-center justify-between pb-2 border-b border-[#27272A]">
+                    <span className="text-xs font-mono font-bold text-[#A1A1AA] uppercase tracking-wider flex items-center gap-1.5">
+                      <Banknote className="w-4 h-4 text-emerald-400" /> Cash Collection Counter
+                    </span>
+                    <span className="text-xs font-mono font-bold text-[#FACC15]">
+                      Bill: {formatCurrency(grandTotal)}
+                    </span>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-[#F8FAFC] block">
+                      Amount Received from Guest (₹)
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-[#71717A]">₹</span>
+                      <input
+                        type="number"
+                        min="0"
+                        step="1"
+                        value={cashTendered || ""}
+                        onChange={(e) => setCashTendered(Number(e.target.value) || 0)}
+                        placeholder={String(grandTotal)}
+                        className="w-full pl-8 pr-4 py-2.5 bg-[#181818] border border-[#27272A] rounded-xl font-mono text-base font-bold text-[#F8FAFC] focus:outline-none focus:border-[#FACC15]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Quick Tender Buttons */}
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => setCashTendered(grandTotal)}
+                      className="px-3 py-1.5 text-xs font-mono font-bold bg-[#181818] hover:bg-[#27272A] text-[#FACC15] rounded-xl border border-[#27272A] transition-colors cursor-pointer"
+                    >
+                      Exact ({formatCurrency(grandTotal)})
+                    </button>
+                    {[500, 1000, 2000].map((note) => (
+                      <button
+                        key={note}
+                        type="button"
+                        onClick={() => setCashTendered(note)}
+                        className="px-2.5 py-1.5 text-xs font-mono font-bold bg-[#181818] hover:bg-[#27272A] text-[#A1A1AA] hover:text-[#F8FAFC] rounded-xl border border-[#27272A] transition-colors cursor-pointer"
+                      >
+                        ₹{note}
+                      </button>
+                    ))}
+                    {[100, 500].map((add) => (
+                      <button
+                        key={`add-${add}`}
+                        type="button"
+                        onClick={() => setCashTendered((prev) => prev + add)}
+                        className="px-2.5 py-1.5 text-xs font-mono font-bold bg-[#181818] hover:bg-[#27272A] text-[#A1A1AA] hover:text-[#F8FAFC] rounded-xl border border-[#27272A] transition-colors cursor-pointer"
+                      >
+                        +{add}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Real-time Change Calculator */}
+                  <div className="p-3 bg-[#181818] border border-[#27272A] rounded-xl flex items-center justify-between">
+                    <div>
+                      <span className="text-[11px] font-mono text-[#71717A] uppercase tracking-wider block">
+                        Change to Return
                       </span>
-                      <div className="flex items-center gap-1 bg-[#181818] p-0.5 rounded-lg border border-[#27272A]">
-                        <button
-                          type="button"
-                          onClick={() => setSplitMethod("cash_upi")}
-                          className={`px-2 py-1 text-[10px] font-bold rounded ${splitMethod === "cash_upi" ? "bg-[#FACC15] text-slate-950" : "text-[#A1A1AA]"}`}
-                        >
-                          Cash + UPI
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setSplitMethod("cash_card")}
-                          className={`px-2 py-1 text-[10px] font-bold rounded ${splitMethod === "cash_card" ? "bg-[#FACC15] text-slate-950" : "text-[#A1A1AA]"}`}
-                        >
-                          Cash + Card
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setSplitMethod("three_way")}
-                          className={`px-2 py-1 text-[10px] font-bold rounded ${splitMethod === "three_way" ? "bg-[#FACC15] text-slate-950" : "text-[#A1A1AA]"}`}
-                        >
-                          3-Way
-                        </button>
-                      </div>
+                      <span className={`text-base font-mono font-black ${cashTendered >= grandTotal ? "text-emerald-400" : "text-amber-400"}`}>
+                        {formatCurrency(Math.max(0, cashTendered - grandTotal))}
+                      </span>
                     </div>
+                    {cashTendered < grandTotal && (
+                      <span className="text-[11px] font-mono text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2.5 py-1 rounded-lg">
+                        Due: {formatCurrency(grandTotal - cashTendered)}
+                      </span>
+                    )}
+                    {cashTendered >= grandTotal && (
+                      <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 rounded-lg flex items-center gap-1">
+                        <Check className="w-3.5 h-3.5" /> Balanced
+                      </span>
+                    )}
+                  </div>
 
-                    <div className="grid grid-cols-2 gap-2.5">
-                      <div className="space-y-1">
-                        <label className="text-[11px] font-mono text-[#A1A1AA]">1. Cash Amount (₹)</label>
-                        <input
-                          type="number"
-                          value={splitCashAmount}
-                          onChange={(e) => setSplitCashAmount(Math.max(0, Math.min(grandTotal, Number(e.target.value))))}
-                          className="w-full px-3 py-2 text-xs bg-[#181818] border border-[#27272A] rounded-xl font-bold text-[#F8FAFC] focus:outline-none focus:border-[#FACC15] font-mono"
-                        />
-                      </div>
-                      {splitMethod === "cash_card" ? (
-                        <div className="space-y-1">
-                          <label className="text-[11px] font-mono text-[#A1A1AA]">2. POS Card Swipe (₹)</label>
-                          <div className="px-3 py-2 bg-[#181818] border border-[#27272A] rounded-xl font-bold text-[#FACC15] font-mono text-xs flex items-center justify-between">
-                            <span>{formatCurrency(Math.max(0, grandTotal - splitCashAmount))}</span>
-                            <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-[#27272A] text-[#71717A]">Card</span>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-1">
-                          <label className="text-[11px] font-mono text-[#A1A1AA]">2. Remaining UPI Due (₹)</label>
-                          <div className="px-3 py-2 bg-[#181818] border border-[#27272A] rounded-xl font-bold text-[#FACC15] font-mono text-xs flex items-center justify-between">
-                            <span>{formatCurrency(Math.max(0, grandTotal - splitCashAmount - (splitMethod === "three_way" ? splitCardAmount : 0)))}</span>
-                            <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-[#27272A] text-[#71717A]">UPI</span>
-                          </div>
-                        </div>
-                      )}
+                  {/* Confirm Cash Payment Action */}
+                  <button
+                    type="button"
+                    onClick={() => handleCheckout(false)}
+                    disabled={cart.length === 0 || cashTendered < grandTotal || isSubmitting}
+                    className="w-full py-3.5 px-4 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed text-[#080808] font-extrabold text-sm rounded-xl shadow-lg shadow-emerald-500/10 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  >
+                    <CheckCircle2 className="w-5 h-5" />
+                    <span>
+                      {isSubmitting
+                        ? "Recording Cash Payment..."
+                        : `Confirm Cash Payment (${formatCurrency(grandTotal)})`}
+                    </span>
+                  </button>
+                </div>
+              )}
+
+              {/* FLOW B: DYNAMIC UPI QR SCAN & MANUAL COUNTER CONFIRMATION */}
+              {paymentMethod === "UPI" && (
+                <div className="p-4 bg-[#141414] border border-[#27272A] rounded-2xl space-y-4 animate-in fade-in">
+                  <div className="flex items-center justify-between pb-2 border-b border-[#27272A]">
+                    <div>
+                      <span className="text-xs font-mono font-bold text-[#A1A1AA] uppercase tracking-wider flex items-center gap-1.5">
+                        <QrCode className="w-4 h-4 text-[#FACC15]" /> Direct Salon UPI QR
+                      </span>
+                      <p className="text-[11px] text-[#71717A] mt-0.5">
+                        Payee: <span className="text-[#F8FAFC] font-semibold">{salon.paymentSettings?.upiPayeeName || salon.name}</span>
+                      </p>
                     </div>
+                    <span className="text-xs font-mono font-bold text-[#FACC15]">
+                      Exact: {formatCurrency(grandTotal)}
+                    </span>
+                  </div>
 
-                    {splitMethod === "three_way" && (
-                      <div className="space-y-1">
-                        <label className="text-[11px] font-mono text-[#A1A1AA]">3. Card Swipe Portion (₹)</label>
-                        <input
-                          type="number"
-                          value={splitCardAmount}
-                          onChange={(e) => setSplitCardAmount(Math.max(0, Math.min(grandTotal - splitCashAmount, Number(e.target.value))))}
-                          className="w-full px-3 py-2 text-xs bg-[#181818] border border-[#27272A] rounded-xl font-bold text-[#F8FAFC] focus:outline-none focus:border-[#FACC15] font-mono"
-                        />
+                  {/* Centered QR Display */}
+                  <div className="flex flex-col items-center justify-center py-2 space-y-3">
+                    {upiQrDataUrl ? (
+                      <div className="p-3 bg-white rounded-2xl shadow-xl flex items-center justify-center">
+                        <img src={upiQrDataUrl} alt="Salon UPI QR Code" className="w-48 h-48 block" />
+                      </div>
+                    ) : (
+                      <div className="w-48 h-48 bg-[#181818] border border-[#27272A] rounded-2xl flex flex-col items-center justify-center text-[#71717A] p-4 text-center">
+                        <QrCode className="w-10 h-10 mb-2 opacity-50" />
+                        <span className="text-xs font-mono">Generating dynamic UPI QR...</span>
                       </div>
                     )}
 
-                    {splitMethod !== "cash_card" && Math.max(0, grandTotal - splitCashAmount - (splitMethod === "three_way" ? splitCardAmount : 0)) > 0 && (
+                    {/* VPA and Copy / Open buttons */}
+                    <div className="flex items-center gap-2">
+                      <div className="px-3 py-1.5 bg-[#181818] border border-[#27272A] rounded-xl text-xs font-mono font-bold text-[#FACC15]">
+                        {salon.upiId}
+                      </div>
                       <button
                         type="button"
-                        onClick={() => setShowUpiQrModal(true)}
-                        className="w-full py-2.5 px-3 bg-emerald-500 hover:bg-emerald-400 text-[#080808] font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                        onClick={() => {
+                          if (salon.upiId) {
+                            navigator.clipboard.writeText(salon.upiId);
+                            setCopiedUpi(true);
+                            setTimeout(() => setCopiedUpi(false), 2000);
+                          }
+                        }}
+                        className="px-3 py-1.5 bg-[#181818] hover:bg-[#27272A] border border-[#27272A] rounded-xl text-xs text-[#A1A1AA] hover:text-[#F8FAFC] flex items-center gap-1.5 transition-colors cursor-pointer"
                       >
-                        <QrCode className="w-3.5 h-3.5" />
-                        <span>Generate Dynamic QR for Remaining UPI ({formatCurrency(Math.max(0, grandTotal - splitCashAmount - (splitMethod === "three_way" ? splitCardAmount : 0)))})</span>
+                        {copiedUpi ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-emerald-400" />
+                            <span className="text-emerald-400">Copied</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3.5 h-3.5" />
+                            <span>Copy UPI ID</span>
+                          </>
+                        )}
                       </button>
-                    )}
+                      {upiIntentUri && (
+                        <a
+                          href={upiIntentUri}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="px-3 py-1.5 bg-[#181818] hover:bg-[#27272A] border border-[#27272A] rounded-xl text-xs text-[#A1A1AA] hover:text-[#F8FAFC] flex items-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          <span>Open App</span>
+                        </a>
+                      )}
+                    </div>
                   </div>
-                )}
-              </div>
 
-              {/* Complete Checkout Button */}
-              <div className="pt-2">
-                <button
-                  onClick={handleCheckout}
-                  disabled={cart.length === 0 || isSubmitting}
-                  className="w-full py-3.5 px-4 bg-[#FACC15] hover:bg-[#EAB308] disabled:opacity-50 text-[#080808] font-extrabold text-sm rounded-xl shadow-lg shadow-[#FACC15]/10 flex items-center justify-center gap-2 transition-all cursor-pointer"
-                >
-                  <CheckCircle2 className="w-5 h-5" />
-                  {isSubmitting ? "Generating Tax Invoice..." : `Generate Tax Bill & Collect ${formatCurrency(grandTotal)}`}
-                </button>
-                <p className="text-[11px] text-center text-[#71717A] mt-2 font-mono">
-                  Instant stock deduction • Stylist commission credited • WhatsApp receipt dispatched
-                </p>
-              </div>
+                  {/* Verification Warning Rule Banner */}
+                  <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs text-amber-300 space-y-1">
+                    <div className="flex items-center gap-1.5 font-bold">
+                      <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                      <span>Counter Payment Verification Rule</span>
+                    </div>
+                    <p className="text-[11px] text-amber-200/80 leading-relaxed">
+                      Generating or scanning this QR code does NOT confirm payment. Receptionist must verify that funds were credited in the salon&apos;s receiving UPI or bank app before confirming.
+                    </p>
+                  </div>
+
+                  {/* Optional Bank Reference / UTR */}
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-mono text-[#A1A1AA] block">
+                      Customer Bank Reference / UTR (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={manualUtr}
+                      onChange={(e) => setManualUtr(e.target.value)}
+                      placeholder="e.g. 423981102948 or UPI Ref"
+                      className="w-full px-3 py-2 bg-[#181818] border border-[#27272A] rounded-xl text-xs font-mono text-[#F8FAFC] focus:outline-none focus:border-[#FACC15]"
+                    />
+                  </div>
+
+                  {/* Explicit Receptionist Confirmation Checkbox */}
+                  <label className="p-3 bg-[#181818] border border-[#27272A] rounded-xl flex items-start gap-3 cursor-pointer hover:border-[#3F3F46] transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={upiConfirmedByStaff}
+                      onChange={(e) => setUpiConfirmedByStaff(e.target.checked)}
+                      className="mt-0.5 w-4 h-4 accent-[#FACC15] rounded cursor-pointer shrink-0"
+                    />
+                    <div className="text-xs">
+                      <span className="font-bold text-[#F8FAFC] block">
+                        I confirm that payment of {formatCurrency(grandTotal)} was received in the salon&apos;s UPI account.
+                      </span>
+                      <span className="text-[10px] text-[#71717A]">
+                        Recorded as manually verified with staff timestamp for financial audit.
+                      </span>
+                    </div>
+                  </label>
+
+                  {/* UPI Action Buttons */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => handleCheckout(false)}
+                      disabled={cart.length === 0 || !upiConfirmedByStaff || isSubmitting}
+                      className="w-full py-3 px-4 bg-[#FACC15] hover:bg-[#EAB308] disabled:opacity-40 disabled:cursor-not-allowed text-[#080808] font-extrabold text-xs rounded-xl shadow-lg shadow-[#FACC15]/10 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>{isSubmitting ? "Confirming..." : "Confirm UPI Payment"}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleCheckout(true)}
+                      disabled={cart.length === 0 || isSubmitting}
+                      className="w-full py-3 px-4 bg-[#181818] hover:bg-[#27272A] border border-[#27272A] text-[#A1A1AA] hover:text-[#F8FAFC] font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <Clock className="w-4 h-4" />
+                      <span>Save as Pending Bill</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -1148,41 +1326,15 @@ export function PosView() {
 
       {/* Invoice Modal Preview */}
       {activeInvoice && (
-        <InvoiceModal invoice={activeInvoice} salon={salon} onClose={() => setActiveInvoice(null)} />
-      )}
-
-      {/* 360 Client Technical Formula Modal */}
-      {showFormulaModal && selectedCustomer && (
-        <ClientFormulaModal
-          customer={selectedCustomer}
-          invoices={invoices}
-          onClose={() => setShowFormulaModal(false)}
+        <InvoiceModal
+          invoice={activeInvoice}
+          salon={salon}
+          onClose={() => setActiveInvoice(null)}
+          onPaymentConfirmed={(updated) => {
+            setActiveInvoice(updated);
+          }}
         />
       )}
-
-      {/* Dynamic Countertop UPI QR Modal */}
-      <UpiCounterQrModal
-        isOpen={showUpiQrModal}
-        onClose={() => setShowUpiQrModal(false)}
-        amount={paymentMethod === "Split" ? Math.max(0, grandTotal - splitCashAmount) : grandTotal}
-        isSplitPayment={paymentMethod === "Split"}
-        totalBillAmount={grandTotal}
-        cashCollected={paymentMethod === "Split" ? splitCashAmount : undefined}
-        customerName={isWalkIn ? customCustomerName || "Walk-in Guest" : selectedCustomer?.name || "Guest"}
-        customerPhone={isWalkIn ? customCustomerPhone : selectedCustomer?.phone}
-        invoiceNumber={`BC-POS-${Date.now().toString().slice(-6)}`}
-        salonName={salon.name}
-        upiId={salon.upiId || "billcare.pos@icici"}
-        bankDetails={{
-          accountName: salon.bankAccountName || salon.name,
-          accountNumber: salon.bankAccountNumber || "50200088991122",
-          ifsc: salon.bankIfsc || "HDFC0001043",
-          bankName: salon.bankName || "HDFC Bank (Indiranagar)",
-        }}
-        onPaymentSuccess={(details) => {
-          finalizeCheckout(paymentMethod, details.transactionRef);
-        }}
-      />
 
       {/* Quick Custom Charge Modal */}
       {showCustomItemModal && (

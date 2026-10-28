@@ -23,6 +23,10 @@ import {
   Send,
   X,
   Filter,
+  Download,
+  History,
+  Gift,
+  ChevronDown,
 } from "lucide-react";
 
 interface CustomersViewProps {
@@ -38,6 +42,7 @@ export function CustomersView({ onGoToPos, onGoToBooking }: CustomersViewProps) 
   const [selectedCustomerForModal, setSelectedCustomerForModal] =
     useState<any>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [expandedHistoryCustomerId, setExpandedHistoryCustomerId] = useState<string | null>(null);
 
   // New customer form state
   const [newName, setNewName] = useState("");
@@ -57,7 +62,8 @@ export function CustomersView({ onGoToPos, onGoToBooking }: CustomersViewProps) 
     const matchesTier =
       tierFilter === "All" ||
       (tierFilter === "VIP" && c.vipTier?.includes("VIP")) ||
-      (tierFilter === "At-Risk" && c.tags.includes("At-Risk Inactive")) ||
+      (tierFilter === "At-Risk" && (c.tags.includes("At-Risk Inactive") || c.vipTier === "At-Risk")) ||
+      (tierFilter === "Birthdays" && (c.birthday || c.tags.some((t) => t.toLowerCase().includes("birthday")))) ||
       c.vipTier === tierFilter;
 
     return matchesSearch && matchesTier;
@@ -68,6 +74,29 @@ export function CustomersView({ onGoToPos, onGoToBooking }: CustomersViewProps) 
   const avgVisits = Math.round(
     customers.reduce((acc, c) => acc + c.visitsCount, 0) / (customers.length || 1)
   );
+
+  const handleExportCSV = () => {
+    const headers = ["Name", "Phone", "Email", "Tier", "Total Visits", "Total Spend (INR)", "Last Service", "Tags"];
+    const rows = customers.map((c) => [
+      `"${c.name}"`,
+      `"${c.phone}"`,
+      `"${c.email}"`,
+      `"${c.vipTier || "Regular"}"`,
+      c.visitsCount,
+      c.totalSpent,
+      `"${c.lastService || ""}"`,
+      `"${c.tags.join("; ")}"`,
+    ]);
+    const csvContent =
+      "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `billcare_clients_${new Date().toISOString().split("T")[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,6 +132,14 @@ export function CustomersView({ onGoToPos, onGoToBooking }: CustomersViewProps) 
     window.open(`https://wa.me/${cleanPhone}?text=${text}`, "_blank");
   };
 
+  const handleRecallWhatsAppClick = (c: any) => {
+    const text = encodeURIComponent(
+      `Hi ${c.name}! ✨ We miss seeing you at BillCare! It's been a little while since your last visit. We've reserved an exclusive 15% VIP welcome-back privilege for you this month. Would you like us to save a chair for your next styling session?`
+    );
+    const cleanPhone = c.phone.replace(/[^0-9]/g, "");
+    window.open(`https://wa.me/${cleanPhone}?text=${text}`, "_blank");
+  };
+
   return (
     <div className="space-y-6">
       {/* Top Banner & Metrics */}
@@ -126,7 +163,15 @@ export function CustomersView({ onGoToPos, onGoToBooking }: CustomersViewProps) 
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={handleExportCSV}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-[#171717] hover:bg-[#202020] text-[#F8FAFC] border border-[#27272A] hover:border-[#FACC15]/40 font-medium text-xs rounded-xl transition-all cursor-pointer shadow-sm"
+            title="Download client directory as CSV spreadsheet"
+          >
+            <Download className="w-4 h-4 text-[#FACC15]" />
+            <span className="hidden sm:inline">Export CSV</span>
+          </button>
           <button
             onClick={() => setShowAddModal(true)}
             className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#FACC15] hover:bg-[#EAB308] text-[#080808] font-bold text-xs rounded-xl shadow-lg shadow-[#FACC15]/10 transition-all cursor-pointer"
@@ -186,17 +231,18 @@ export function CustomersView({ onGoToPos, onGoToBooking }: CustomersViewProps) 
         </div>
 
         <div className="flex items-center gap-1.5 overflow-x-auto text-xs pb-1">
-          {["All", "VIP", "Gold VIP", "Silver Regular", "At-Risk"].map((tier) => (
+          {["All", "VIP", "Gold VIP", "Silver Regular", "At-Risk", "Birthdays"].map((tier) => (
             <button
               key={tier}
               onClick={() => setTierFilter(tier)}
-              className={`px-3 py-1.5 rounded-lg font-bold whitespace-nowrap transition-all border ${
+              className={`px-3 py-1.5 rounded-lg font-bold whitespace-nowrap transition-all border flex items-center gap-1 ${
                 tierFilter === tier
                   ? "bg-[#FACC15] text-[#080808] border-[#FACC15] shadow-sm"
                   : "bg-[#151515] text-[#A1A1AA] border-[#27272A] hover:text-[#F8FAFC]"
               }`}
             >
-              {tier}
+              {tier === "Birthdays" && <Gift className="w-3.5 h-3.5" />}
+              <span>{tier}</span>
             </button>
           ))}
         </div>
@@ -304,6 +350,78 @@ export function CustomersView({ onGoToPos, onGoToBooking }: CustomersViewProps) 
                     <p className="text-[#A1A1AA] line-clamp-1 mt-0.5 font-mono">{cust.formulaNotes}</p>
                   </div>
                 )}
+
+                {/* At-Risk Direct Recall WhatsApp Button */}
+                {(cust.tags.includes("At-Risk Inactive") || cust.vipTier === "At-Risk") && (
+                  <button
+                    onClick={() => handleRecallWhatsAppClick(cust)}
+                    className="w-full mt-3 py-2 px-3 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <Send className="w-3.5 h-3.5 text-rose-400" />
+                    <span>Send Recall WhatsApp (15% Off VIP)</span>
+                  </button>
+                )}
+
+                {/* Expandable Visit History Timeline */}
+                <div className="mt-3 pt-2.5 border-t border-[#27272A]/80">
+                  <button
+                    onClick={() =>
+                      setExpandedHistoryCustomerId(
+                        expandedHistoryCustomerId === cust.id ? null : cust.id
+                      )
+                    }
+                    className="w-full py-1.5 px-2 rounded-lg bg-[#111111] hover:bg-[#181818] border border-[#27272A] text-[11px] text-[#A1A1AA] hover:text-[#F8FAFC] flex items-center justify-between transition-colors cursor-pointer font-mono"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <History className="w-3.5 h-3.5 text-[#FACC15]" />
+                      <span>Visit History Timeline ({cust.visitsCount})</span>
+                    </span>
+                    <ChevronDown
+                      className={`w-3.5 h-3.5 text-[#71717A] transition-transform ${
+                        expandedHistoryCustomerId === cust.id ? "rotate-180 text-[#FACC15]" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {expandedHistoryCustomerId === cust.id && (
+                    <div className="mt-2.5 p-3 rounded-lg bg-[#101010] border border-[#27272A] space-y-2.5 text-xs animate-in fade-in duration-150">
+                      <div className="flex items-center justify-between text-[10px] font-mono uppercase text-[#71717A] border-b border-[#27272A] pb-1">
+                        <span>Past Service Record</span>
+                        <span>Amount</span>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <div className="font-medium text-[#F8FAFC] text-[11px]">
+                              {cust.lastService || "Consultation & Bespoke Styling"}
+                            </div>
+                            <div className="text-[10px] text-[#71717A] font-mono">
+                              {cust.lastVisitDate || "14 Oct 2026"} · Stylist: {cust.preferredStaff || "Priya Sharma"}
+                            </div>
+                          </div>
+                          <span className="font-mono text-[#FACC15] text-[11px] font-semibold">
+                            {formatCurrency(Math.round(cust.totalSpent / Math.max(1, cust.visitsCount)))}
+                          </span>
+                        </div>
+                        {cust.visitsCount > 1 && (
+                          <div className="flex items-start justify-between gap-2 pt-1.5 border-t border-white/[0.04]">
+                            <div>
+                              <div className="font-medium text-[#A1A1AA] text-[11px]">
+                                Organic Botanical Hair Spa & Blowout
+                              </div>
+                              <div className="text-[10px] text-[#71717A] font-mono">
+                                12 Sep 2026 · Stylist: Rahul Verma
+                              </div>
+                            </div>
+                            <span className="font-mono text-[#A1A1AA] text-[11px]">
+                              ₹2,200
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Actions Bar */}
