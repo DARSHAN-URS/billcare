@@ -7,53 +7,136 @@ import { useBillCare } from "@/lib/billcare-context";
 import { AuthSplitLayout } from "@/components/auth/auth-split-layout";
 import { AuthInput } from "@/components/auth/auth-input";
 import { AuthButton } from "@/components/auth/auth-button";
-import { Mail, Lock, AlertCircle } from "lucide-react";
+import { Mail, Lock, Phone, KeyRound, AlertCircle, Sparkles, CheckCircle2 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useBillCare();
+  const { login, setSession, showToast } = useBillCare();
 
+  const [authMode, setAuthMode] = useState<"otp" | "password">("otp");
+
+  // Phone OTP States (Manager Flow)
+  const [phone, setPhone] = useState("+91 98450 33445");
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [devOtpHint, setDevOtpHint] = useState<string | null>(null);
+  const [otpCooldown, setOtpCooldown] = useState(0);
+
+  // Email & Password States (Receptionist Flow)
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
+
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
+  const [errors, setErrors] = useState<{
+    phone?: string;
+    otp?: string;
+    email?: string;
+    password?: string;
+    general?: string;
+  }>({});
 
-  const validate = () => {
-    const newErrors: { email?: string; password?: string } = {};
-    if (!email.trim()) {
-      newErrors.email = "Please enter your work email";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      newErrors.email = "Please enter a valid email address";
-    }
-
-    if (!password) {
-      newErrors.password = "Please enter your password";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  // 1. Request OTP Flow (Manager)
+  const handleRequestOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
-
-    if (!validate()) return;
+    if (!phone || phone.trim().length < 10) {
+      setErrors({ phone: "Please enter a valid 10-digit registered phone number" });
+      return;
+    }
 
     setIsLoading(true);
+    try {
+      const res = await fetch("http://localhost:8000/api/v1/auth/otp/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setOtpSent(true);
+        if (data.dev_otp) {
+          setDevOtpHint(data.dev_otp);
+        }
+        showToast(data.message || "OTP code sent to your phone", "info");
+        // Start 30s resend cooldown
+        setOtpCooldown(30);
+        const timer = setInterval(() => {
+          setOtpCooldown((prev) => {
+            if (prev <= 1) {
+              clearInterval(timer);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      } else {
+        setErrors({ general: data.detail || "Unable to send OTP code. Please try again." });
+      }
+    } catch {
+      setErrors({ general: "Backend connection error. Please verify the API server is running." });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  // 2. Verify OTP Flow (Manager)
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors({});
+    if (!otp || otp.trim().length < 6) {
+      setErrors({ otp: "Please enter the 6-digit OTP code" });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const res = await fetch("http://localhost:8000/api/v1/auth/otp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone, otp }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        if (data.user && data.salon) {
+          setSession(data.user, data.salon, data.token);
+        }
+        showToast(`Welcome back, ${data.user?.name || "Manager"}!`, "success");
+        router.push("/overview");
+      } else {
+        setErrors({ general: data.detail || "Invalid or expired OTP code." });
+      }
+    } catch {
+      setErrors({ general: "Authentication failed. Please try again." });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 3. Email & Password Flow (Receptionist)
+  const handlePasswordLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors({});
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setErrors({ email: "Please enter a valid work email address" });
+      return;
+    }
+    if (!password) {
+      setErrors({ password: "Password is required" });
+      return;
+    }
+
+    setIsLoading(true);
     try {
       const res = await login(email.trim(), password);
       if (res.success) {
         if (rememberMe) {
           localStorage.setItem("billcare_remember_email", email.trim());
-        } else {
-          localStorage.removeItem("billcare_remember_email");
         }
-        router.push("/dashboard");
+        showToast("Signed in successfully!", "success");
+        router.push("/front-desk");
       } else {
-        setErrors({ general: res.error || "Invalid email or password. Please try again." });
+        setErrors({ general: res.error || "Invalid email or password." });
       }
     } catch (err: any) {
       setErrors({ general: err.message || "An unexpected error occurred during sign in." });
@@ -64,100 +147,248 @@ export default function LoginPage() {
 
   return (
     <AuthSplitLayout
-      headline="Welcome back."
-      supportingText="Sign in to manage your salon."
+      headline="Salon Operating System."
+      supportingText="Sign in to your BillCare workspace."
       imageSrc="/images/spa-wellness.jpg"
-      imageAlt="Modern salon interior"
+      imageAlt="Luxury salon front desk"
     >
       <div className="bg-[#101010] border border-[#27272A] rounded-2xl p-7 sm:p-9 shadow-sm">
+        {/* Header */}
         <div className="mb-6">
-          <h2 className="text-2xl font-semibold tracking-tight text-[#F8FAFC]">
-            Sign in to Bill Care
-          </h2>
-          <p className="text-sm text-[#A1A1AA] mt-1.5">
-            Enter your credentials to access your workspace.
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-serif font-bold tracking-tight text-[#F8FAFC]">
+              Sign in to BillCare
+            </h2>
+            <span className="text-[10px] font-mono uppercase px-2.5 py-1 rounded-full bg-[#FACC15]/10 text-[#FACC15] border border-[#FACC15]/20 font-semibold">
+              v1.0 Ready
+            </span>
+          </div>
+          <p className="text-xs text-[#A1A1AA] mt-1.5">
+            Two distinct business login flows for Manager and Receptionist.
           </p>
+        </div>
+
+        {/* Tab Switcher */}
+        <div className="grid grid-cols-2 p-1 bg-[#18181B] border border-[#27272A] rounded-xl mb-6">
+          <button
+            type="button"
+            onClick={() => {
+              setAuthMode("otp");
+              setErrors({});
+            }}
+            className={`py-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+              authMode === "otp"
+                ? "bg-[#FACC15] text-[#080808] shadow-sm font-bold"
+                : "text-[#A1A1AA] hover:text-white"
+            }`}
+          >
+            <Phone className="w-3.5 h-3.5" />
+            <span>Manager OTP</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setAuthMode("password");
+              setErrors({});
+            }}
+            className={`py-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+              authMode === "password"
+                ? "bg-[#FACC15] text-[#080808] shadow-sm font-bold"
+                : "text-[#A1A1AA] hover:text-white"
+            }`}
+          >
+            <Mail className="w-3.5 h-3.5" />
+            <span>Receptionist Login</span>
+          </button>
         </div>
 
         {errors.general && (
           <div
             role="alert"
-            className="mb-5 p-3 rounded-lg bg-[#F87171]/10 border border-[#F87171]/30 text-xs text-[#F87171] flex items-start gap-2.5"
+            className="mb-5 p-3 rounded-xl bg-[#F87171]/10 border border-[#F87171]/30 text-xs text-[#F87171] flex items-start gap-2.5"
           >
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span className="leading-relaxed">{errors.general}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} noValidate className="space-y-4">
-          <AuthInput
-            label="Work email"
-            id="work-email"
-            type="email"
-            autoComplete="email"
-            placeholder="you@yoursalon.com"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
-            }}
-            error={errors.email}
-            icon={<Mail className="w-4 h-4" />}
-            required
-            autoFocus
-          />
+        {/* MODE 1: MANAGER PHONE OTP */}
+        {authMode === "otp" ? (
+          !otpSent ? (
+            <form onSubmit={handleRequestOtp} className="space-y-4">
+              <div className="space-y-1.5">
+                <AuthInput
+                  label="Registered Phone Number"
+                  id="manager-phone"
+                  type="tel"
+                  placeholder="+91 98450 33445"
+                  value={phone}
+                  onChange={(e) => {
+                    setPhone(e.target.value);
+                    if (errors.phone) setErrors((prev) => ({ ...prev, phone: undefined }));
+                  }}
+                  error={errors.phone}
+                  icon={<Phone className="w-4 h-4" />}
+                  required
+                  autoFocus
+                />
+                <span className="text-[11px] text-[#71717A] block">
+                  A 6-digit one-time passcode will be sent to this manager number.
+                </span>
+              </div>
 
-          <div>
+              <div className="pt-2">
+                <AuthButton isLoading={isLoading}>
+                  Send Verification Code
+                </AuthButton>
+              </div>
+            </form>
+          ) : (
+            <form onSubmit={handleVerifyOtp} className="space-y-4 animate-in fade-in duration-150">
+              <div className="bg-[#18181B] border border-[#27272A] rounded-xl p-3 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span className="text-[#A1A1AA]">
+                    Code sent to <span className="text-white font-medium">{phone}</span>
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOtpSent(false);
+                    setDevOtpHint(null);
+                  }}
+                  className="text-[11px] font-mono text-[#FACC15] hover:underline"
+                >
+                  Change
+                </button>
+              </div>
+
+              {devOtpHint && (
+                <div className="p-3 bg-[#FACC15]/10 border border-[#FACC15]/30 rounded-xl text-xs text-[#FACC15] flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 shrink-0" />
+                    <span>Dev Environment Code: <strong>{devOtpHint}</strong></span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setOtp(devOtpHint)}
+                    className="text-[10px] font-mono uppercase bg-[#FACC15] text-[#080808] px-2 py-0.5 rounded font-bold"
+                  >
+                    Auto-Fill
+                  </button>
+                </div>
+              )}
+
+              <div className="space-y-1.5">
+                <AuthInput
+                  label="Enter 6-Digit OTP"
+                  id="manager-otp"
+                  type="text"
+                  maxLength={6}
+                  placeholder="123456"
+                  value={otp}
+                  onChange={(e) => {
+                    setOtp(e.target.value.replace(/\D/g, ""));
+                    if (errors.otp) setErrors((prev) => ({ ...prev, otp: undefined }));
+                  }}
+                  error={errors.otp}
+                  icon={<KeyRound className="w-4 h-4" />}
+                  required
+                  autoFocus
+                />
+              </div>
+
+              <div className="flex items-center justify-between text-xs text-[#71717A]">
+                <span>Didn't receive code?</span>
+                <button
+                  type="button"
+                  disabled={otpCooldown > 0 || isLoading}
+                  onClick={handleRequestOtp}
+                  className="text-[#FACC15] hover:underline font-medium disabled:opacity-50"
+                >
+                  {otpCooldown > 0 ? `Resend in ${otpCooldown}s` : "Resend OTP"}
+                </button>
+              </div>
+
+              <div className="pt-2">
+                <AuthButton isLoading={isLoading}>
+                  Verify & Sign In to Manager Console
+                </AuthButton>
+              </div>
+            </form>
+          )
+        ) : (
+          /* MODE 2: RECEPTIONIST EMAIL + PASSWORD */
+          <form onSubmit={handlePasswordLogin} className="space-y-4 animate-in fade-in duration-150">
             <AuthInput
-              label="Password"
-              id="password"
-              isPassword
-              autoComplete="current-password"
-              placeholder="••••••••"
-              value={password}
+              label="Receptionist Email"
+              id="receptionist-email"
+              type="email"
+              placeholder="reception@billcare.io"
+              value={email}
               onChange={(e) => {
-                setPassword(e.target.value);
-                if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }));
+                setEmail(e.target.value);
+                if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
               }}
-              error={errors.password}
-              icon={<Lock className="w-4 h-4" />}
+              error={errors.email}
+              icon={<Mail className="w-4 h-4" />}
               required
+              autoFocus
             />
 
-            <div className="flex items-center justify-between mt-3 text-xs">
-              <label className="flex items-center gap-2 cursor-pointer select-none text-[#A1A1AA] hover:text-[#F8FAFC] transition-colors">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-3.5 h-3.5 rounded bg-[#0B0B0B] border border-[#27272A] text-[#FACC15] focus:ring-[#FACC15] focus:ring-offset-0 focus:ring-1 cursor-pointer accent-[#FACC15]"
-                />
-                <span>Remember me</span>
-              </label>
+            <div>
+              <AuthInput
+                label="Password"
+                id="password"
+                isPassword
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }));
+                }}
+                error={errors.password}
+                icon={<Lock className="w-4 h-4" />}
+                required
+              />
 
-              <Link
-                href="/forgot-password"
-                className="text-[#FACC15] hover:text-[#EAB308] transition-colors font-medium focus:outline-none focus:underline"
-              >
-                Forgot password?
-              </Link>
+              <div className="flex items-center justify-between mt-3 text-xs">
+                <label className="flex items-center gap-2 cursor-pointer select-none text-[#A1A1AA] hover:text-[#F8FAFC]">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="w-3.5 h-3.5 rounded bg-[#0B0B0B] border border-[#27272A] text-[#FACC15] focus:ring-[#FACC15] cursor-pointer accent-[#FACC15]"
+                  />
+                  <span>Remember me</span>
+                </label>
+
+                <Link
+                  href="/forgot-password"
+                  className="text-[#FACC15] hover:text-[#EAB308] font-medium"
+                >
+                  Forgot password?
+                </Link>
+              </div>
             </div>
-          </div>
 
-          <div className="pt-2">
-            <AuthButton isLoading={isLoading}>
-              Sign In
-            </AuthButton>
-          </div>
-        </form>
+            <div className="pt-2">
+              <AuthButton isLoading={isLoading}>
+                Sign In to Front Desk
+              </AuthButton>
+            </div>
+          </form>
+        )}
 
+        {/* Footer */}
         <div className="mt-6 pt-5 border-t border-[#27272A] text-center text-xs text-[#A1A1AA]">
-          <span>New to Bill Care? </span>
+          <span>Register a new salon studio? </span>
           <Link
             href="/signup"
-            className="text-[#FACC15] hover:text-[#EAB308] font-medium transition-colors focus:outline-none focus:underline"
+            className="text-[#FACC15] hover:text-[#EAB308] font-medium"
           >
-            Create an account
+            Start 7-Day Free Trial
           </Link>
         </div>
       </div>

@@ -208,4 +208,101 @@ export const billcareApi = {
       method: "POST",
       body: JSON.stringify(data),
     }),
+
+  // WhatsApp Business Platform Cloud API
+  getWhatsAppStatus: () => request<any>("/whatsapp/status"),
+  configureWhatsApp: (data: {
+    phoneNumberId: string;
+    wabaId?: string;
+    accessToken: string;
+    displayNumber?: string;
+    verifiedName?: string;
+  }) =>
+    request<any>("/whatsapp/configure", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  testWhatsAppConnection: (data?: any) =>
+    request<any>("/whatsapp/test-connection", {
+      method: "POST",
+      body: JSON.stringify(data || {}),
+    }),
+  embeddedSignupWhatsApp: (data: any) =>
+    request<any>("/whatsapp/embedded-signup", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  disconnectWhatsApp: () =>
+    request<any>("/whatsapp/disconnect", {
+      method: "POST",
+      body: JSON.stringify({}),
+    }),
+  getWhatsAppMessages: () => request<any>("/whatsapp/messages"),
+  sendWhatsAppBill: (data: any) =>
+    request<any>("/whatsapp/send-bill", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  sendWhatsAppReminder: (data: any) =>
+    request<any>("/whatsapp/send-reminder", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  sendWhatsAppCampaign: (data: any) =>
+    request<any>("/whatsapp/send-campaign", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  // Subscription & 7-Day Trial Management
+  getSubscriptionStatus: () => request<any>("/subscription/status"),
+  upgradeSubscription: (plan: string) =>
+    request<any>("/subscription/upgrade", {
+      method: "POST",
+      body: JSON.stringify({ plan }),
+    }),
+
+  // Dynamic Payments (Cash & UPI Direct-to-Salon)
+  getPaymentSettings: () => request<any>("/payments/settings"),
+  updatePaymentSettings: (data: {
+    cashEnabled?: boolean;
+    upiEnabled?: boolean;
+    upiId?: string;
+    upiPayeeName?: string;
+    paymentInstructions?: string;
+    bankAccountName?: string;
+    bankAccountNumber?: string;
+    bankIfsc?: string;
+    bankName?: string;
+  }) =>
+    request<any>("/payments/settings", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+  generateUpiQr: (data: {
+    amount?: number;
+    invoiceNumber?: string;
+    invoiceId?: string;
+  }) =>
+    request<any>("/payments/generate-upi-qr", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  confirmPayment: (
+    invoiceId: string,
+    data: {
+      paymentMethod: "CASH" | "UPI" | string;
+      amountReceived?: number;
+      explicitVerification?: boolean;
+      bankReference?: string;
+      notes?: string;
+    }
+  ) =>
+    request<any>(`/invoices/${invoiceId}/payments/confirm`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  getInvoicePayments: (invoiceId: string) =>
+    request<any[]>(`/invoices/${invoiceId}/payments`),
 };
+

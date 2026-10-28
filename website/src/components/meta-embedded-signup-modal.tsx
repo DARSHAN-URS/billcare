@@ -54,26 +54,38 @@ export function MetaEmbeddedSignupModal({
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsVerifying(true);
+    const token = typeof window !== "undefined" ? localStorage.getItem("billcare_token") : null;
+    const metaAppId = process.env.NEXT_PUBLIC_META_APP_ID;
+
+    if (!metaAppId) {
+      setTestStatus("Meta App ID is not configured. Please use Manual Configuration tab to enter your Meta Phone Number ID and System Access Token.");
+      setIsVerifying(false);
+      return;
+    }
 
     try {
-      // Call backend to register the embedded signup credentials
+      // Call backend with real Meta embedded signup authorization code
       const res = await fetch("/api/v1/whatsapp/embedded-signup", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
         body: JSON.stringify({
-          code: "meta_oauth_code_" + Math.random().toString(36).substring(7),
-          wabaId: "waba_" + Math.floor(1000000000 + Math.random() * 9000000000),
-          phoneNumberId: "phone_id_" + Math.floor(100000000000 + Math.random() * 900000000000),
+          code: otpInput,
           displayNumber: displayPhone,
           verifiedName: businessName,
         }),
       });
       const data = await res.json();
-      onSuccess(data.salon || {});
-      setStep(4);
-    } catch (err) {
-      console.error(err);
-      setStep(4);
+      if (res.ok && data.success) {
+        onSuccess(data.salon || {});
+        setStep(4);
+      } else {
+        setTestStatus(data.detail || data.error || "Meta verification failed.");
+      }
+    } catch (err: any) {
+      setTestStatus(err.message || "Failed to reach backend.");
     } finally {
       setIsVerifying(false);
     }
@@ -82,10 +94,14 @@ export function MetaEmbeddedSignupModal({
   const handleSendTestMessage = async () => {
     setIsSendingTest(true);
     setTestStatus(null);
+    const token = typeof window !== "undefined" ? localStorage.getItem("billcare_token") : null;
     try {
       const res = await fetch("/api/v1/whatsapp/send-bill", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
         body: JSON.stringify({
           customerPhone: testRecipient,
           customerName: "Salon Owner Test",
@@ -98,10 +114,10 @@ export function MetaEmbeddedSignupModal({
       if (data.success) {
         setTestStatus("✅ Test bill delivered to " + testRecipient + " from " + businessName + "!");
       } else {
-        setTestStatus("Dispatched in sandbox mode: " + (data.error || "Ready"));
+        setTestStatus("❌ Message delivery not sent: " + (data.error || data.detail || "WhatsApp not connected"));
       }
-    } catch {
-      setTestStatus("Dispatched in test mode.");
+    } catch (err: any) {
+      setTestStatus("❌ Error: " + (err.message || "Failed to dispatch test message."));
     } finally {
       setIsSendingTest(false);
     }

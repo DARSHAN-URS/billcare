@@ -32,13 +32,17 @@ CREATE TABLE IF NOT EXISTS salons (
     rating NUMERIC(3, 2) DEFAULT 4.90,
     review_count INT DEFAULT 0,
     is_published BOOLEAN DEFAULT TRUE,
-    -- Salon UPI & Banking Settlement Details
-    upi_id VARCHAR(128) DEFAULT 'billcare.pos@icici',
+    -- Salon Direct UPI & Banking Settlement Details
+    upi_id VARCHAR(128),
+    upi_payee_name VARCHAR(128),
+    upi_enabled BOOLEAN DEFAULT FALSE,
+    cash_enabled BOOLEAN DEFAULT TRUE,
+    payment_instructions TEXT,
     bank_account_name VARCHAR(128),
     bank_account_number VARCHAR(64),
     bank_ifsc VARCHAR(32),
     bank_name VARCHAR(128),
-    -- Meta WhatsApp Embedded Signup Credentials (Per Tenant)
+    -- Meta WhatsApp Embedded Signup & Cloud API Credentials (Per Tenant)
     whatsapp_phone_number_id VARCHAR(128),
     whatsapp_waba_id VARCHAR(128),
     whatsapp_access_token TEXT,
@@ -46,6 +50,15 @@ CREATE TABLE IF NOT EXISTS salons (
     whatsapp_verified_name VARCHAR(255),
     whatsapp_quality_rating VARCHAR(32) DEFAULT 'GREEN',
     whatsapp_status VARCHAR(32) DEFAULT 'not_connected',
+    whatsapp_webhook_verified BOOLEAN DEFAULT FALSE,
+    whatsapp_last_tested_at TIMESTAMPTZ,
+    whatsapp_error_message TEXT,
+    whatsapp_templates_status VARCHAR(64) DEFAULT 'unverified',
+    -- Subscription & 7-Day Free Trial
+    trial_started_at TIMESTAMPTZ DEFAULT NOW(),
+    trial_ends_at TIMESTAMPTZ DEFAULT NOW() + INTERVAL '7 days',
+    subscription_status VARCHAR(32) DEFAULT 'trial',
+    subscription_plan VARCHAR(32) DEFAULT 'free_trial',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -76,12 +89,33 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash VARCHAR(255) NOT NULL,
     name VARCHAR(255) NOT NULL,
     phone VARCHAR(32),
-    role VARCHAR(32) NOT NULL CHECK (role IN ('owner', 'manager', 'receptionist', 'admin')),
+    role VARCHAR(32) NOT NULL CHECK (role IN ('SALON_MANAGER', 'SALON_RECEPTIONIST', 'owner', 'manager', 'receptionist', 'admin')),
     avatar TEXT,
     is_active BOOLEAN DEFAULT TRUE,
     last_login_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS invitations (
+    id VARCHAR(64) PRIMARY KEY,
+    salon_id VARCHAR(64) NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
+    email VARCHAR(255) NOT NULL,
+    role VARCHAR(32) NOT NULL DEFAULT 'SALON_RECEPTIONIST',
+    token VARCHAR(128) UNIQUE NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
+    is_accepted BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS otps (
+    id VARCHAR(64) PRIMARY KEY,
+    phone VARCHAR(32) NOT NULL,
+    otp_hash VARCHAR(255) NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
+    attempts INT DEFAULT 0,
+    is_used BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- ============================================================================
@@ -291,7 +325,13 @@ CREATE TABLE IF NOT EXISTS invoices (
     grand_total NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
     payment_method VARCHAR(32) NOT NULL DEFAULT 'UPI' CHECK (payment_method IN ('UPI', 'Card', 'Cash', 'Split', 'Razorpay')),
     payment_breakdown JSONB DEFAULT '{}'::jsonb, -- e.g. {"cash": 1000, "upi": 2500}
-    status VARCHAR(32) NOT NULL DEFAULT 'paid' CHECK (status IN ('paid', 'draft', 'refunded', 'voided')),
+    status VARCHAR(32) NOT NULL DEFAULT 'paid' CHECK (status IN ('paid', 'draft', 'pending', 'refunded', 'voided')),
+    amount_received NUMERIC(10, 2) DEFAULT 0.00,
+    change_given NUMERIC(10, 2) DEFAULT 0.00,
+    verified_by_name VARCHAR(128),
+    verified_by_user_id VARCHAR(64),
+    payment_reference VARCHAR(128),
+    paid_at TIMESTAMPTZ,
     notes TEXT,
     date VARCHAR(64) NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -304,10 +344,22 @@ CREATE TABLE IF NOT EXISTS payments (
     salon_id VARCHAR(64) NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
     invoice_id VARCHAR(64) NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
     amount NUMERIC(10, 2) NOT NULL,
-    method VARCHAR(32) NOT NULL CHECK (method IN ('cash', 'upi', 'card', 'razorpay', 'split')),
+    currency VARCHAR(10) DEFAULT 'INR',
+    method VARCHAR(32) NOT NULL CHECK (method IN ('cash', 'upi', 'card', 'razorpay', 'split', 'CASH', 'UPI')),
+    status VARCHAR(32) DEFAULT 'pending' CHECK (status IN ('pending', 'completed', 'failed', 'refunded')),
     provider_ref_id VARCHAR(255),
-    status VARCHAR(32) DEFAULT 'completed',
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    verification_method VARCHAR(64) DEFAULT 'manual_receptionist_verification',
+    verified_by_user_id VARCHAR(64),
+    verified_by_name VARCHAR(128),
+    amount_received NUMERIC(10, 2) DEFAULT 0.00,
+    change_given NUMERIC(10, 2) DEFAULT 0.00,
+    upi_vpa_snapshot VARCHAR(128),
+    upi_payee_name_snapshot VARCHAR(128),
+    upi_uri_snapshot TEXT,
+    notes TEXT,
+    audit_metadata_json JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    confirmed_at TIMESTAMPTZ
 );
 
 -- ============================================================================
@@ -367,7 +419,73 @@ CREATE TABLE IF NOT EXISTS audit_logs (
 );
 
 -- ============================================================================
--- 12. HIGH-PERFORMANCE INDEXES
+-- 12. WHATSAPP BUSINESS CLOUD API DISPATCH LOGS
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS whatsapp_messages (
+    id VARCHAR(64) PRIMARY KEY,
+    salon_id VARCHAR(64) NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
+    recipient_phone VARCHAR(32) NOT NULL,
+    customer_name VARCHAR(255),
+    message_type VARCHAR(64) NOT NULL,
+    template_name VARCHAR(128),
+    meta_message_id VARCHAR(128),
+    status VARCHAR(32) DEFAULT 'pending',
+    idempotency_key VARCHAR(128),
+    error_details TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS cash_register_shifts (
+    id VARCHAR(64) PRIMARY KEY,
+    salon_id VARCHAR(64) NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
+    opened_by_user_id VARCHAR(64) REFERENCES users(id) ON DELETE SET NULL,
+    opened_by_name VARCHAR(128) DEFAULT 'Front Desk Cashier',
+    closed_by_user_id VARCHAR(64) REFERENCES users(id) ON DELETE SET NULL,
+    closed_by_name VARCHAR(128),
+    opening_float NUMERIC(10, 2) DEFAULT 2000.00,
+    cash_sales NUMERIC(10, 2) DEFAULT 0.00,
+    upi_sales NUMERIC(10, 2) DEFAULT 0.00,
+    card_sales NUMERIC(10, 2) DEFAULT 0.00,
+    total_sales NUMERIC(10, 2) DEFAULT 0.00,
+    expected_cash NUMERIC(10, 2) DEFAULT 2000.00,
+    counted_cash NUMERIC(10, 2),
+    cash_variance NUMERIC(10, 2) DEFAULT 0.00,
+    status VARCHAR(32) DEFAULT 'open',
+    notes TEXT DEFAULT '',
+    opened_at TIMESTAMPTZ DEFAULT NOW(),
+    closed_at TIMESTAMPTZ
+);
+
+CREATE TABLE IF NOT EXISTS expenses (
+    id VARCHAR(64) PRIMARY KEY,
+    salon_id VARCHAR(64) NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
+    title VARCHAR(128) NOT NULL,
+    category VARCHAR(64) DEFAULT 'Supplies',
+    amount NUMERIC(10, 2) NOT NULL,
+    payment_method VARCHAR(32) DEFAULT 'Cash',
+    date VARCHAR(32),
+    recorded_by_name VARCHAR(128) DEFAULT 'Salon Manager',
+    notes TEXT DEFAULT '',
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS inventory_ledger (
+    id VARCHAR(64) PRIMARY KEY,
+    salon_id VARCHAR(64) NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
+    item_id VARCHAR(64) NOT NULL REFERENCES inventory_items(id) ON DELETE CASCADE,
+    item_name VARCHAR(128) NOT NULL,
+    change_qty INT NOT NULL,
+    previous_stock INT DEFAULT 0,
+    new_stock INT DEFAULT 0,
+    reason VARCHAR(128) DEFAULT 'sale',
+    performed_by VARCHAR(128) DEFAULT 'POS System',
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================================================
+-- 13. HIGH-PERFORMANCE INDEXES
 -- ============================================================================
 
 CREATE INDEX IF NOT EXISTS idx_customers_salon_phone ON customers(salon_id, phone);
@@ -382,9 +500,12 @@ CREATE INDEX IF NOT EXISTS idx_invoices_salon_date ON invoices(salon_id, created
 CREATE INDEX IF NOT EXISTS idx_invoices_customer ON invoices(customer_id);
 CREATE INDEX IF NOT EXISTS idx_followups_salon_due ON followups(salon_id, due_date, status);
 CREATE INDEX IF NOT EXISTS idx_feedbacks_salon_rating ON feedbacks(salon_id, rating);
+CREATE INDEX IF NOT EXISTS idx_whatsapp_salon_status ON whatsapp_messages(salon_id, status);
+CREATE INDEX IF NOT EXISTS idx_whatsapp_meta_id ON whatsapp_messages(meta_message_id);
+CREATE INDEX IF NOT EXISTS idx_whatsapp_idempotency ON whatsapp_messages(salon_id, idempotency_key);
 
 -- ============================================================================
--- 13. ROW LEVEL SECURITY (RLS) POLICIES
+-- 14. ROW LEVEL SECURITY (RLS) POLICIES
 -- ============================================================================
 
 ALTER TABLE salons ENABLE ROW LEVEL SECURITY;
@@ -403,6 +524,7 @@ ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE followups ENABLE ROW LEVEL SECURITY;
 ALTER TABLE feedbacks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE whatsapp_messages ENABLE ROW LEVEL SECURITY;
 
 -- Helper function: Returns current authenticated tenant salon_id from session JWT
 CREATE OR REPLACE FUNCTION get_current_tenant_id()
@@ -415,34 +537,50 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql STABLE;
 
--- Tenant Isolation Policies
+-- Tenant Isolation Policies (Strictly Enforced: NULL tenant claim denies access)
 CREATE POLICY tenant_isolation_salons ON salons
-    FOR ALL USING (id = get_current_tenant_id() OR get_current_tenant_id() IS NULL);
+    FOR ALL USING (id = get_current_tenant_id());
 
 CREATE POLICY tenant_isolation_customers ON customers
-    FOR ALL USING (salon_id = get_current_tenant_id() OR get_current_tenant_id() IS NULL);
+    FOR ALL USING (salon_id = get_current_tenant_id());
 
 CREATE POLICY tenant_isolation_services ON services
-    FOR ALL USING (salon_id = get_current_tenant_id() OR get_current_tenant_id() IS NULL);
+    FOR ALL USING (salon_id = get_current_tenant_id());
 
 CREATE POLICY tenant_isolation_staff ON staff
-    FOR ALL USING (salon_id = get_current_tenant_id() OR get_current_tenant_id() IS NULL);
+    FOR ALL USING (salon_id = get_current_tenant_id());
 
 CREATE POLICY tenant_isolation_inventory ON inventory_items
-    FOR ALL USING (salon_id = get_current_tenant_id() OR get_current_tenant_id() IS NULL);
+    FOR ALL USING (salon_id = get_current_tenant_id());
 
 CREATE POLICY tenant_isolation_appointments ON appointments
-    FOR ALL USING (salon_id = get_current_tenant_id() OR get_current_tenant_id() IS NULL);
+    FOR ALL USING (salon_id = get_current_tenant_id());
 
 CREATE POLICY tenant_isolation_invoices ON invoices
-    FOR ALL USING (salon_id = get_current_tenant_id() OR get_current_tenant_id() IS NULL);
+    FOR ALL USING (salon_id = get_current_tenant_id());
 
 CREATE POLICY tenant_isolation_followups ON followups
-    FOR ALL USING (salon_id = get_current_tenant_id() OR get_current_tenant_id() IS NULL);
+    FOR ALL USING (salon_id = get_current_tenant_id());
 
 CREATE POLICY tenant_isolation_feedbacks ON feedbacks
-    FOR ALL USING (salon_id = get_current_tenant_id() OR get_current_tenant_id() IS NULL);
+    FOR ALL USING (salon_id = get_current_tenant_id());
+
+CREATE POLICY tenant_isolation_whatsapp_messages ON whatsapp_messages
+    FOR ALL USING (salon_id = get_current_tenant_id());
+
+ALTER TABLE cash_register_shifts ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation_cash_register_shifts ON cash_register_shifts
+    FOR ALL USING (salon_id = get_current_tenant_id());
+
+ALTER TABLE expenses ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation_expenses ON expenses
+    FOR ALL USING (salon_id = get_current_tenant_id());
+
+ALTER TABLE inventory_ledger ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation_inventory_ledger ON inventory_ledger
+    FOR ALL USING (salon_id = get_current_tenant_id());
 
 -- Public Read Policy for Online Booking Widget
 CREATE POLICY public_services_read ON services
     FOR SELECT USING (is_active = TRUE AND is_online_bookable = TRUE);
+

@@ -14,7 +14,7 @@ export interface User {
   name: string;
   email: string;
   phone: string;
-  role: "owner" | "manager" | "receptionist" | "admin";
+  role: "SALON_MANAGER" | "SALON_RECEPTIONIST" | "owner" | "manager" | "receptionist" | "admin" | string;
   salonId: string;
   avatar?: string;
 }
@@ -252,6 +252,7 @@ interface BillCareContextType {
   logout: () => void;
   updateSalon: (data: Partial<Salon>) => void;
   updateUser: (data: Partial<User>) => void;
+  setSession: (user: User, salon: Salon, token?: string) => void;
 
   // Real Data Collections
   customers: Customer[];
@@ -639,40 +640,22 @@ export function BillCareProvider({ children }: { children: React.ReactNode }) {
     showToast("Profile credentials updated.");
   };
 
-  const switchPersona = (personaId: string) => {
-    const found = DEMO_PERSONAS.find(
-      (p) => p.id === personaId || p.role.toLowerCase() === personaId.toLowerCase()
-    );
-    if (found) {
-      const newUser: User = {
-        id: found.id,
-        name: found.name,
-        email: found.email,
-        phone: "+91 98450 11223",
-        role: found.role,
-        salonId: salon.id || "sln_billcare_flagship",
-        avatar: found.avatar,
-      };
-      setUser(newUser);
-      persist("billcare_user", newUser);
-      showToast(`Switched role to ${found.roleTitle} (${found.name})`, "info");
+  const setSession = (newUser: User, newSalon: Salon, token?: string) => {
+    setUser(newUser);
+    setSalon(newSalon);
+    persist("billcare_user", newUser);
+    persist("billcare_salon", newSalon);
+    if (token && typeof window !== "undefined") {
+      localStorage.setItem("billcare_token", token);
     }
   };
 
-  const loginAs = (role: string, name?: string) => {
-    const found = DEMO_PERSONAS.find((p) => p.role.toLowerCase() === role.toLowerCase()) || DEMO_PERSONAS[0];
-    const newUser: User = {
-      id: found.id,
-      name: name || found.name,
-      email: found.email,
-      phone: "+91 98450 11223",
-      role: (found.role as any) || "owner",
-      salonId: salon.id || "sln_billcare_flagship",
-      avatar: (name || found.name).charAt(0),
-    };
-    setUser(newUser);
-    persist("billcare_user", newUser);
-    showToast(`Active role: ${found.roleTitle}`, "info");
+  const switchPersona = (_personaId: string) => {
+    console.warn("Security Alert: Client-side role switching is permanently disabled in production. Authentication must be verified via backend JWT.");
+  };
+
+  const loginAs = (_role: string, _name?: string) => {
+    console.warn("Security Alert: Client-side loginAs is permanently disabled in production. Please sign in via /login.");
   };
 
   // --------------------------------------------------------------------------
@@ -1286,6 +1269,7 @@ export function BillCareProvider({ children }: { children: React.ReactNode }) {
         allPersonas: DEMO_PERSONAS,
         switchPersona,
         loginAs,
+        setSession,
       }}
     >
       {children}

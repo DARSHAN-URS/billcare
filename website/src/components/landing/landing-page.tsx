@@ -25,6 +25,11 @@ import {
   CreditCard,
   MapPin,
   Quote,
+  Menu,
+  X,
+  Star,
+  Sparkles,
+  CheckCircle2,
 } from "lucide-react";
 import { BillCareLogo } from "@/components/brand/billcare-logo";
 
@@ -140,6 +145,12 @@ export function LandingPage() {
   // Pricing Interval
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("annual");
 
+  // Mobile navigation drawer state
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Feature Comparison Table collapse state
+  const [showFeatureTable, setShowFeatureTable] = useState(true);
+
   // FAQ Accordion State
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
@@ -207,6 +218,9 @@ export function LandingPage() {
               <a href="#comparison" className="hover:text-white transition-colors">
                 Why Us
               </a>
+              <a href="#testimonials" className="hover:text-white transition-colors">
+                Reviews
+              </a>
               <a href="#pricing" className="hover:text-white transition-colors">
                 Pricing
               </a>
@@ -215,29 +229,112 @@ export function LandingPage() {
               </a>
             </nav>
 
-            {/* Action Buttons */}
-            <div className="flex items-center gap-3">
+            {/* Action Buttons & Mobile Hamburger */}
+            <div className="flex items-center gap-2 sm:gap-3">
               <Link
                 href="/login"
-                className="px-3.5 py-2 text-xs tracking-wider uppercase font-medium text-slate-300 hover:text-white rounded hover:bg-white/5 transition-colors"
+                className="px-3 py-2 text-xs tracking-wider uppercase font-medium text-slate-300 hover:text-white rounded hover:bg-white/5 transition-colors"
               >
                 Sign In
               </Link>
               <Link
                 href="/dashboard"
-                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 border border-white/15 hover:border-white/30 text-white font-medium text-xs tracking-wider uppercase rounded hover:bg-white/5 transition-colors"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 border border-white/15 hover:border-white/30 text-white font-medium text-xs tracking-wider uppercase rounded hover:bg-white/5 transition-colors"
               >
-                <span>Salon Console</span>
+                <span>Console</span>
               </Link>
               <Link
                 href="/signup"
-                className="px-4 py-2 bg-white hover:bg-slate-100 text-slate-950 font-semibold text-xs tracking-wider uppercase rounded transition-all shadow-sm"
+                className="px-3.5 py-2 sm:px-4 bg-[#FACC15] hover:bg-[#EAB308] text-[#09090b] font-bold text-xs tracking-wider uppercase rounded transition-all shadow-sm"
               >
                 Start Trial
               </Link>
+
+              {/* Mobile Hamburger Toggle Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="lg:hidden p-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                aria-label="Toggle navigation menu"
+              >
+                {mobileMenuOpen ? <X className="w-5 h-5 text-[#FACC15]" /> : <Menu className="w-5 h-5" />}
+              </button>
             </div>
           </div>
         </div>
+
+        {/* Mobile Navigation Drawer Dropdown */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden bg-[#0c0c0e] border-b border-white/[0.08] px-6 py-5 space-y-4 animate-in slide-in-from-top-2 duration-200">
+            <nav className="flex flex-col space-y-3 text-xs uppercase tracking-wider font-medium text-slate-300">
+              <a
+                href="#studio-selector"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2 hover:text-[#FACC15] transition-colors border-b border-white/[0.04]"
+              >
+                Salons & Spas
+              </a>
+              <a
+                href="#sandbox"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2 hover:text-[#FACC15] transition-colors border-b border-white/[0.04]"
+              >
+                Interactive POS Terminal
+              </a>
+              <a
+                href="#workflows"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2 hover:text-[#FACC15] transition-colors border-b border-white/[0.04]"
+              >
+                Operational Features
+              </a>
+              <a
+                href="#comparison"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2 hover:text-[#FACC15] transition-colors border-b border-white/[0.04]"
+              >
+                Why BillCare (Zero Commissions)
+              </a>
+              <a
+                href="#testimonials"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2 hover:text-[#FACC15] transition-colors border-b border-white/[0.04]"
+              >
+                Salon Owner Reviews
+              </a>
+              <a
+                href="#pricing"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2 hover:text-[#FACC15] transition-colors border-b border-white/[0.04]"
+              >
+                Subscription Pricing
+              </a>
+              <a
+                href="#faq"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2 hover:text-[#FACC15] transition-colors"
+              >
+                Frequently Asked Questions
+              </a>
+            </nav>
+
+            <div className="pt-2 flex flex-col gap-2">
+              <Link
+                href="/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full py-2.5 bg-white/10 text-white font-medium text-xs uppercase tracking-wider rounded text-center border border-white/15"
+              >
+                Open Salon Console
+              </Link>
+              <Link
+                href="/signup"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full py-2.5 bg-[#FACC15] text-[#09090b] font-bold text-xs uppercase tracking-wider rounded text-center shadow-md"
+              >
+                Begin 14-Day Free Trial
+              </Link>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Hero Section */}
@@ -275,25 +372,25 @@ export function LandingPage() {
           {/* Hero CTAs */}
           <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
             <Link
-              href="/dashboard"
-              className="px-8 py-3.5 bg-slate-100 hover:bg-white text-slate-950 font-semibold text-xs uppercase tracking-wider rounded transition-all flex items-center gap-2 group shadow-xl"
+              href="/signup"
+              className="px-8 py-3.5 bg-[#FACC15] hover:bg-[#EAB308] text-[#09090b] font-bold text-xs uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 group shadow-xl shadow-[#FACC15]/20 hover:scale-[1.02] cursor-pointer"
             >
-              <span>Open Salon POS</span>
+              <span>Start Free Trial</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </Link>
 
             <Link
-              href="/signup"
-              className="px-7 py-3.5 bg-transparent hover:bg-white/5 text-slate-200 font-medium text-xs uppercase tracking-wider rounded border border-white/20 transition-all"
+              href="/dashboard"
+              className="px-7 py-3.5 bg-white/10 hover:bg-white/15 text-white font-medium text-xs uppercase tracking-wider rounded-xl border border-white/20 transition-all flex items-center gap-2"
             >
-              Start Free Trial
+              <span>Open Salon POS</span>
             </Link>
 
             <Link
               href="/book"
-              className="px-6 py-3.5 text-slate-400 hover:text-white font-medium text-xs uppercase tracking-wider transition-all flex items-center gap-2"
+              className="px-6 py-3.5 text-slate-300 hover:text-white font-medium text-xs uppercase tracking-wider transition-all flex items-center gap-2 rounded-xl hover:bg-white/5 border border-transparent hover:border-white/10"
             >
-              <Globe className="w-3.5 h-3.5 text-slate-400" />
+              <Globe className="w-3.5 h-3.5 text-[#FACC15]" />
               <span>Online Booking Link</span>
             </Link>
           </div>
@@ -1237,12 +1334,143 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* Testimonials & Social Proof Section */}
+      <section id="testimonials" className="py-24 md:py-32 px-4 sm:px-6 lg:px-8 border-b border-white/[0.08] bg-[#0c0c0e]">
+        <div className="max-w-6xl mx-auto space-y-14">
+          <div className="text-center max-w-2xl mx-auto space-y-3">
+            <div className="text-[11px] font-mono uppercase tracking-[0.25em] text-amber-400/90 font-medium flex items-center justify-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#FACC15]" />
+              <span>07 / Verified Studio Feedback</span>
+            </div>
+            <h2 className="font-serif text-3xl sm:text-5xl font-normal text-white tracking-tight">
+              Trusted by 450+ premium salons & spas
+            </h2>
+            <p className="text-sm text-slate-400 font-light leading-relaxed">
+              From flagship hair ateliers in Bandra to multi-station academies in Indiranagar, see how BillCare eliminates checkout bottlenecks and recovers lapsed clients.
+            </p>
+          </div>
+
+          {/* Social Proof Stats Banner */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 rounded-2xl bg-white/[0.02] border border-white/[0.08] text-center">
+            <div className="space-y-1">
+              <div className="font-serif text-2xl sm:text-3xl font-bold text-[#FACC15]">450+</div>
+              <div className="text-[11px] font-mono uppercase tracking-wider text-slate-400">Active Studios</div>
+            </div>
+            <div className="space-y-1">
+              <div className="font-serif text-2xl sm:text-3xl font-bold text-white">1.2M+</div>
+              <div className="text-[11px] font-mono uppercase tracking-wider text-slate-400">Visits Billed</div>
+            </div>
+            <div className="space-y-1">
+              <div className="font-serif text-2xl sm:text-3xl font-bold text-emerald-400">₹0</div>
+              <div className="text-[11px] font-mono uppercase tracking-wider text-slate-400">Commission Taken</div>
+            </div>
+            <div className="space-y-1">
+              <div className="font-serif text-2xl sm:text-3xl font-bold text-white">99.98%</div>
+              <div className="text-[11px] font-mono uppercase tracking-wider text-slate-400">PWA Uptime SLA</div>
+            </div>
+          </div>
+
+          {/* Testimonial Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Card 1 */}
+            <div className="p-7 rounded-2xl border border-white/[0.08] bg-[#111114] space-y-6 flex flex-col justify-between hover:border-[#FACC15]/40 transition-all shadow-xl">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1 text-[#FACC15]">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-3.5 h-3.5 fill-current" />
+                    ))}
+                  </div>
+                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                    +30% Chair Velocity
+                  </span>
+                </div>
+                <p className="text-xs text-slate-300 font-light leading-relaxed italic">
+                  "We switched 8 stations from Zenoti to BillCare. On busy Saturdays, our reception counter used to be absolute chaos. With BillCare, walk-in check-in and billing takes 15 seconds, and our chair turnover increased by 30%. Zero booking fee saved us lakhs this year alone."
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 pt-4 border-t border-white/[0.06]">
+                <div className="w-10 h-10 rounded-xl bg-[#FACC15]/10 border border-[#FACC15]/30 flex items-center justify-center text-[#FACC15] font-serif font-bold text-sm shrink-0">
+                  RM
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold text-white truncate">Rohan Mehra</div>
+                  <div className="text-[11px] text-slate-400 truncate">Founder & Creative Director</div>
+                  <div className="text-[10px] font-mono text-[#FACC15] truncate">Atelier 11 Hair Artistry, Bandra Mumbai</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 2 */}
+            <div className="p-7 rounded-2xl border border-[#FACC15]/30 bg-[#131317] space-y-6 flex flex-col justify-between hover:border-[#FACC15]/60 transition-all shadow-xl relative">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1 text-[#FACC15]">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-3.5 h-3.5 fill-current" />
+                    ))}
+                  </div>
+                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                    &lt;2% No-Show Rate
+                  </span>
+                </div>
+                <p className="text-xs text-slate-200 font-light leading-relaxed italic">
+                  "Automated Meta WhatsApp appointment reminders cut our no-shows from 18% down to under 2%. The client formula cards are indispensable for our therapists, and the 28-day automated recall campaign brought back 34% of inactive clients without touching our phones."
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 pt-4 border-t border-white/[0.06]">
+                <div className="w-10 h-10 rounded-xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-200 font-serif font-bold text-sm shrink-0">
+                  PS
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold text-white truncate">Dr. Pooja Singhania</div>
+                  <div className="text-[11px] text-slate-400 truncate">Operations & Spa Director</div>
+                  <div className="text-[10px] font-mono text-[#FACC15] truncate">Aura Wellness Sanctuary, Bengaluru</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 3 */}
+            <div className="p-7 rounded-2xl border border-white/[0.08] bg-[#111114] space-y-6 flex flex-col justify-between hover:border-[#FACC15]/40 transition-all shadow-xl">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1 text-[#FACC15]">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-3.5 h-3.5 fill-current" />
+                    ))}
+                  </div>
+                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                    100% Staff Trust
+                  </span>
+                </div>
+                <p className="text-xs text-slate-300 font-light leading-relaxed italic">
+                  "Barbers in our club can check their commission tiers and daily tips right from their phones without seeing our private ledger or overheads. Receptionists love the simple keyboard shortcuts. We expanded to our 2nd branch in Gurgaon seamlessly."
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 pt-4 border-t border-white/[0.06]">
+                <div className="w-10 h-10 rounded-xl bg-[#FACC15]/10 border border-[#FACC15]/30 flex items-center justify-center text-[#FACC15] font-serif font-bold text-sm shrink-0">
+                  VR
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold text-white truncate">Vikramaditya Rao</div>
+                  <div className="text-[11px] text-slate-400 truncate">Franchise Partner & Master Barber</div>
+                  <div className="text-[10px] font-mono text-[#FACC15] truncate">The Royal Gentlemen Club, Delhi NCR</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Plans & Pricing */}
       <section id="pricing" className="py-24 md:py-32 px-4 sm:px-6 lg:px-8 border-b border-white/[0.08] bg-[#0b0b0e]">
         <div className="max-w-5xl mx-auto space-y-12">
           <div className="text-center max-w-2xl mx-auto space-y-3">
             <div className="text-[11px] font-mono uppercase tracking-[0.25em] text-amber-400/90 font-medium">
-              07 / Pricing
+              08 / Pricing
             </div>
             <h2 className="font-serif text-3xl sm:text-5xl font-normal text-white tracking-tight">
               Transparent monthly plans
@@ -1324,7 +1552,7 @@ export function LandingPage() {
               </div>
               <Link
                 href="/signup"
-                className="w-full py-2.5 bg-slate-100 hover:bg-white text-slate-950 font-medium text-xs uppercase tracking-wider rounded text-center block transition-all"
+                className="w-full py-2.5 bg-[#FACC15] hover:bg-[#EAB308] text-[#080808] font-bold text-xs uppercase tracking-wider rounded text-center block transition-all shadow-md"
               >
                 Begin Trial
               </Link>
@@ -1357,6 +1585,102 @@ export function LandingPage() {
                 Contact Concierge
               </Link>
             </div>
+          </div>
+
+          {/* Deep Feature Comparison Matrix */}
+          <div className="pt-8 space-y-6">
+            <div className="flex items-center justify-between border-t border-white/[0.08] pt-8">
+              <div>
+                <h3 className="font-serif text-xl text-white font-medium">Detailed Feature Comparison</h3>
+                <p className="text-xs text-slate-400 font-light mt-0.5">
+                  See exactly what capabilities are unlocked in each edition.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowFeatureTable(!showFeatureTable)}
+                className="text-xs font-mono uppercase tracking-wider text-[#FACC15] hover:underline cursor-pointer flex items-center gap-1"
+              >
+                {showFeatureTable ? "Hide Matrix" : "View Matrix"}
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showFeatureTable ? "rotate-180" : ""}`} />
+              </button>
+            </div>
+
+            {showFeatureTable && (
+              <div className="overflow-x-auto rounded-xl border border-white/[0.08] bg-[#0c0c0e]">
+                <table className="w-full text-left text-xs border-collapse font-light">
+                  <thead>
+                    <tr className="border-b border-white/[0.08] text-slate-400 font-mono text-[11px]">
+                      <th className="py-3.5 px-5">CAPABILITY</th>
+                      <th className="py-3.5 px-5 text-slate-300">STARTER</th>
+                      <th className="py-3.5 px-5 text-[#FACC15] bg-white/[0.03]">GROWTH</th>
+                      <th className="py-3.5 px-5 text-slate-300">MULTI-BRANCH</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/[0.06]">
+                    <tr>
+                      <td className="py-3 px-5 text-white font-medium">Styling Stations / Chairs</td>
+                      <td className="py-3 px-5 text-slate-300 font-mono">Up to 3</td>
+                      <td className="py-3 px-5 text-[#FACC15] font-mono bg-white/[0.03]">Up to 10</td>
+                      <td className="py-3 px-5 text-emerald-400 font-mono">Unlimited</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-5 text-white font-medium">Real-Time Front Desk & Walk-In Queue</td>
+                      <td className="py-3 px-5 text-emerald-400">Included</td>
+                      <td className="py-3 px-5 text-emerald-400 bg-white/[0.03]">Included</td>
+                      <td className="py-3 px-5 text-emerald-400">Included</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-5 text-white font-medium">Fast POS & GST Thermal Printing (80mm/58mm)</td>
+                      <td className="py-3 px-5 text-emerald-400">Included</td>
+                      <td className="py-3 px-5 text-emerald-400 bg-white/[0.03]">Included</td>
+                      <td className="py-3 px-5 text-emerald-400">Included</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-5 text-white font-medium">Automated Meta WhatsApp Dispatches</td>
+                      <td className="py-3 px-5 text-slate-500">Manual Web links</td>
+                      <td className="py-3 px-5 text-emerald-400 bg-white/[0.03]">Official Meta API</td>
+                      <td className="py-3 px-5 text-emerald-400">Dedicated WABA + Green Tick</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-5 text-white font-medium">Client Formulation & Chemical Vault</td>
+                      <td className="py-3 px-5 text-emerald-400">Basic Notes</td>
+                      <td className="py-3 px-5 text-emerald-400 bg-white/[0.03]">Full Gram Ledger</td>
+                      <td className="py-3 px-5 text-emerald-400">Cross-branch Formula Sync</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-5 text-white font-medium">Staff Split Commission & Attendance Engine</td>
+                      <td className="py-3 px-5 text-slate-500">Basic</td>
+                      <td className="py-3 px-5 text-emerald-400 bg-white/[0.03]">Dynamic Tiers + Tips</td>
+                      <td className="py-3 px-5 text-emerald-400">Multi-branch Payroll Sync</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-5 text-white font-medium">Retail Stock & Backbar Usage Ledger</td>
+                      <td className="py-3 px-5 text-slate-500">Simple Inventory</td>
+                      <td className="py-3 px-5 text-emerald-400 bg-white/[0.03]">Automated Alerts</td>
+                      <td className="py-3 px-5 text-emerald-400">Inter-Branch Stock Transfer</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-5 text-white font-medium">Sovereign Branded Online Booking Portal</td>
+                      <td className="py-3 px-5 text-emerald-400">Standard URL</td>
+                      <td className="py-3 px-5 text-emerald-400 bg-white/[0.03]">Custom Subdomain</td>
+                      <td className="py-3 px-5 text-emerald-400">White-label Custom Domain</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-5 text-white font-medium">Zero Marketplace Transaction Fees</td>
+                      <td className="py-3 px-5 text-emerald-400 font-mono">0% Forever</td>
+                      <td className="py-3 px-5 text-emerald-400 font-mono bg-white/[0.03]">0% Forever</td>
+                      <td className="py-3 px-5 text-emerald-400 font-mono">0% Forever</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-5 text-white font-medium">White-Glove Migration from Zenoti / Fresha</td>
+                      <td className="py-3 px-5 text-slate-500">Self-serve CSV</td>
+                      <td className="py-3 px-5 text-emerald-400 bg-white/[0.03]">Guided Concierge</td>
+                      <td className="py-3 px-5 text-emerald-400">Dedicated Account Manager</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -1434,50 +1758,87 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Minimal Editorial Footer */}
-      <footer className="bg-[#09090b] py-16 px-4 sm:px-6 lg:px-8 text-xs text-slate-400">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-10">
-          <div className="col-span-2 space-y-3">
-            <BillCareLogo size="sm" variant="light" showSubtitle={true} />
-            <p className="text-slate-400 text-xs max-w-sm font-light leading-relaxed">
-              Operating system for independent hair ateliers, master barber clubs, and wellness spas.
-            </p>
+      {/* Comprehensive Editorial Footer */}
+      <footer className="bg-[#08080a] py-20 px-4 sm:px-6 lg:px-8 text-xs text-slate-400 border-t border-white/[0.08]">
+        <div className="max-w-7xl mx-auto space-y-14">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-10">
+            {/* Brand Column */}
+            <div className="col-span-2 space-y-4">
+              <BillCareLogo size="md" variant="light" showSubtitle={true} />
+              <p className="text-slate-400 text-xs max-w-sm font-light leading-relaxed">
+                The sovereign management operating system for high-volume hair salons, master barber clubs, and luxury aesthetic wellness clinics.
+              </p>
+              <div className="flex items-center gap-2 pt-2">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-[10px]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  Systems Operational · Mumbai & Bangalore Region
+                </span>
+              </div>
+            </div>
+
+            {/* Front Desk & Operations */}
+            <div className="space-y-3">
+              <div className="font-mono text-[11px] uppercase tracking-wider text-white">Operations</div>
+              <ul className="space-y-2 text-slate-400 font-light">
+                <li><Link href="/front-desk" className="hover:text-white transition-colors">Front Desk Counter</Link></li>
+                <li><Link href="/pos" className="hover:text-white transition-colors">POS & Thermal Invoicing</Link></li>
+                <li><Link href="/calendar" className="hover:text-white transition-colors">Chair Scheduler Matrix</Link></li>
+                <li><Link href="/staff" className="hover:text-white transition-colors">Staff Clock-In & Tips</Link></li>
+                <li><Link href="/inventory" className="hover:text-white transition-colors">Backbar & Stock Ledger</Link></li>
+              </ul>
+            </div>
+
+            {/* Growth & Retention */}
+            <div className="space-y-3">
+              <div className="font-mono text-[11px] uppercase tracking-wider text-white">Client Growth</div>
+              <ul className="space-y-2 text-slate-400 font-light">
+                <li><Link href="/customers" className="hover:text-white transition-colors">Client CRM & Formulas</Link></li>
+                <li><Link href="/whatsapp" className="hover:text-white transition-colors">WhatsApp Dispatches</Link></li>
+                <li><Link href="/book" className="hover:text-white transition-colors">Online Booking Link</Link></li>
+                <li><Link href="/owner" className="hover:text-white transition-colors">Owner Analytics & BI</Link></li>
+                <li><Link href="/reports" className="hover:text-white transition-colors">GST Tax & Sales Reports</Link></li>
+              </ul>
+            </div>
+
+            {/* Compliance & Trust */}
+            <div className="space-y-3">
+              <div className="font-mono text-[11px] uppercase tracking-wider text-white">Enterprise Trust</div>
+              <ul className="space-y-2 text-slate-400 font-light">
+                <li className="flex items-center gap-1.5 text-slate-300">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span>GST E-Invoicing Ready</span>
+                </li>
+                <li className="flex items-center gap-1.5 text-slate-300">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span>Meta Cloud API Partner</span>
+                </li>
+                <li className="flex items-center gap-1.5 text-slate-300">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span>Zero Marketplace Cuts</span>
+                </li>
+                <li className="flex items-center gap-1.5 text-slate-300">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span>256-Bit TLS Encryption</span>
+                </li>
+              </ul>
+            </div>
           </div>
 
-          <div className="space-y-3">
-            <div className="font-mono text-[11px] uppercase tracking-wider text-white">System</div>
-            <ul className="space-y-2 text-slate-400 font-light">
-              <li><Link href="/dashboard" className="hover:text-white transition-colors">Point of Sale</Link></li>
-              <li><Link href="/dashboard" className="hover:text-white transition-colors">Chair Matrix</Link></li>
-              <li><Link href="/dashboard" className="hover:text-white transition-colors">WhatsApp Dispatches</Link></li>
-              <li><Link href="/dashboard" className="hover:text-white transition-colors">Formula Vault</Link></li>
-            </ul>
+          {/* Bottom Copyright & Legal Links */}
+          <div className="pt-8 border-t border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-mono text-slate-400">
+            <div>
+              © {new Date().getFullYear()} BillCare Technologies Inc. Built for independent salons across India.
+            </div>
+            <div className="flex items-center gap-6">
+              <Link href="/login" className="hover:text-white transition-colors">Staff Login</Link>
+              <Link href="/signup" className="hover:text-white transition-colors">Start Free Trial</Link>
+              <span className="text-slate-600">·</span>
+              <span>Privacy Policy</span>
+              <span>Terms of Service</span>
+              <span className="text-slate-600">·</span>
+              <span>v2.8 Enterprise</span>
+            </div>
           </div>
-
-          <div className="space-y-3">
-            <div className="font-mono text-[11px] uppercase tracking-wider text-white">Access</div>
-            <ul className="space-y-2 text-slate-400 font-light">
-              <li><Link href="/book" className="hover:text-white transition-colors">Client Booking</Link></li>
-              <li><Link href="/login" className="hover:text-white transition-colors">Staff Terminal</Link></li>
-              <li><Link href="/admin" className="hover:text-white transition-colors">Administration</Link></li>
-              <li><Link href="/signup" className="hover:text-white transition-colors">Studio Onboarding</Link></li>
-            </ul>
-          </div>
-
-          <div className="space-y-3">
-            <div className="font-mono text-[11px] uppercase tracking-wider text-white">Trust</div>
-            <ul className="space-y-2 text-slate-400 font-light">
-              <li><span>PostgreSQL Isolation</span></li>
-              <li><span>Meta Cloud API</span></li>
-              <li><span>Zero Marketplace Fees</span></li>
-              <li><span>Private Client Vault</span></li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto pt-10 mt-12 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-4 text-[11px] font-mono text-slate-400">
-          <div>© {new Date().getFullYear()} BillCare Solution. All rights reserved.</div>
-          <div>99.98% Cloud Availability SLA</div>
         </div>
       </footer>
     </div>

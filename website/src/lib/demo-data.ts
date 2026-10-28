@@ -192,7 +192,7 @@ export interface UserPersona {
   id: string;
   name: string;
   email: string;
-  role: "owner" | "manager" | "receptionist" | "admin";
+  role: "SALON_MANAGER" | "SALON_RECEPTIONIST" | "owner" | "manager" | "receptionist" | "admin";
   avatar: string;
   roleTitle: string;
   salonBranch: string;
@@ -200,39 +200,21 @@ export interface UserPersona {
 
 export const DEMO_PERSONAS: UserPersona[] = [
   {
-    id: "usr_owner",
-    name: "Sunil Kumar",
-    email: "owner@billcare.io",
-    role: "owner",
-    avatar: "SK",
-    roleTitle: "Salon Owner & Director",
-    salonBranch: "Flagship Studio - Bandra West",
-  },
-  {
     id: "usr_manager",
     name: "Kavita Rao",
     email: "manager@billcare.io",
-    role: "manager",
+    role: "SALON_MANAGER",
     avatar: "KR",
-    roleTitle: "Salon Operations Manager",
-    salonBranch: "Flagship Studio - Bandra West",
+    roleTitle: "Salon Manager",
+    salonBranch: "Flagship Studio",
   },
   {
     id: "usr_receptionist",
     name: "Ananya Sen",
     email: "reception@billcare.io",
-    role: "receptionist",
+    role: "SALON_RECEPTIONIST",
     avatar: "AS",
-    roleTitle: "Front Desk Receptionist",
-    salonBranch: "Flagship Studio - Bandra West",
-  },
-  {
-    id: "usr_admin",
-    name: "Alex Vance",
-    email: "alex@billcare.io",
-    role: "admin",
-    avatar: "AV",
-    roleTitle: "BillCare Platform Administrator",
-    salonBranch: "Enterprise Multi-Center Hub",
+    roleTitle: "Salon Receptionist",
+    salonBranch: "Flagship Studio",
   },
 ];

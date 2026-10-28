@@ -43,6 +43,21 @@ function ResetPasswordForm() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const getPasswordStrength = (pass: string) => {
+    if (!pass) return { score: 0, label: "", color: "" };
+    let score = 0;
+    if (pass.length >= 8) score++;
+    if (/[A-Z]/.test(pass)) score++;
+    if (/[0-9]/.test(pass)) score++;
+    if (/[^A-Za-z0-9]/.test(pass)) score++;
+
+    if (score <= 1) return { score: 1, label: "Weak", color: "bg-rose-500", text: "text-rose-400" };
+    if (score === 2) return { score: 2, label: "Medium", color: "bg-amber-400", text: "text-amber-300" };
+    return { score: 3, label: "Strong", color: "bg-emerald-400", text: "text-emerald-400" };
+  };
+
+  const strength = getPasswordStrength(newPassword);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
@@ -104,6 +119,9 @@ function ResetPasswordForm() {
       ) : (
         <>
           <div className="mb-6">
+            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/20 text-[#FACC15] font-mono text-[10px] mb-2">
+              <span>Link valid for 60 minutes</span>
+            </div>
             <h2 className="text-2xl font-semibold tracking-tight text-[#F8FAFC]">
               Create a new password
             </h2>
@@ -131,22 +149,51 @@ function ResetPasswordForm() {
           )}
 
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
-            <AuthInput
-              label="New password"
-              id="new-password"
-              isPassword
-              autoComplete="new-password"
-              placeholder="••••••••"
-              value={newPassword}
-              onChange={(e) => {
-                setNewPassword(e.target.value);
-                if (errors.newPassword) setErrors((prev) => ({ ...prev, newPassword: undefined }));
-              }}
-              error={errors.newPassword}
-              icon={<Lock className="w-4 h-4" />}
-              required
-              autoFocus
-            />
+            <div>
+              <AuthInput
+                label="New password"
+                id="new-password"
+                isPassword
+                autoComplete="new-password"
+                placeholder="••••••••"
+                value={newPassword}
+                onChange={(e) => {
+                  setNewPassword(e.target.value);
+                  if (errors.newPassword) setErrors((prev) => ({ ...prev, newPassword: undefined }));
+                }}
+                error={errors.newPassword}
+                icon={<Lock className="w-4 h-4" />}
+                required
+                autoFocus
+              />
+
+              {/* Password Strength Meter */}
+              {newPassword && (
+                <div className="mt-2 space-y-1.5 animate-in fade-in duration-150">
+                  <div className="flex items-center justify-between text-[11px] font-mono">
+                    <span className="text-[#71717A]">Password Strength</span>
+                    <span className={`font-semibold ${strength.text}`}>{strength.label}</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-1.5 h-1">
+                    <div
+                      className={`rounded-full transition-all ${
+                        strength.score >= 1 ? strength.color : "bg-[#27272A]"
+                      }`}
+                    />
+                    <div
+                      className={`rounded-full transition-all ${
+                        strength.score >= 2 ? strength.color : "bg-[#27272A]"
+                      }`}
+                    />
+                    <div
+                      className={`rounded-full transition-all ${
+                        strength.score >= 3 ? strength.color : "bg-[#27272A]"
+                      }`}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
 
             <AuthInput
               label="Confirm new password"

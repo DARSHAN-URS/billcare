@@ -1,8 +1,13 @@
-export type UserRole = "owner" | "manager" | "receptionist" | "admin";
+export type UserRole =
+  | "SALON_RECEPTIONIST"
+  | "SALON_MANAGER"
+  | "receptionist"
+  | "manager"
+  | "owner"
+  | "admin";
 
 export type DashboardTab =
   | "frontdesk"
-  | "owner"
   | "overview"
   | "calendar"
   | "pos"
@@ -13,10 +18,12 @@ export type DashboardTab =
   | "followups"
   | "reports"
   | "booking"
-  | "settings";
+  | "settings"
+  | "subscription"
+  | "owner";
 
 export interface RoleConfig {
-  role: UserRole;
+  role: "SALON_RECEPTIONIST" | "SALON_MANAGER";
   label: string;
   shortTitle: string;
   badge: string;
@@ -26,10 +33,11 @@ export interface RoleConfig {
   defaultTab: DashboardTab;
   allowedTabs: DashboardTab[];
   capabilities: {
-    canViewOwnerBI: boolean;
+    canViewBusinessAnalytics: boolean;
     canViewFinancialMargins: boolean;
     canViewTaxReports: boolean;
     canEditSalonSettings: boolean;
+    canEditSalonProfile: boolean;
     canEditStaffCommissions: boolean;
     canManageStaffAttendance: boolean;
     canManageInventoryStock: boolean;
@@ -38,27 +46,37 @@ export interface RoleConfig {
     canSendWhatsAppMarketing: boolean;
     canExportCrm: boolean;
     canCreateBilling: boolean;
-    canAccessMultiCenter: boolean;
+    canManageBranches: boolean;
+    canManageSubscription: boolean;
   };
 }
 
-export const ROLE_CONFIGS: Record<UserRole, RoleConfig> = {
-  receptionist: {
-    role: "receptionist",
-    label: "Front Desk Receptionist",
+export const ROLE_CONFIGS: Record<"SALON_RECEPTIONIST" | "SALON_MANAGER", RoleConfig> = {
+  SALON_RECEPTIONIST: {
+    role: "SALON_RECEPTIONIST",
+    label: "Salon Receptionist",
     shortTitle: "Receptionist",
-    badge: "Front Desk",
+    badge: "Front Desk Operations",
     badgeClasses: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
     iconName: "Headphones",
     description:
-      "Handles customer check-ins, appointment bookings, POS billing checkout, and client contact profiles. Financial margins, staff commissions, and business settings are strictly locked.",
+      "Handles customer intake, appointment scheduling, chair assignment, service selection, and POS checkout. Branch management, GST configuration, and WhatsApp credentials are restricted.",
     defaultTab: "frontdesk",
-    allowedTabs: ["frontdesk", "calendar", "pos", "customers", "services", "booking"],
+    allowedTabs: [
+      "frontdesk",
+      "calendar",
+      "pos",
+      "customers",
+      "services",
+      "staff",
+      "booking",
+    ],
     capabilities: {
-      canViewOwnerBI: false,
+      canViewBusinessAnalytics: false,
       canViewFinancialMargins: false,
       canViewTaxReports: false,
       canEditSalonSettings: false,
+      canEditSalonProfile: false,
       canEditStaffCommissions: false,
       canManageStaffAttendance: false,
       canManageInventoryStock: false,
@@ -67,63 +85,24 @@ export const ROLE_CONFIGS: Record<UserRole, RoleConfig> = {
       canSendWhatsAppMarketing: false,
       canExportCrm: false,
       canCreateBilling: true,
-      canAccessMultiCenter: false,
+      canManageBranches: false,
+      canManageSubscription: false,
     },
   },
 
-  manager: {
-    role: "manager",
+  SALON_MANAGER: {
+    role: "SALON_MANAGER",
     label: "Salon Manager",
     shortTitle: "Manager",
-    badge: "Operations Lead",
-    badgeClasses: "bg-blue-500/15 text-blue-300 border-blue-500/30",
-    iconName: "Briefcase",
-    description:
-      "Manages daily salon operations, staff clock-in attendance, stock levels, services catalog, and WhatsApp retention triggers. Executive owner analytics and legal bank/tax settings are restricted.",
-    defaultTab: "overview",
-    allowedTabs: [
-      "frontdesk",
-      "overview",
-      "calendar",
-      "pos",
-      "customers",
-      "services",
-      "staff",
-      "inventory",
-      "followups",
-      "booking",
-    ],
-    capabilities: {
-      canViewOwnerBI: false,
-      canViewFinancialMargins: false,
-      canViewTaxReports: false,
-      canEditSalonSettings: false,
-      canEditStaffCommissions: false, // Owner only
-      canManageStaffAttendance: true,
-      canManageInventoryStock: true,
-      canViewInventoryCost: false, // Owner only
-      canEditServices: true,
-      canSendWhatsAppMarketing: true,
-      canExportCrm: true,
-      canCreateBilling: true,
-      canAccessMultiCenter: false,
-    },
-  },
-
-  owner: {
-    role: "owner",
-    label: "Salon Owner / Director",
-    shortTitle: "Owner",
-    badge: "Full Access",
+    badge: "Salon Management",
     badgeClasses: "bg-amber-500/15 text-amber-300 border-amber-500/30",
     iconName: "Crown",
     description:
-      "Unrestricted 360° executive control over AI business intelligence, financial tax ledgers, staff commission structures, inventory cost valuations, bank configuration, and multi-branch operations.",
-    defaultTab: "owner",
+      "Full salon management including services and pricing, staff schedules, branch configuration, inventory stock movements, GST settings, WhatsApp notifications, and business reports.",
+    defaultTab: "overview",
     allowedTabs: [
-      "frontdesk",
-      "owner",
       "overview",
+      "frontdesk",
       "calendar",
       "pos",
       "customers",
@@ -134,53 +113,15 @@ export const ROLE_CONFIGS: Record<UserRole, RoleConfig> = {
       "reports",
       "booking",
       "settings",
-    ],
-    capabilities: {
-      canViewOwnerBI: true,
-      canViewFinancialMargins: true,
-      canViewTaxReports: true,
-      canEditSalonSettings: true,
-      canEditStaffCommissions: true,
-      canManageStaffAttendance: true,
-      canManageInventoryStock: true,
-      canViewInventoryCost: true,
-      canEditServices: true,
-      canSendWhatsAppMarketing: true,
-      canExportCrm: true,
-      canCreateBilling: true,
-      canAccessMultiCenter: true,
-    },
-  },
-
-  admin: {
-    role: "admin",
-    label: "BillCare Platform Administrator",
-    shortTitle: "Super Admin",
-    badge: "Platform Admin",
-    badgeClasses: "bg-purple-500/15 text-purple-300 border-purple-500/30",
-    iconName: "ShieldCheck",
-    description: "Platform-wide administrative authority across all multi-tenant salon nodes.",
-    defaultTab: "owner",
-    allowedTabs: [
-      "frontdesk",
+      "subscription",
       "owner",
-      "overview",
-      "calendar",
-      "pos",
-      "customers",
-      "services",
-      "staff",
-      "inventory",
-      "followups",
-      "reports",
-      "booking",
-      "settings",
     ],
     capabilities: {
-      canViewOwnerBI: true,
+      canViewBusinessAnalytics: true,
       canViewFinancialMargins: true,
       canViewTaxReports: true,
       canEditSalonSettings: true,
+      canEditSalonProfile: true,
       canEditStaffCommissions: true,
       canManageStaffAttendance: true,
       canManageInventoryStock: true,
@@ -189,14 +130,23 @@ export const ROLE_CONFIGS: Record<UserRole, RoleConfig> = {
       canSendWhatsAppMarketing: true,
       canExportCrm: true,
       canCreateBilling: true,
-      canAccessMultiCenter: true,
+      canManageBranches: true,
+      canManageSubscription: true,
     },
   },
 };
 
+export function normalizeRole(role?: string): "SALON_RECEPTIONIST" | "SALON_MANAGER" {
+  const r = (role || "").trim().toUpperCase();
+  if (r === "SALON_RECEPTIONIST" || r === "RECEPTIONIST") {
+    return "SALON_RECEPTIONIST";
+  }
+  return "SALON_MANAGER";
+}
+
 export function getRoleConfig(role?: string): RoleConfig {
-  const normalized = (role || "").toLowerCase() as UserRole;
-  return ROLE_CONFIGS[normalized] || ROLE_CONFIGS.owner;
+  const normalized = normalizeRole(role);
+  return ROLE_CONFIGS[normalized];
 }
 
 export function canAccessTab(role: string | undefined, tab: DashboardTab): boolean {
@@ -206,16 +156,15 @@ export function canAccessTab(role: string | undefined, tab: DashboardTab): boole
 
 export function getRequiredRoleForTab(tab: DashboardTab): string {
   switch (tab) {
+    case "overview":
     case "owner":
     case "reports":
-    case "settings":
-      return "Owner";
-    case "overview":
-    case "staff":
     case "inventory":
     case "followups":
-      return "Manager or Owner";
+    case "settings":
+    case "subscription":
+      return "Salon Manager";
     default:
-      return "Receptionist, Manager, or Owner";
+      return "Salon Receptionist or Manager";
   }
 }

@@ -2,8 +2,8 @@
 
 import React from "react";
 import { useBillCare } from "@/lib/billcare-context";
-import { getRoleConfig, getRequiredRoleForTab, DashboardTab, UserRole } from "@/lib/role-permissions";
-import { ShieldAlert, ArrowLeft, ArrowRight, Lock, KeyRound, Crown, Briefcase, Headphones } from "lucide-react";
+import { getRoleConfig, getRequiredRoleForTab, DashboardTab } from "@/lib/role-permissions";
+import { ShieldAlert, ArrowLeft, Lock, KeyRound } from "lucide-react";
 
 interface RolePermissionGuardProps {
   tab: DashboardTab;
@@ -12,9 +12,8 @@ interface RolePermissionGuardProps {
 }
 
 export function RolePermissionGuard({ tab, tabLabel, onNavigateToAllowedTab }: RolePermissionGuardProps) {
-  const { user, switchPersona } = useBillCare();
-  const currentRole = (user?.role || "owner") as UserRole;
-  const currentConfig = getRoleConfig(currentRole);
+  const { user } = useBillCare();
+  const currentConfig = getRoleConfig(user?.role);
   const requiredRole = getRequiredRoleForTab(tab);
 
   return (
@@ -26,20 +25,20 @@ export function RolePermissionGuard({ tab, tabLabel, onNavigateToAllowedTab }: R
         <div className="relative z-10 space-y-6 text-center">
           {/* Lock Icon */}
           <div className="mx-auto w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shadow-inner">
-            <ShieldAlert className="w-8 h-8 animate-pulse" />
+            <ShieldAlert className="w-8 h-8" />
           </div>
 
           {/* Heading */}
           <div className="space-y-2">
             <span className="text-[11px] font-mono uppercase tracking-widest px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20">
-              Feature Isolated by Role
+              Role-Based Access Control
             </span>
             <h2 className="text-xl sm:text-2xl font-serif font-medium text-white tracking-tight">
               Access Restricted: {tabLabel}
             </h2>
             <p className="text-xs sm:text-sm text-[#A1A1AA] max-w-md mx-auto leading-relaxed">
-              This module contains confidential salon operational records restricted to{" "}
-              <span className="text-amber-300 font-semibold">{requiredRole}</span> permissions.
+              This module contains administrative business settings restricted to{" "}
+              <span className="text-amber-300 font-semibold">{requiredRole}</span> accounts.
             </p>
           </div>
 
@@ -57,7 +56,7 @@ export function RolePermissionGuard({ tab, tabLabel, onNavigateToAllowedTab }: R
             </div>
             <div className="space-y-1">
               <span className="text-[10px] font-mono text-[#71717A] uppercase tracking-wider block">
-                Required Authorization
+                Required Role
               </span>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1.5">
@@ -72,82 +71,26 @@ export function RolePermissionGuard({ tab, tabLabel, onNavigateToAllowedTab }: R
           <div className="bg-[#181818]/60 border border-[#27272A]/80 rounded-xl p-3.5 text-left text-xs text-[#A1A1AA] space-y-2">
             <div className="font-medium text-white flex items-center gap-1.5 text-xs">
               <KeyRound className="w-3.5 h-3.5 text-amber-400" />
-              <span>Why is this feature isolated?</span>
+              <span>Permission Notice</span>
             </div>
-            <ul className="list-disc list-inside space-y-1 text-[11px] text-[#8E8E98]">
-              {tab === "owner" && (
-                <>
-                  <li>Contains executive net EBITDA, owner gross profits, and strategic forecasts.</li>
-                  <li>Restricted exclusively to salon directors and verified business owners.</li>
-                </>
-              )}
-              {tab === "reports" && (
-                <>
-                  <li>Contains tax filing figures (CGST + SGST), bank reconciliation, and profit margins.</li>
-                  <li>Hidden from front desk to maintain confidentiality and audit compliance.</li>
-                </>
-              )}
-              {tab === "staff" && (
-                <>
-                  <li>Stylist commission rates and payroll payouts are private between owner and staff.</li>
-                  <li>Managers can record daily attendance, but only owners adjust payout percentages.</li>
-                </>
-              )}
-              {tab === "inventory" && (
-                <>
-                  <li>Wholesale supplier costs and margin markups are confidential.</li>
-                  <li>Front desk receptionists focus on point-of-sale customer checkout.</li>
-                </>
-              )}
-              {tab === "settings" && (
-                <>
-                  <li>Contains official GSTIN registration, bank IFSC, UPI account, and franchise details.</li>
-                  <li>Modifications require highest-tier salon administrative authority.</li>
-                </>
-              )}
-              {tab === "followups" && (
-                <>
-                  <li>Automated WhatsApp broadcast triggers and retention campaigns.</li>
-                  <li>Managed by marketing leads, managers, and salon owners.</li>
-                </>
-              )}
-            </ul>
+            <p className="text-[12px] text-[#A1A1AA] leading-relaxed">
+              BillCare enforces strict isolation between daily Front Desk Receptionist workflows and Salon Manager business administration. If you require access to this section, please contact your salon manager.
+            </p>
           </div>
 
-          {/* Quick Role Switcher Buttons for Pair-Programming & Live Testing */}
-          <div className="pt-2 border-t border-[#27272A] space-y-2.5">
-            <span className="text-[11px] font-mono text-[#71717A] block">
-              Quickly test this feature as another role:
-            </span>
-            <div className="flex flex-wrap items-center justify-center gap-2">
+          {/* Return Action */}
+          {onNavigateToAllowedTab && (
+            <div className="pt-2 flex justify-center">
               <button
                 type="button"
-                onClick={() => switchPersona("owner")}
-                className="px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
+                onClick={() => onNavigateToAllowedTab(currentConfig.defaultTab)}
+                className="px-5 py-2.5 bg-[#FACC15] hover:bg-[#EAB308] text-[#080808] font-bold rounded-xl text-xs flex items-center gap-2 transition-all cursor-pointer shadow-md"
               >
-                <Crown className="w-3.5 h-3.5" />
-                <span>Switch to Owner</span>
+                <ArrowLeft className="w-4 h-4" />
+                <span>Return to {currentConfig.label === "Salon Receptionist" ? "Front Desk" : "Dashboard"}</span>
               </button>
-              <button
-                type="button"
-                onClick={() => switchPersona("manager")}
-                className="px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
-              >
-                <Briefcase className="w-3.5 h-3.5" />
-                <span>Switch to Manager</span>
-              </button>
-              {onNavigateToAllowedTab && (
-                <button
-                  type="button"
-                  onClick={() => onNavigateToAllowedTab(currentConfig.defaultTab)}
-                  className="px-3 py-1.5 bg-[#1F1F23] hover:bg-[#27272A] text-white border border-[#333338] rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Return to {currentConfig.defaultTab === "frontdesk" ? "Front Desk" : "Dashboard"}</span>
-                </button>
-              )}
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

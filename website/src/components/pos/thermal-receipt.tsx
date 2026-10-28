@@ -23,6 +23,12 @@ export interface ThermalReceiptProps {
     tipAmount?: number;
     total: number;
     paymentMethod: string;
+    amountReceived?: number;
+    changeGiven?: number;
+    verifiedByName?: string;
+    paymentReference?: string;
+    status?: string;
+    paidAt?: string;
     splitDetails?: {
       cash?: number;
       upi?: number;
@@ -279,6 +285,44 @@ export function ThermalReceipt({ invoice, salon, onClose }: ThermalReceiptProps)
           <div className="pt-1 mt-1 border-t border-slate-800 flex justify-between text-[14px] font-black text-black">
             <span>NET PAYABLE:</span>
             <span>{formatCurrency(invoice.total)}</span>
+          </div>
+        </div>
+
+        {/* Payment Settlement & Audit Breakdown */}
+        <div className="py-1.5 text-[10px] space-y-0.5 border-b border-dashed border-slate-400 bg-slate-50 px-1 my-1">
+          <div className="flex justify-between font-bold text-slate-800">
+            <span>PAYMENT METHOD:</span>
+            <span className="uppercase">{invoice.paymentMethod}</span>
+          </div>
+          {invoice.amountReceived !== undefined && (
+            <div className="flex justify-between">
+              <span>Cash Received:</span>
+              <span className="font-bold">{formatCurrency(invoice.amountReceived)}</span>
+            </div>
+          )}
+          {invoice.changeGiven !== undefined && invoice.changeGiven > 0 && (
+            <div className="flex justify-between font-bold text-emerald-800">
+              <span>Change Returned:</span>
+              <span>{formatCurrency(invoice.changeGiven)}</span>
+            </div>
+          )}
+          {invoice.paymentReference && (
+            <div className="flex justify-between">
+              <span>Ref / Txn ID:</span>
+              <span className="font-mono text-[9px] truncate max-w-[140px]">{invoice.paymentReference}</span>
+            </div>
+          )}
+          {invoice.verifiedByName && (
+            <div className="flex justify-between">
+              <span>Confirmed By:</span>
+              <span>{invoice.verifiedByName}</span>
+            </div>
+          )}
+          <div className="flex justify-between text-[9px] text-slate-500 pt-0.5">
+            <span>Settlement:</span>
+            <span className={invoice.status === "paid" ? "font-bold text-emerald-700 uppercase" : "font-bold text-amber-700 uppercase"}>
+              {invoice.status === "paid" ? "PAID • COUNTER VERIFIED" : "PENDING VERIFICATION"}
+            </span>
           </div>
         </div>
 
