@@ -19,6 +19,8 @@ export default function AcceptInvitationPage() {
     email: string;
     salonName: string;
     salonId: string;
+    branchId?: string;
+    branchName?: string;
     expiresAt: string;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -137,7 +139,13 @@ export default function AcceptInvitationPage() {
                 <h2 className="text-lg font-serif font-bold text-white">
                   Join {inviteData?.salonName}
                 </h2>
-                <p className="text-xs text-[#71717A]">
+                {inviteData?.branchName && (
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-[#181818] border border-[#27272A] text-[#FACC15] text-[11px] font-mono font-medium">
+                    <span>🏢 Studio Branch:</span>
+                    <span className="text-white font-bold">{inviteData.branchName}</span>
+                  </div>
+                )}
+                <p className="text-xs text-[#71717A] mt-1">
                   Enrolling as: <span className="text-white font-medium">{inviteData?.email}</span>
                 </p>
               </div>
