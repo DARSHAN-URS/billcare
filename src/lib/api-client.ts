@@ -3,11 +3,13 @@
  * Seamlessly connects Next.js frontend to FastAPI backend API
  */
 
+const LIVE_BACKEND_URL = "https://billcare-production.up.railway.app/api/v1";
+
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ||
   (typeof window !== "undefined" && window.location.origin.includes("3000")
-    ? "http://127.0.0.1:8000/api/v1"
-    : "/api/v1");
+    ? (process.env.NEXT_PUBLIC_API_URL || LIVE_BACKEND_URL)
+    : LIVE_BACKEND_URL);
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
@@ -253,6 +255,12 @@ export const billcareApi = {
       method: "POST",
       body: JSON.stringify(data),
     }),
+  topUpWallet: (customerId: string, amount: number) =>
+    request<any>(`/customers/${customerId}/wallet`, {
+      method: "POST",
+      body: JSON.stringify({ amount }),
+    }),
+  request,
 
   // Subscription & 7-Day Trial Management
   getSubscriptionStatus: () => request<any>("/subscription/status"),
@@ -304,5 +312,18 @@ export const billcareApi = {
     }),
   getInvoicePayments: (invoiceId: string) =>
     request<any[]>(`/invoices/${invoiceId}/payments`),
+
+  // Cash Register Shift Management (Front Desk)
+  getCurrentShift: () => request<any>("/register/current"),
+  openRegisterShift: (data: { openingFloat?: number; notes?: string }) =>
+    request<any>("/register/open", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  closeRegisterShift: (data: { countedCash: number; notes?: string }) =>
+    request<any>("/register/close", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
 };
 

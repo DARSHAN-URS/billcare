@@ -475,107 +475,57 @@ CREATE TABLE IF NOT EXISTS whatsapp_messages (
 -- ----------------------------------------------------------------------------
 -- 12. AUTOMATIC COLUMN UPGRADES (In case tables were created in earlier runs)
 -- ----------------------------------------------------------------------------
-DO $$
-BEGIN
-    -- Ensure all modern columns exist on salons table
-    IF EXISTS (SELECT FROM pg_tables WHERE tablename = 'salons') THEN
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='salons' AND column_name='upi_id') THEN
-            ALTER TABLE salons ADD COLUMN upi_id VARCHAR(128);
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='salons' AND column_name='upi_payee_name') THEN
-            ALTER TABLE salons ADD COLUMN upi_payee_name VARCHAR(128);
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='salons' AND column_name='upi_enabled') THEN
-            ALTER TABLE salons ADD COLUMN upi_enabled BOOLEAN DEFAULT FALSE;
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='salons' AND column_name='cash_enabled') THEN
-            ALTER TABLE salons ADD COLUMN cash_enabled BOOLEAN DEFAULT TRUE;
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='salons' AND column_name='payment_instructions') THEN
-            ALTER TABLE salons ADD COLUMN payment_instructions TEXT;
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='salons' AND column_name='bank_account_name') THEN
-            ALTER TABLE salons ADD COLUMN bank_account_name VARCHAR(128);
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='salons' AND column_name='bank_account_number') THEN
-            ALTER TABLE salons ADD COLUMN bank_account_number VARCHAR(64);
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='salons' AND column_name='bank_ifsc') THEN
-            ALTER TABLE salons ADD COLUMN bank_ifsc VARCHAR(32);
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='salons' AND column_name='bank_name') THEN
-            ALTER TABLE salons ADD COLUMN bank_name VARCHAR(128);
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='salons' AND column_name='whatsapp_phone_number_id') THEN
-            ALTER TABLE salons ADD COLUMN whatsapp_phone_number_id VARCHAR(128);
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='salons' AND column_name='whatsapp_waba_id') THEN
-            ALTER TABLE salons ADD COLUMN whatsapp_waba_id VARCHAR(128);
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='salons' AND column_name='whatsapp_access_token') THEN
-            ALTER TABLE salons ADD COLUMN whatsapp_access_token TEXT;
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='salons' AND column_name='whatsapp_display_number') THEN
-            ALTER TABLE salons ADD COLUMN whatsapp_display_number VARCHAR(32);
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='salons' AND column_name='whatsapp_verified_name') THEN
-            ALTER TABLE salons ADD COLUMN whatsapp_verified_name VARCHAR(255);
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='salons' AND column_name='whatsapp_quality_rating') THEN
-            ALTER TABLE salons ADD COLUMN whatsapp_quality_rating VARCHAR(32) DEFAULT 'GREEN';
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='salons' AND column_name='whatsapp_status') THEN
-            ALTER TABLE salons ADD COLUMN whatsapp_status VARCHAR(32) DEFAULT 'not_connected';
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='salons' AND column_name='whatsapp_webhook_verified') THEN
-            ALTER TABLE salons ADD COLUMN whatsapp_webhook_verified BOOLEAN DEFAULT FALSE;
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='salons' AND column_name='whatsapp_last_tested_at') THEN
-            ALTER TABLE salons ADD COLUMN whatsapp_last_tested_at TIMESTAMPTZ;
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='salons' AND column_name='whatsapp_error_message') THEN
-            ALTER TABLE salons ADD COLUMN whatsapp_error_message TEXT;
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='salons' AND column_name='whatsapp_templates_status') THEN
-            ALTER TABLE salons ADD COLUMN whatsapp_templates_status VARCHAR(64) DEFAULT 'unverified';
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='salons' AND column_name='trial_started_at') THEN
-            ALTER TABLE salons ADD COLUMN trial_started_at TIMESTAMPTZ DEFAULT NOW();
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='salons' AND column_name='trial_ends_at') THEN
-            ALTER TABLE salons ADD COLUMN trial_ends_at TIMESTAMPTZ DEFAULT NOW() + INTERVAL '7 days';
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='salons' AND column_name='subscription_status') THEN
-            ALTER TABLE salons ADD COLUMN subscription_status VARCHAR(32) DEFAULT 'trial';
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='salons' AND column_name='subscription_plan') THEN
-            ALTER TABLE salons ADD COLUMN subscription_plan VARCHAR(32) DEFAULT 'free_trial';
-        END IF;
-    END IF;
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS logo VARCHAR(512) DEFAULT '/logo.png';
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS logo_url TEXT DEFAULT '/logo.png';
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS upi_id VARCHAR(128);
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS upi_payee_name VARCHAR(128);
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS upi_enabled BOOLEAN DEFAULT FALSE;
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS cash_enabled BOOLEAN DEFAULT TRUE;
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS payment_instructions TEXT;
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS bank_account_name VARCHAR(128);
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS bank_account_number VARCHAR(64);
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS bank_ifsc VARCHAR(32);
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS bank_name VARCHAR(128);
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS whatsapp_phone_number_id VARCHAR(128);
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS whatsapp_waba_id VARCHAR(128);
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS whatsapp_access_token TEXT;
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS whatsapp_display_number VARCHAR(32);
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS whatsapp_verified_name VARCHAR(255);
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS whatsapp_quality_rating VARCHAR(32) DEFAULT 'GREEN';
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS whatsapp_status VARCHAR(32) DEFAULT 'not_connected';
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS whatsapp_webhook_verified BOOLEAN DEFAULT FALSE;
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS whatsapp_last_tested_at TIMESTAMPTZ;
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS whatsapp_error_message TEXT;
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS whatsapp_templates_status VARCHAR(64) DEFAULT 'unverified';
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS trial_started_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS trial_ends_at TIMESTAMPTZ DEFAULT NOW() + INTERVAL '7 days';
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS subscription_status VARCHAR(32) DEFAULT 'trial';
+ALTER TABLE salons ADD COLUMN IF NOT EXISTS subscription_plan VARCHAR(32) DEFAULT 'free_trial';
 
-    -- Ensure wallet_balance on customers
-    IF EXISTS (SELECT FROM pg_tables WHERE tablename = 'customers') THEN
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='customers' AND column_name='wallet_balance') THEN
-            ALTER TABLE customers ADD COLUMN wallet_balance NUMERIC(12, 2) DEFAULT 0.00;
-        END IF;
-    END IF;
+ALTER TABLE customers ADD COLUMN IF NOT EXISTS wallet_balance NUMERIC(12, 2) DEFAULT 0.00;
 
-    -- Ensure material consumables on services
-    IF EXISTS (SELECT FROM pg_tables WHERE tablename = 'services') THEN
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='services' AND column_name='material_used') THEN
-            ALTER TABLE services ADD COLUMN material_used VARCHAR(256);
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='services' AND column_name='material_item_id') THEN
-            ALTER TABLE services ADD COLUMN material_item_id VARCHAR(64);
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='services' AND column_name='material_quantity') THEN
-            ALTER TABLE services ADD COLUMN material_quantity NUMERIC(10, 2) DEFAULT 0.00;
-        END IF;
-        IF NOT EXISTS (SELECT FROM information_schema.columns WHERE table_name='services' AND column_name='material_unit') THEN
-            ALTER TABLE services ADD COLUMN material_unit VARCHAR(32) DEFAULT 'ml';
-        END IF;
-    END IF;
-END $$;
+ALTER TABLE services ADD COLUMN IF NOT EXISTS material_used VARCHAR(256);
+ALTER TABLE services ADD COLUMN IF NOT EXISTS material_item_id VARCHAR(64);
+ALTER TABLE services ADD COLUMN IF NOT EXISTS material_quantity NUMERIC(10, 2) DEFAULT 0.00;
+ALTER TABLE services ADD COLUMN IF NOT EXISTS material_unit VARCHAR(32) DEFAULT 'ml';
+
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS upi_vpa_snapshot VARCHAR(128);
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS upi_payee_name_snapshot VARCHAR(128);
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS upi_uri_snapshot TEXT;
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS cash_tendered NUMERIC(12, 2) DEFAULT 0.00;
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS change_returned NUMERIC(12, 2) DEFAULT 0.00;
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS amount_received NUMERIC(12, 2) DEFAULT 0.00;
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS change_given NUMERIC(12, 2) DEFAULT 0.00;
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS verified_by_name VARCHAR(128);
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS verified_by_user_id VARCHAR(64);
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS payment_reference VARCHAR(128);
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS paid_at TIMESTAMPTZ;
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS refund_amount NUMERIC(12, 2) DEFAULT 0.00;
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS refund_reason TEXT;
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS refunded_at TIMESTAMPTZ;
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS points_redeemed INT DEFAULT 0;
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS points_discount NUMERIC(12, 2) DEFAULT 0.00;
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS split_payments JSONB;
 
 -- ----------------------------------------------------------------------------
 -- 13. INDEXES FOR ULTRA-FAST LOOKUPS & POS QUERIES

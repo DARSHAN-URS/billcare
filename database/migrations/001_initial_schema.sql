@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS salons (
     currency VARCHAR(10) DEFAULT '₹',
     chairs INT DEFAULT 6,
     category VARCHAR(128) DEFAULT 'Luxury Hair Studio & Aesthetic Spa',
+    logo VARCHAR(512) DEFAULT '/logo.png',
     logo_url TEXT DEFAULT '/logo.png',
     gstin VARCHAR(32) DEFAULT '27AABCB1234F1Z8',
     auto_gst BOOLEAN DEFAULT TRUE,
