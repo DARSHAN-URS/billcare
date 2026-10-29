@@ -537,50 +537,64 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql STABLE;
 
--- Tenant Isolation Policies (Strictly Enforced: NULL tenant claim denies access)
+-- Tenant Isolation Policies (Idempotent: Drops existing before creating)
+DROP POLICY IF EXISTS tenant_isolation_salons ON salons;
 CREATE POLICY tenant_isolation_salons ON salons
     FOR ALL USING (id = get_current_tenant_id());
 
+DROP POLICY IF EXISTS tenant_isolation_customers ON customers;
 CREATE POLICY tenant_isolation_customers ON customers
     FOR ALL USING (salon_id = get_current_tenant_id());
 
+DROP POLICY IF EXISTS tenant_isolation_services ON services;
 CREATE POLICY tenant_isolation_services ON services
     FOR ALL USING (salon_id = get_current_tenant_id());
 
+DROP POLICY IF EXISTS tenant_isolation_staff ON staff;
 CREATE POLICY tenant_isolation_staff ON staff
     FOR ALL USING (salon_id = get_current_tenant_id());
 
+DROP POLICY IF EXISTS tenant_isolation_inventory ON inventory_items;
 CREATE POLICY tenant_isolation_inventory ON inventory_items
     FOR ALL USING (salon_id = get_current_tenant_id());
 
+DROP POLICY IF EXISTS tenant_isolation_appointments ON appointments;
 CREATE POLICY tenant_isolation_appointments ON appointments
     FOR ALL USING (salon_id = get_current_tenant_id());
 
+DROP POLICY IF EXISTS tenant_isolation_invoices ON invoices;
 CREATE POLICY tenant_isolation_invoices ON invoices
     FOR ALL USING (salon_id = get_current_tenant_id());
 
+DROP POLICY IF EXISTS tenant_isolation_followups ON followups;
 CREATE POLICY tenant_isolation_followups ON followups
     FOR ALL USING (salon_id = get_current_tenant_id());
 
+DROP POLICY IF EXISTS tenant_isolation_feedbacks ON feedbacks;
 CREATE POLICY tenant_isolation_feedbacks ON feedbacks
     FOR ALL USING (salon_id = get_current_tenant_id());
 
+DROP POLICY IF EXISTS tenant_isolation_whatsapp_messages ON whatsapp_messages;
 CREATE POLICY tenant_isolation_whatsapp_messages ON whatsapp_messages
     FOR ALL USING (salon_id = get_current_tenant_id());
 
 ALTER TABLE cash_register_shifts ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS tenant_isolation_cash_register_shifts ON cash_register_shifts;
 CREATE POLICY tenant_isolation_cash_register_shifts ON cash_register_shifts
     FOR ALL USING (salon_id = get_current_tenant_id());
 
 ALTER TABLE expenses ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS tenant_isolation_expenses ON expenses;
 CREATE POLICY tenant_isolation_expenses ON expenses
     FOR ALL USING (salon_id = get_current_tenant_id());
 
 ALTER TABLE inventory_ledger ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS tenant_isolation_inventory_ledger ON inventory_ledger;
 CREATE POLICY tenant_isolation_inventory_ledger ON inventory_ledger
     FOR ALL USING (salon_id = get_current_tenant_id());
 
 -- Public Read Policy for Online Booking Widget
+DROP POLICY IF EXISTS public_services_read ON services;
 CREATE POLICY public_services_read ON services
     FOR SELECT USING (is_active = TRUE AND is_online_bookable = TRUE);
 
