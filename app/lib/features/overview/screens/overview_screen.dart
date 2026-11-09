@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:ruvexi_mobile/core/state/ruvexi_state.dart';
 import 'package:ruvexi_mobile/core/theme/ruvexi_theme.dart';
 import 'package:ruvexi_mobile/shared/widgets/ruvexi_logo.dart';
+import 'package:ruvexi_mobile/features/appointments/screens/new_appointment_screen.dart';
+import 'package:ruvexi_mobile/features/appointments/screens/appointment_details_screen.dart';
+import 'package:ruvexi_mobile/features/services/screens/services_screen.dart';
+import 'package:ruvexi_mobile/features/inventory/screens/inventory_screen.dart';
+import 'package:ruvexi_mobile/features/reports/screens/reports_analytics_screen.dart';
 
 class OverviewDashboardScreen extends StatelessWidget {
   final RuvexiAppState appState;
@@ -94,29 +99,36 @@ class OverviewDashboardScreen extends StatelessWidget {
         Row(
           children: [
             // Salon Selector Dropdown
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-              decoration: BoxDecoration(
-                color: const Color(0xFF101311),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Icon(Icons.content_cut_rounded, size: 14, color: Colors.white70),
-                  SizedBox(width: 6),
-                  Text(
-                    "Ruvexi Salon & Spa",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w500,
+            GestureDetector(
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Active atelier: ${appState.salonName} (${appState.salonLocation})")),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF101311),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.content_cut_rounded, size: 14, color: Colors.white70),
+                    const SizedBox(width: 6),
+                    Text(
+                      appState.salonName,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 4),
-                  Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: Colors.white70),
-                ],
+                    const SizedBox(width: 4),
+                    const Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: Colors.white70),
+                  ],
+                ),
               ),
             ),
 
@@ -126,17 +138,24 @@ class OverviewDashboardScreen extends StatelessWidget {
             Stack(
               clipBehavior: Clip.none,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF101311),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
-                  ),
-                  child: const Icon(
-                    Icons.notifications_none_rounded,
-                    color: Colors.white,
-                    size: 20,
+                GestureDetector(
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("All systems operational. No unread alerts.")),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF101311),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+                    ),
+                    child: const Icon(
+                      Icons.notifications_none_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                   ),
                 ),
                 Positioned(
@@ -145,15 +164,9 @@ class OverviewDashboardScreen extends StatelessWidget {
                   child: Container(
                     width: 7.5,
                     height: 7.5,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF22C55E),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF22C55E),
                       shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF22C55E).withValues(alpha: 0.8),
-                          blurRadius: 4,
-                        ),
-                      ],
                     ),
                   ),
                 ),
@@ -165,21 +178,20 @@ class OverviewDashboardScreen extends StatelessWidget {
     );
   }
 
-  // 2. Greeting & Owner Role
+  // 2. Greeting & Owner Role Badge
   Widget _buildGreetingAndRole(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Left: Good Evening + Name with wave emoji
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               "Good Evening,",
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.6),
-                fontSize: 14,
+                color: Colors.white.withValues(alpha: 0.7),
+                fontSize: 13,
                 fontWeight: FontWeight.w400,
               ),
             ),
@@ -190,33 +202,33 @@ class OverviewDashboardScreen extends StatelessWidget {
                   "Darshan",
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 24,
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    letterSpacing: 0.2,
+                    letterSpacing: -0.2,
                   ),
                 ),
                 SizedBox(width: 6),
-                Text(
-                  "👋",
-                  style: TextStyle(fontSize: 22),
-                ),
+                Text("👋", style: TextStyle(fontSize: 18)),
               ],
             ),
           ],
         ),
 
-        // Right: Owner Role Dropdown Pill
+        // Owner Role Badge Pill
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
           decoration: BoxDecoration(
-            color: const Color(0xFF101411),
+            color: const Color(0xFF141915),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFF22C55E).withValues(alpha: 0.35)),
+            border: Border.all(
+              color: const Color(0xFF22C55E).withValues(alpha: 0.35),
+              width: 1,
+            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: const [
-              Icon(Icons.workspace_premium_rounded, size: 15, color: Color(0xFFFACC15)),
+              Icon(Icons.workspace_premium_rounded, size: 16, color: Color(0xFFFACC15)),
               SizedBox(width: 6),
               Text(
                 "Owner",
@@ -267,7 +279,12 @@ class OverviewDashboardScreen extends StatelessWidget {
           child: _buildNavTile(
             icon: Icons.inventory_2_outlined,
             label: "Inventory",
-            onTap: () => onNavigateToTab?.call(5),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => InventoryScreen(appState: appState)),
+              );
+            },
           ),
         ),
       ],
@@ -313,168 +330,176 @@ class OverviewDashboardScreen extends StatelessWidget {
 
   // 4. Today's Overview Card (WITHOUT Profit slide)
   Widget _buildTodaysOverviewCard(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF0F1210),
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
-      ),
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header: "Today's Overview" & Date, with "Today v" dropdown
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Today's Overview",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    "Tue, 09 Nov 2026",
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.5),
-                      fontSize: 11.5,
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF181B19),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Text(
-                      "Today",
-                      style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w500),
-                    ),
-                    SizedBox(width: 4),
-                    Icon(Icons.keyboard_arrow_down_rounded, size: 14, color: Colors.white70),
-                  ],
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 18),
-
-          // Row 1 Metrics: 24 Appointments & 18 Clients
-          Row(
-            children: [
-              Expanded(
-                child: _buildMetricCard(
-                  icon: Icons.calendar_month_outlined,
-                  value: "24",
-                  label: "Appointments",
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildMetricCard(
-                  icon: Icons.people_outline_rounded,
-                  value: "18",
-                  label: "Clients",
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 12),
-
-          // Row 2 Metric: Revenue (Profit slide excluded per explicit instruction)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF141815),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-            ),
-            child: Row(
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => ReportsAnalyticsScreen(appState: appState)),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF0F1210),
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+        ),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header: "Today's Overview" & Date, with "Today v" dropdown
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF22C55E).withValues(alpha: 0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  alignment: Alignment.center,
-                  child: const Text(
-                    "₹",
-                    style: TextStyle(
-                      color: Color(0xFF22C55E),
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 14),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      "₹42,600",
+                  children: [
+                    const Text(
+                      "Today's Overview",
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        letterSpacing: 0.2,
                       ),
                     ),
+                    const SizedBox(height: 2),
                     Text(
-                      "Total Revenue Today",
+                      "Tue, 09 Nov 2026",
                       style: TextStyle(
-                        color: Colors.white60,
+                        color: Colors.white.withValues(alpha: 0.5),
                         fontSize: 11.5,
                       ),
                     ),
                   ],
                 ),
-                const Spacer(),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF22C55E).withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
+                    color: const Color(0xFF181B19),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
                   ),
-                  child: const Text(
-                    "+18% vs avg",
-                    style: TextStyle(
-                      color: Color(0xFF22C55E),
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Text(
+                        "Today",
+                        style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w500),
+                      ),
+                      SizedBox(width: 4),
+                      Icon(Icons.keyboard_arrow_down_rounded, size: 14, color: Colors.white70),
+                    ],
                   ),
                 ),
               ],
             ),
-          ),
 
-          const SizedBox(height: 8),
+            const SizedBox(height: 18),
 
-          // Neon Wavy Line Chart
-          SizedBox(
-            height: 70,
-            width: double.infinity,
-            child: CustomPaint(
-              painter: _NeonWavyChartPainter(),
+            // Row 1 Metrics: 24 Appointments & 18 Clients
+            Row(
+              children: [
+                Expanded(
+                  child: _buildMetricCard(
+                    icon: Icons.calendar_month_outlined,
+                    value: "${appState.todayAppointmentsCount}",
+                    label: "Appointments",
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildMetricCard(
+                    icon: Icons.people_outline_rounded,
+                    value: "${appState.todayClientsCount}",
+                    label: "Clients",
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
+
+            const SizedBox(height: 12),
+
+            // Row 2 Metric: Revenue (Profit slide excluded per explicit instruction)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF141815),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF22C55E).withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    alignment: Alignment.center,
+                    child: const Text(
+                      "₹",
+                      style: TextStyle(
+                        color: Color(0xFF22C55E),
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "₹${appState.todayRevenue.toInt()}",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                      const Text(
+                        "Total Revenue Today",
+                        style: TextStyle(
+                          color: Colors.white60,
+                          fontSize: 11.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF22C55E).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      "+18% vs avg",
+                      style: TextStyle(
+                        color: Color(0xFF22C55E),
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            // Neon Wavy Line Chart
+            SizedBox(
+              height: 70,
+              width: double.infinity,
+              child: CustomPaint(
+                painter: _NeonWavyChartPainter(),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -536,10 +561,17 @@ class OverviewDashboardScreen extends StatelessWidget {
         const SizedBox(height: 14),
         Row(
           children: [
-            // Action 1: New Appointment (Highlighted with Neon Green Border)
+            // Action 1: New Appointment
             Expanded(
               child: GestureDetector(
-                onTap: () => onNavigateToTab?.call(1),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => NewAppointmentScreen(appState: appState),
+                    ),
+                  );
+                },
                 child: Container(
                   height: 84,
                   padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
@@ -598,7 +630,12 @@ class OverviewDashboardScreen extends StatelessWidget {
               child: _buildQuickActionCard(
                 icon: Icons.grid_view_rounded,
                 label: "Add\nService",
-                onTap: () => onNavigateToTab?.call(4),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => ServicesPricingScreen(appState: appState)),
+                  );
+                },
               ),
             ),
           ],
@@ -680,53 +717,52 @@ class OverviewDashboardScreen extends StatelessWidget {
         ),
         const SizedBox(height: 14),
 
-        // Card 1: Priya Sharma (In Service)
-        _buildAppointmentItem(
-          time: "10:00 AM",
-          avatarLetters: "PS",
-          avatarColor: const Color(0xFF4C1D95), // deep purple
-          customerName: "Priya Sharma",
-          serviceName: "Hair Cut + Hair Spa",
-          statusLabel: "In Service",
-          statusBg: const Color(0xFF14532D),
-          statusBorder: const Color(0xFF22C55E),
-          statusTextColor: const Color(0xFF4ADE80),
-        ),
+        // Appointments from state
+        ...appState.appointments.take(3).map((appt) {
+          Color statusBg = const Color(0xFF14532D);
+          Color statusBorder = const Color(0xFF22C55E);
+          Color statusText = const Color(0xFF4ADE80);
+          Color avatarBg = const Color(0xFF4C1D95);
 
-        const SizedBox(height: 10),
+          if (appt.status == "Confirmed") {
+            statusBg = const Color(0xFF1E3A8A);
+            statusBorder = const Color(0xFF3B82F6);
+            statusText = const Color(0xFF60A5FA);
+            avatarBg = const Color(0xFF334155);
+          } else if (appt.status == "Upcoming") {
+            statusBg = const Color(0xFF78350F).withOpacity(0.6);
+            statusBorder = const Color(0xFFF59E0B);
+            statusText = const Color(0xFFFBBF24);
+            avatarBg = const Color(0xFF78350F);
+          }
 
-        // Card 2: Arjun Rao (Confirmed)
-        _buildAppointmentItem(
-          time: "11:30 AM",
-          avatarLetters: "AR",
-          avatarColor: const Color(0xFF334155), // slate
-          customerName: "Arjun Rao",
-          serviceName: "Beard Grooming",
-          statusLabel: "Confirmed",
-          statusBg: const Color(0xFF1E3A8A),
-          statusBorder: const Color(0xFF3B82F6),
-          statusTextColor: const Color(0xFF60A5FA),
-        ),
+          final initials = appt.customerName.split(' ').map((n) => n.isNotEmpty ? n[0] : '').take(2).join();
+          final timeStr = "${appt.time.hour.toString().padLeft(2, '0')}:${appt.time.minute.toString().padLeft(2, '0')} ${appt.time.hour >= 12 ? 'PM' : 'AM'}";
 
-        const SizedBox(height: 10),
-
-        // Card 3: Neha R (Upcoming)
-        _buildAppointmentItem(
-          time: "01:00 PM",
-          avatarLetters: "NR",
-          avatarColor: const Color(0xFF78350F), // warm tan
-          customerName: "Neha R",
-          serviceName: "Hair Color",
-          statusLabel: "Upcoming",
-          statusBg: const Color(0xFF78350F).withValues(alpha: 0.6),
-          statusBorder: const Color(0xFFF59E0B),
-          statusTextColor: const Color(0xFFFBBF24),
-        ),
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: _buildAppointmentItem(
+              context: context,
+              appt: appt,
+              time: timeStr,
+              avatarLetters: initials,
+              avatarColor: avatarBg,
+              customerName: appt.customerName,
+              serviceName: appt.serviceName,
+              statusLabel: appt.status,
+              statusBg: statusBg,
+              statusBorder: statusBorder,
+              statusTextColor: statusText,
+            ),
+          );
+        }),
       ],
     );
   }
 
   Widget _buildAppointmentItem({
+    required BuildContext context,
+    required Appointment appt,
     required String time,
     required String avatarLetters,
     required Color avatarColor,
@@ -737,112 +773,122 @@ class OverviewDashboardScreen extends StatelessWidget {
     required Color statusBorder,
     required Color statusTextColor,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF101311),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
-      ),
-      child: Row(
-        children: [
-          // Left Vertical Green Bar
-          Container(
-            width: 3.5,
-            height: 28,
-            decoration: BoxDecoration(
-              color: const Color(0xFF22C55E),
-              borderRadius: BorderRadius.circular(2),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => AppointmentDetailsScreen(
+              appState: appState,
+              appointment: appt,
             ),
           ),
-          const SizedBox(width: 10),
-
-          // Time
-          Text(
-            time,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: const Color(0xFF101311),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
+        ),
+        child: Row(
+          children: [
+            // Left Vertical Green Bar
+            Container(
+              width: 3.5,
+              height: 28,
+              decoration: BoxDecoration(
+                color: const Color(0xFF22C55E),
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
-          ),
-          const SizedBox(width: 14),
+            const SizedBox(width: 10),
 
-          // Avatar Badge
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              color: avatarColor,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              avatarLetters,
+            // Time
+            Text(
+              time,
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
               ),
             ),
-          ),
-          const SizedBox(width: 12),
+            const SizedBox(width: 14),
 
-          // Customer and Service
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  customerName,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+            // Avatar Badge
+            Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: avatarColor,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                avatarLetters,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  serviceName,
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.55),
-                    fontSize: 11.5,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-
-          // Status Badge Pill
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: statusBg,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: statusBorder.withValues(alpha: 0.5), width: 1),
-            ),
-            child: Text(
-              statusLabel,
-              style: TextStyle(
-                color: statusTextColor,
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
               ),
             ),
-          ),
-        ],
+            const SizedBox(width: 12),
+
+            // Customer and Service
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    customerName,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    serviceName,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.55),
+                      fontSize: 11.5,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+
+            // Status Badge Pill
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: statusBg,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: statusBorder.withValues(alpha: 0.5), width: 1),
+              ),
+              child: Text(
+                statusLabel,
+                style: TextStyle(
+                  color: statusTextColor,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-// ----------------------------------------------------------------------------
-// Custom Neon Wavy Chart Painter (matching the reference image curve and glow)
-// ----------------------------------------------------------------------------
 class _NeonWavyChartPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -855,7 +901,7 @@ class _NeonWavyChartPainter extends CustomPainter {
     path.cubicTo(w * 0.45, h * 0.40, w * 0.55, h * 0.85, w * 0.65, h * 0.65);
     path.cubicTo(w * 0.75, h * 0.50, w * 0.85, h * 0.68, w * 0.98, h * 0.15);
 
-    // 1. Shaded Gradient under curve
+    // Shaded Gradient under curve
     final fillPath = Path.from(path)
       ..lineTo(w * 0.98, h)
       ..lineTo(0, h)
@@ -866,51 +912,31 @@ class _NeonWavyChartPainter extends CustomPainter {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          const Color(0xFF22C55E).withValues(alpha: 0.42),
-          const Color(0xFF22C55E).withValues(alpha: 0.08),
-          Colors.transparent,
+          const Color(0xFF22C55E).withValues(alpha: 0.38),
+          const Color(0xFF22C55E).withValues(alpha: 0.0),
         ],
-        stops: const [0.0, 0.5, 1.0],
       ).createShader(Rect.fromLTWH(0, 0, w, h));
 
     canvas.drawPath(fillPath, fillPaint);
 
-    // 2. Neon Line Stroke with Glow
-    final glowPaint = Paint()
+    // Neon Green Stroke Line
+    final strokePaint = Paint()
       ..color = const Color(0xFF22C55E)
-      ..strokeWidth = 3.2
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..maskFilter = const MaskFilter.blur(BlurStyle.solid, 4);
-
-    canvas.drawPath(path, glowPaint);
-
-    final linePaint = Paint()
-      ..color = const Color(0xFF22C55E)
-      ..strokeWidth = 2.2
+      ..strokeWidth = 2.4
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
-    canvas.drawPath(path, linePaint);
+    canvas.drawPath(path, strokePaint);
 
-    // 3. Glowing Endpoint Dot at (w * 0.98, h * 0.15)
-    final endPoint = Offset(w * 0.98, h * 0.15);
+    // Glowing Neon Endpoint Circle
+    final endpoint = Offset(w * 0.98, h * 0.15);
+    final glowPaint = Paint()
+      ..color = const Color(0xFF22C55E).withValues(alpha: 0.4)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
+    canvas.drawCircle(endpoint, 6.0, glowPaint);
 
-    // Outer glow halo
-    canvas.drawCircle(
-      endPoint,
-      6.0,
-      Paint()
-        ..color = const Color(0xFF22C55E).withValues(alpha: 0.55)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5),
-    );
-
-    // Solid core dot
-    canvas.drawCircle(
-      endPoint,
-      3.8,
-      Paint()..color = Colors.white,
-    );
+    final dotPaint = Paint()..color = Colors.white;
+    canvas.drawCircle(endpoint, 3.2, dotPaint);
   }
 
   @override

@@ -16,6 +16,24 @@ class ServiceItem {
   });
 }
 
+class PackageItem {
+  final String id;
+  final String title;
+  final String description;
+  final double price;
+  final double originalPrice;
+  final List<String> servicesIncluded;
+
+  PackageItem({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.price,
+    required this.originalPrice,
+    required this.servicesIncluded,
+  });
+}
+
 class Customer {
   final String id;
   final String name;
@@ -23,7 +41,10 @@ class Customer {
   final String email;
   final int visitsCount;
   final double totalSpent;
+  final int loyaltyPoints;
+  final String membership;
   final String? formulaNotes;
+  final String tag; // "Regular", "New", "Inactive"
 
   Customer({
     required this.id,
@@ -32,51 +53,73 @@ class Customer {
     required this.email,
     required this.visitsCount,
     required this.totalSpent,
+    this.loyaltyPoints = 500,
+    this.membership = "Classic (Active)",
     this.formulaNotes,
+    this.tag = "Regular",
   });
 }
 
 class Appointment {
   final String id;
   final String customerName;
+  final String customerPhone;
   final String serviceName;
   final String staffName;
   final DateTime time;
+  final int durationMinutes;
   final double price;
-  final String status;
+  String status; // "In Service", "Confirmed", "Upcoming", "Completed", "Cancelled"
+  final String notes;
 
   Appointment({
     required this.id,
     required this.customerName,
+    this.customerPhone = "+91 98765 43210",
     required this.serviceName,
     required this.staffName,
     required this.time,
+    this.durationMinutes = 60,
     required this.price,
     required this.status,
+    this.notes = "Client prefers mild products.",
   });
 }
 
-class WalkInQueueItem {
+class StaffMember {
   final String id;
-  final String clientName;
-  final String serviceName;
-  final String assignedStylist;
-  final int waitMinutes;
-  final String status;
+  final String name;
+  final String role;
+  final String phone;
+  bool isActive;
+  bool isClockedIn;
+  String checkInTime;
+  int servicesCount;
+  double serviceRevenue;
+  double commissionRate;
+  double rating;
+  int assignedServicesCount;
 
-  WalkInQueueItem({
+  StaffMember({
     required this.id,
-    required this.clientName,
-    required this.serviceName,
-    required this.assignedStylist,
-    required this.waitMinutes,
-    required this.status,
+    required this.name,
+    required this.role,
+    this.phone = "+91 98451 22334",
+    this.isActive = true,
+    this.isClockedIn = true,
+    this.checkInTime = "09:30 AM",
+    this.servicesCount = 156,
+    this.serviceRevenue = 72400.0,
+    this.commissionRate = 0.10,
+    this.rating = 4.8,
+    this.assignedServicesCount = 12,
   });
 }
 
 class InventoryItem {
   final String id;
   final String name;
+  final String sizeVolume;
   final String category;
   int stock;
   final int minAlert;
@@ -85,30 +128,47 @@ class InventoryItem {
   InventoryItem({
     required this.id,
     required this.name,
+    required this.sizeVolume,
     required this.category,
     required this.stock,
     required this.minAlert,
-    required this.unit,
+    this.unit = "pcs",
+  });
+
+  bool get isLowStock => stock <= minAlert;
+}
+
+class ExpenseItem {
+  final String id;
+  final String category;
+  final double amount;
+  final DateTime date;
+  final String note;
+
+  ExpenseItem({
+    required this.id,
+    required this.category,
+    required this.amount,
+    required this.date,
+    this.note = "",
   });
 }
 
-class StaffAttendance {
+class OfferItem {
   final String id;
-  final String staffName;
-  final String role;
-  bool isClockedIn;
-  String checkInTime;
-  double commissionRate;
-  double todaySales;
+  final String title;
+  final String description;
+  final String validity;
+  bool isActive;
+  final double discountPercent;
 
-  StaffAttendance({
+  OfferItem({
     required this.id,
-    required this.staffName,
-    required this.role,
-    required this.isClockedIn,
-    required this.checkInTime,
-    required this.commissionRate,
-    required this.todaySales,
+    required this.title,
+    required this.description,
+    required this.validity,
+    this.isActive = true,
+    this.discountPercent = 20,
   });
 }
 
@@ -120,210 +180,381 @@ class CartItem {
 }
 
 class RuvexiAppState extends ChangeNotifier {
-  String salonName = "Ruvexi Flagship Atelier";
-  String userRole = "Owner"; // Strictly "Owner" or "Staff"
-  double todayRevenue = 28450.00;
-  int todayInvoices = 18;
+  String salonName = "Ruvexi Salon & Spa";
+  String salonLocation = "Chikmagaluru, Karnataka";
+  String userRole = "Owner";
+  double todayRevenue = 42600.00;
+  int todayAppointmentsCount = 24;
+  int todayClientsCount = 18;
+  double todayProfit = 8920.00;
 
-  bool isAuthenticated = false;
-  String currentUserName = "";
-  String currentUserEmail = "";
+  bool isAuthenticated = true;
+  String currentUserName = "Darshan";
+  String currentUserEmail = "ruvexisolutions@gmail.com";
 
-  void loginAsOwner({required String email}) {
-    isAuthenticated = true;
-    userRole = "Owner";
-    currentUserEmail = email;
-    currentUserName = "Salon Owner";
-    notifyListeners();
-  }
+  // Selected customer in POS
+  Customer? posSelectedCustomer;
 
-  Future<bool> login({required String identifier, required String password}) async {
-    isAuthenticated = true;
-    currentUserEmail = identifier;
-    currentUserName = identifier.contains('@') ? identifier.split('@').first : "Salon Director";
-    userRole = "Owner";
-    notifyListeners();
-    return true;
-  }
+  // Catalog of services
+  final List<ServiceItem> catalog = [
+    ServiceItem(id: "s1", name: "Hair Cut", category: "Hair", price: 399.0, durationMinutes: 30),
+    ServiceItem(id: "s2", name: "Hair Spa", category: "Hair", price: 1199.0, durationMinutes: 60),
+    ServiceItem(id: "s3", name: "Hair Color", category: "Hair", price: 2499.0, durationMinutes: 90),
+    ServiceItem(id: "s4", name: "Beard Grooming", category: "Beard", price: 299.0, durationMinutes: 20),
+    ServiceItem(id: "s5", name: "Facial", category: "Skin", price: 1299.0, durationMinutes: 60),
+    ServiceItem(id: "s6", name: "Head Massage & Oil", category: "Spa", price: 599.0, durationMinutes: 30),
+    ServiceItem(id: "s7", name: "Deep Cleanse Pedicure", category: "Spa", price: 899.0, durationMinutes: 45),
+  ];
 
-  Future<bool> loginWithGoogle() async {
-    isAuthenticated = true;
-    currentUserEmail = "director@ruvexi.com";
-    currentUserName = "Salon Director";
-    userRole = "Owner";
-    notifyListeners();
-    return true;
-  }
-
-  void loginAsStaff({required String email, required String password}) {
-    isAuthenticated = true;
-    userRole = "Staff";
-    currentUserEmail = email;
-    currentUserName = email.split('@').first;
-    notifyListeners();
-  }
-
-  void resetStaffPassword({required String email, required String newPassword}) {
-    // Updates staff password in state/backend
-    notifyListeners();
-  }
-
-  void switchRole(String role) {
-    if (role == "Owner" || role == "Staff") {
-      userRole = role;
-      notifyListeners();
-    }
-  }
-
-  void logout() {
-    isAuthenticated = false;
-    currentUserName = "";
-    currentUserEmail = "";
-    notifyListeners();
-  }
-
-  List<WalkInQueueItem> walkInQueue = [
-    WalkInQueueItem(
-      id: "w1",
-      clientName: "Ananya Sharma",
-      serviceName: "Balayage & Olaplex",
-      assignedStylist: "Priya V.",
-      waitMinutes: 0,
-      status: "In Chair",
+  // Packages
+  final List<PackageItem> packages = [
+    PackageItem(
+      id: "pkg1",
+      title: "Royal Grooming Package",
+      description: "Hair Cut + Beard Sculpt + Hair Spa + Head Massage",
+      price: 2199.0,
+      originalPrice: 2896.0,
+      servicesIncluded: ["Hair Cut", "Beard Grooming", "Hair Spa", "Head Massage"],
     ),
-    WalkInQueueItem(
-      id: "w2",
-      clientName: "Rohan Kapoor",
-      serviceName: "Executive Fade & Beard Sculpt",
-      assignedStylist: "Vikram S.",
-      waitMinutes: 10,
-      status: "Waiting",
+    PackageItem(
+      id: "pkg2",
+      title: "Glow & Radiance Combo",
+      description: "Skin Fruit Facial + Hair Spa + Manicure",
+      price: 2799.0,
+      originalPrice: 3599.0,
+      servicesIncluded: ["Facial", "Hair Spa", "Pedicure"],
     ),
-    WalkInQueueItem(
-      id: "w3",
-      clientName: "Meera Nair",
-      serviceName: "HydraFacial Glow",
-      assignedStylist: "Sunita M.",
-      waitMinutes: 15,
-      status: "Waiting",
+    PackageItem(
+      id: "pkg3",
+      title: "Executive Styling Series",
+      description: "5 Precision Haircuts + 3 Beard Trims",
+      price: 2499.0,
+      originalPrice: 3100.0,
+      servicesIncluded: ["5x Hair Cut", "3x Beard Trim"],
     ),
   ];
 
-  List<Appointment> appointments = [
+  // Appointments matching the screens
+  final List<Appointment> appointments = [
     Appointment(
-      id: "a1",
-      customerName: "Aarav Mehta",
-      serviceName: "Men's Luxury Cut & Style",
-      staffName: "Vikram S.",
-      time: DateTime.now().add(const Duration(minutes: 30)),
-      price: 1200.0,
-      status: "Confirmed",
+      id: "apt_1",
+      customerName: "Priya Sharma",
+      customerPhone: "+91 98765 43210",
+      serviceName: "Hair Cut + Hair Spa",
+      staffName: "Manoj K",
+      time: DateTime(2026, 11, 9, 10, 0),
+      durationMinutes: 60,
+      price: 1399.0,
+      status: "In Service",
+      notes: "Client prefers mild products.",
     ),
     Appointment(
-      id: "a2",
-      customerName: "Deepika Rao",
-      serviceName: "Keratin Treatment Pro",
-      staffName: "Priya V.",
-      time: DateTime.now().add(const Duration(hours: 2)),
-      price: 6500.0,
+      id: "apt_2",
+      customerName: "Arjun Rao",
+      customerPhone: "+91 87654 32109",
+      serviceName: "Beard Grooming",
+      staffName: "Kiran S",
+      time: DateTime(2026, 11, 9, 11, 30),
+      durationMinutes: 20,
+      price: 299.0,
       status: "Confirmed",
+      notes: "Fade beard neatly.",
     ),
     Appointment(
-      id: "a3",
-      customerName: "Siddharth Jain",
-      serviceName: "Charcoal Detox Facial",
-      staffName: "Sunita M.",
-      time: DateTime.now().add(const Duration(hours: 3, minutes: 30)),
-      price: 2400.0,
+      id: "apt_3",
+      customerName: "Neha R",
+      customerPhone: "+91 99876 54321",
+      serviceName: "Hair Color",
+      staffName: "Pooja M",
+      time: DateTime(2026, 11, 9, 13, 0),
+      durationMinutes: 90,
+      price: 2499.0,
+      status: "Upcoming",
+      notes: "No ammonia developer.",
+    ),
+    Appointment(
+      id: "apt_4",
+      customerName: "Rahul M",
+      customerPhone: "+91 96543 21098",
+      serviceName: "Hair Cut",
+      staffName: "Rohit D",
+      time: DateTime(2026, 11, 9, 14, 30),
+      durationMinutes: 30,
+      price: 399.0,
       status: "Confirmed",
+      notes: "Short crop with texture.",
+    ),
+    Appointment(
+      id: "apt_5",
+      customerName: "Sneha P",
+      customerPhone: "+91 93456 78901",
+      serviceName: "Facial",
+      staffName: "Anjali R",
+      time: DateTime(2026, 11, 9, 16, 0),
+      durationMinutes: 60,
+      price: 1299.0,
+      status: "Upcoming",
+      notes: "Organic fruit extract mask.",
+    ),
+    Appointment(
+      id: "apt_6",
+      customerName: "Vivek K",
+      customerPhone: "+91 90987 65432",
+      serviceName: "Hair Spa",
+      staffName: "Manoj K",
+      time: DateTime(2026, 11, 9, 17, 30),
+      durationMinutes: 60,
+      price: 1199.0,
+      status: "Confirmed",
+      notes: "Deep hydration scalp therapy.",
     ),
   ];
 
-  List<ServiceItem> catalog = [
-    ServiceItem(id: "s1", name: "Men's Classic Cut", category: "Hair", price: 850.0, durationMinutes: 30),
-    ServiceItem(id: "s2", name: "Executive Hair & Beard", category: "Hair", price: 1400.0, durationMinutes: 45),
-    ServiceItem(id: "s3", name: "Women's Precision Cut", category: "Hair", price: 1800.0, durationMinutes: 60),
-    ServiceItem(id: "s4", name: "Balayage & Color Gloss", category: "Hair", price: 5500.0, durationMinutes: 120),
-    ServiceItem(id: "s5", name: "HydraFacial Deluxe", category: "Skin", price: 3800.0, durationMinutes: 60),
-    ServiceItem(id: "s6", name: "Aromatherapy Massage", category: "Spa", price: 3200.0, durationMinutes: 60),
-    ServiceItem(id: "s7", name: "Gel Manicure Luxe", category: "Nails", price: 1500.0, durationMinutes: 45),
-  ];
-
-  List<Customer> customers = [
+  // Customers CRM
+  final List<Customer> customers = [
     Customer(
       id: "c1",
-      name: "Ananya Sharma",
-      phone: "+91 98201 11223",
-      email: "ananya@example.com",
-      visitsCount: 14,
-      totalSpent: 42800.0,
-      formulaNotes: "Wella Koleston 7/1 + 6% Vol, 35 mins. Sensitive scalp.",
+      name: "Priya Sharma",
+      phone: "+91 98765 43210",
+      email: "priya.sharma@example.com",
+      visitsCount: 12,
+      totalSpent: 18240.0,
+      loyaltyPoints: 1240,
+      membership: "Classic (Active)",
+      formulaNotes: "Client prefers mild products.",
+      tag: "Regular",
     ),
     Customer(
       id: "c2",
-      name: "Rohan Kapoor",
-      phone: "+91 98110 44556",
-      email: "rohan@example.com",
+      name: "Arjun Rao",
+      phone: "+91 87654 32109",
+      email: "arjun.rao@example.com",
       visitsCount: 8,
-      totalSpent: 16400.0,
-      formulaNotes: "Low fade #0.5 into scissor on top. Moroccan Oil finish.",
+      totalSpent: 9850.0,
+      loyaltyPoints: 780,
+      membership: "Classic (Active)",
+      formulaNotes: "Prefers beard balm, no chemical aftershaves.",
+      tag: "Regular",
     ),
     Customer(
       id: "c3",
-      name: "Meera Nair",
-      phone: "+91 97400 99881",
-      email: "meera@example.com",
-      visitsCount: 22,
-      totalSpent: 68900.0,
-      formulaNotes: "Avoid tea tree oil. Prefers rose hydrating mist.",
+      name: "Neha R",
+      phone: "+91 99876 54321",
+      email: "neha.r@example.com",
+      visitsCount: 5,
+      totalSpent: 14200.0,
+      loyaltyPoints: 620,
+      membership: "Classic (Active)",
+      formulaNotes: "L'Oreal Inoa 5.0 with 20 vol.",
+      tag: "Regular",
+    ),
+    Customer(
+      id: "c4",
+      name: "Rahul M",
+      phone: "+91 96543 21098",
+      email: "rahul.m@example.com",
+      visitsCount: 3,
+      totalSpent: 2850.0,
+      loyaltyPoints: 210,
+      membership: "Standard",
+      formulaNotes: "Side taper, matte clay.",
+      tag: "New",
+    ),
+    Customer(
+      id: "c5",
+      name: "Sneha P",
+      phone: "+91 93456 78901",
+      email: "sneha.p@example.com",
+      visitsCount: 7,
+      totalSpent: 11300.0,
+      loyaltyPoints: 890,
+      membership: "Classic (Active)",
+      formulaNotes: "Sensitive skin, avoids citrus scrubs.",
+      tag: "Regular",
+    ),
+    Customer(
+      id: "c6",
+      name: "Vivek K",
+      phone: "+91 90987 65432",
+      email: "vivek.k@example.com",
+      visitsCount: 4,
+      totalSpent: 5600.0,
+      loyaltyPoints: 340,
+      membership: "Standard",
+      formulaNotes: "Anti-dandruff tea-tree wash.",
+      tag: "Regular",
     ),
   ];
 
-  List<InventoryItem> inventory = [
-    InventoryItem(id: "inv1", name: "L'Oréal Professionnel Inoa 5.0", category: "Color Tubes", stock: 18, minAlert: 5, unit: "tubes"),
-    InventoryItem(id: "inv2", name: "Olaplex No. 1 Bond Multiplier", category: "Hair Care", stock: 2, minAlert: 4, unit: "bottles"),
-    InventoryItem(id: "inv3", name: "Moroccanoil Treatment Original", category: "Finishing", stock: 7, minAlert: 3, unit: "bottles"),
-    InventoryItem(id: "inv4", name: "Dermalogica Daily Microfoliant", category: "Skincare", stock: 1, minAlert: 3, unit: "jars"),
-    InventoryItem(id: "inv5", name: "Wella Welloxon Perfect 6%", category: "Developer", stock: 14, minAlert: 5, unit: "litres"),
+  // Staff list matching Screen 5 & Staff Profile
+  final List<StaffMember> staff = [
+    StaffMember(
+      id: "st_1",
+      name: "Manoj K",
+      role: "Senior Stylist",
+      phone: "+91 98451 22334",
+      isActive: true,
+      isClockedIn: true,
+      checkInTime: "09:15 AM",
+      servicesCount: 156,
+      serviceRevenue: 72400.0,
+      commissionRate: 0.10,
+      rating: 4.8,
+      assignedServicesCount: 12,
+    ),
+    StaffMember(
+      id: "st_2",
+      name: "Kiran S",
+      role: "Hair Stylist",
+      phone: "+91 98451 22335",
+      isActive: true,
+      isClockedIn: true,
+      checkInTime: "09:30 AM",
+      servicesCount: 124,
+      serviceRevenue: 54200.0,
+      commissionRate: 0.10,
+      rating: 4.7,
+      assignedServicesCount: 8,
+    ),
+    StaffMember(
+      id: "st_3",
+      name: "Pooja M",
+      role: "Skin Expert",
+      phone: "+91 98451 22336",
+      isActive: true,
+      isClockedIn: true,
+      checkInTime: "09:45 AM",
+      servicesCount: 98,
+      serviceRevenue: 48600.0,
+      commissionRate: 0.12,
+      rating: 4.9,
+      assignedServicesCount: 6,
+    ),
+    StaffMember(
+      id: "st_4",
+      name: "Rohit D",
+      role: "Barber",
+      phone: "+91 98451 22337",
+      isActive: true,
+      isClockedIn: true,
+      checkInTime: "10:00 AM",
+      servicesCount: 142,
+      serviceRevenue: 38900.0,
+      commissionRate: 0.08,
+      rating: 4.6,
+      assignedServicesCount: 5,
+    ),
+    StaffMember(
+      id: "st_5",
+      name: "Anjali R",
+      role: "Salon Assistant",
+      phone: "+91 98451 22338",
+      isActive: true,
+      isClockedIn: false,
+      checkInTime: "--",
+      servicesCount: 86,
+      serviceRevenue: 22400.0,
+      commissionRate: 0.06,
+      rating: 4.5,
+      assignedServicesCount: 4,
+    ),
   ];
 
-  List<StaffAttendance> staff = [
-    StaffAttendance(id: "st1", staffName: "Priya Varma", role: "Senior Colorist", isClockedIn: true, checkInTime: "09:45 AM", commissionRate: 0.15, todaySales: 18400.0),
-    StaffAttendance(id: "st2", staffName: "Vikram Sethi", role: "Master Barber", isClockedIn: true, checkInTime: "10:02 AM", commissionRate: 0.12, todaySales: 14200.0),
-    StaffAttendance(id: "st3", staffName: "Sunita Mohan", role: "Lead Aesthetician", isClockedIn: false, checkInTime: "--", commissionRate: 0.10, todaySales: 8600.0),
+  // Inventory matching Screen 7
+  final List<InventoryItem> inventory = [
+    InventoryItem(id: "inv1", name: "Loreal Shampoo", sizeVolume: "1 Litre", category: "Hair Care", stock: 12, minAlert: 10, unit: "bottles"),
+    InventoryItem(id: "inv2", name: "Hair Serum", sizeVolume: "100 ml", category: "Hair Care", stock: 5, minAlert: 10, unit: "bottles"),
+    InventoryItem(id: "inv3", name: "Face Cleanser", sizeVolume: "250 ml", category: "Skin Care", stock: 28, minAlert: 15, unit: "bottles"),
+    InventoryItem(id: "inv4", name: "Hair Color (Black)", sizeVolume: "50 g", category: "Hair Care", stock: 8, minAlert: 10, unit: "tubes"),
+    InventoryItem(id: "inv5", name: "Styling Wax Matte", sizeVolume: "75 g", category: "Hair Care", stock: 22, minAlert: 8, unit: "jars"),
+    InventoryItem(id: "inv6", name: "Hydrating Rose Mist", sizeVolume: "200 ml", category: "Skin Care", stock: 19, minAlert: 6, unit: "bottles"),
+    InventoryItem(id: "inv7", name: "Titanium Thinning Shears", sizeVolume: "6 inch", category: "Tools", stock: 7, minAlert: 4, unit: "pcs"),
   ];
 
-  final List<CartItem> posCart = [];
+  int get totalInventoryItemsCount => 1248;
+  int get lowStockInventoryCount => inventory.where((i) => i.isLowStock).length;
 
-  void toggleStaffClockIn(String id) {
-    final idx = staff.indexWhere((s) => s.id == id);
+  // Expenses matching Screen 8b
+  final List<ExpenseItem> expenses = [
+    ExpenseItem(id: "exp1", category: "Products & Inventory", amount: 28500.0, date: DateTime(2026, 11, 2), note: "Monthly stock replenishment"),
+    ExpenseItem(id: "exp2", category: "Rent", amount: 15000.0, date: DateTime(2026, 11, 1), note: "Atelier floor commercial lease"),
+    ExpenseItem(id: "exp3", category: "Utilities (Electricity, Water)", amount: 4200.0, date: DateTime(2026, 11, 4), note: "BESCOM & water board"),
+    ExpenseItem(id: "exp4", category: "Staff Incentives", amount: 8000.0, date: DateTime(2026, 11, 5), note: "Diwali festival bonus advance"),
+    ExpenseItem(id: "exp5", category: "Others", amount: 6700.0, date: DateTime(2026, 11, 7), note: "Laundry, sanitizers & pantry supplies"),
+  ];
+
+  double get totalExpenses => expenses.fold(0, (sum, e) => sum + e.amount);
+
+  // Offers matching Screen 8c
+  final List<OfferItem> offers = [
+    OfferItem(
+      id: "off1",
+      title: "Flat 20% Off",
+      description: "On Hair Spa & Hair Care",
+      validity: "01 Nov - 30 Nov 2026",
+      isActive: true,
+      discountPercent: 20,
+    ),
+    OfferItem(
+      id: "off2",
+      title: "Beard Grooming Combo @ ₹499",
+      description: "Beard Trim + Charcoal Wash + Hot Towel",
+      validity: "01 Nov - 30 Nov 2026",
+      isActive: true,
+      discountPercent: 15,
+    ),
+    OfferItem(
+      id: "off3",
+      title: "Facial + Clean Up @ ₹1,299",
+      description: "Valid Till: 15 Nov 2026",
+      validity: "Valid Till: 15 Nov 2026",
+      isActive: false,
+      discountPercent: 25,
+    ),
+  ];
+
+  // POS Cart
+  final List<CartItem> posCart = [
+    CartItem(
+      service: ServiceItem(id: "s1", name: "Hair Cut", category: "Hair", price: 399.0, durationMinutes: 30),
+      quantity: 1,
+    ),
+    CartItem(
+      service: ServiceItem(id: "s2", name: "Hair Spa", category: "Hair", price: 1199.0, durationMinutes: 60),
+      quantity: 1,
+    ),
+    CartItem(
+      service: ServiceItem(id: "s4", name: "Beard Grooming", category: "Beard", price: 299.0, durationMinutes: 20),
+      quantity: 1,
+    ),
+  ];
+
+  double discountAmount = 100.0;
+
+  double get cartSubtotal => posCart.fold(0, (sum, item) => sum + (item.service.price * item.quantity));
+  double get cartTax => (cartSubtotal - discountAmount) * 0.18;
+  double get cartTotalPayable => (cartSubtotal - discountAmount + cartTax).clamp(0, double.infinity);
+
+  void updateCartQuantity(String serviceId, int delta) {
+    final idx = posCart.indexWhere((c) => c.service.id == serviceId);
     if (idx >= 0) {
-      staff[idx].isClockedIn = !staff[idx].isClockedIn;
-      staff[idx].checkInTime = staff[idx].isClockedIn ? "10:30 AM" : "--";
+      final newQty = posCart[idx].quantity + delta;
+      if (newQty <= 0) {
+        posCart.removeAt(idx);
+      } else {
+        posCart[idx].quantity = newQty;
+      }
       notifyListeners();
     }
   }
 
-  void adjustStock(String id, int delta) {
-    final idx = inventory.indexWhere((item) => item.id == id);
+  void addServiceToCart(ServiceItem service) {
+    final idx = posCart.indexWhere((c) => c.service.id == service.id);
     if (idx >= 0) {
-      inventory[idx].stock = (inventory[idx].stock + delta).clamp(0, 999);
-      notifyListeners();
-    }
-  }
-
-  void addToCart(ServiceItem service) {
-    final existingIndex = posCart.indexWhere((item) => item.service.id == service.id);
-    if (existingIndex >= 0) {
-      posCart[existingIndex].quantity += 1;
+      posCart[idx].quantity += 1;
     } else {
       posCart.add(CartItem(service: service));
     }
-    notifyListeners();
-  }
-
-  void removeFromCart(String serviceId) {
-    posCart.removeWhere((item) => item.service.id == serviceId);
     notifyListeners();
   }
 
@@ -332,48 +563,75 @@ class RuvexiAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  double get cartSubtotal => posCart.fold(0, (sum, item) => sum + (item.service.price * item.quantity));
-  double get cartTax => cartSubtotal * 0.18;
-  double get cartGrandTotal => cartSubtotal + cartTax;
-
-  void completeCheckout(String paymentMethod) {
-    todayRevenue += cartGrandTotal;
-    todayInvoices += 1;
-    posCart.clear();
+  void setPosCustomer(Customer? customer) {
+    posSelectedCustomer = customer;
     notifyListeners();
   }
 
-  void addWalkIn(String clientName, String serviceName, String stylist) {
-    walkInQueue.add(
-      WalkInQueueItem(
-        id: "w_${DateTime.now().millisecondsSinceEpoch}",
-        clientName: clientName,
-        serviceName: serviceName,
-        assignedStylist: stylist,
-        waitMinutes: 5,
-        status: "Waiting",
-      ),
-    );
+  void completePayment({required String method, double? amount}) {
+    final total = amount ?? cartTotalPayable;
+    todayRevenue += total;
+    todayClientsCount += 1;
+    todayAppointmentsCount += 1;
+    clearCart();
     notifyListeners();
   }
 
-  void updateWalkInStatus(String id, String newStatus) {
-    final itemIndex = walkInQueue.indexWhere((item) => item.id == id);
-    if (itemIndex >= 0) {
-      if (newStatus == 'Done') {
-        walkInQueue.removeAt(itemIndex);
-      } else {
-        final existing = walkInQueue[itemIndex];
-        walkInQueue[itemIndex] = WalkInQueueItem(
-          id: existing.id,
-          clientName: existing.clientName,
-          serviceName: existing.serviceName,
-          assignedStylist: existing.assignedStylist,
-          waitMinutes: existing.waitMinutes,
-          status: newStatus,
-        );
-      }
+  void addAppointment(Appointment appt) {
+    appointments.insert(0, appt);
+    notifyListeners();
+  }
+
+  void updateAppointmentStatus(String id, String newStatus) {
+    final idx = appointments.indexWhere((a) => a.id == id);
+    if (idx >= 0) {
+      appointments[idx].status = newStatus;
       notifyListeners();
     }
+  }
+
+  void addCustomer(Customer customer) {
+    customers.insert(0, customer);
+    notifyListeners();
+  }
+
+  void addStaff(StaffMember staffMember) {
+    staff.add(staffMember);
+    notifyListeners();
+  }
+
+  void addService(ServiceItem service) {
+    catalog.add(service);
+    notifyListeners();
+  }
+
+  void addInventoryItem(InventoryItem item) {
+    inventory.insert(0, item);
+    notifyListeners();
+  }
+
+  void addExpense(ExpenseItem item) {
+    expenses.insert(0, item);
+    notifyListeners();
+  }
+
+  void toggleOfferStatus(String id) {
+    final idx = offers.indexWhere((o) => o.id == id);
+    if (idx >= 0) {
+      offers[idx].isActive = !offers[idx].isActive;
+      notifyListeners();
+    }
+  }
+
+  void addOffer(OfferItem offer) {
+    offers.add(offer);
+    notifyListeners();
+  }
+
+  void logout() {
+    isAuthenticated = false;
+    currentUserName = "";
+    currentUserEmail = "";
+    notifyListeners();
   }
 }
