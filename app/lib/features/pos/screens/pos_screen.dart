@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../core/state/ruvexi_state.dart';
-import '../../core/theme/ruvexi_theme.dart';
+import 'package:ruvexi_mobile/core/state/ruvexi_state.dart';
+import 'package:ruvexi_mobile/core/theme/ruvexi_theme.dart';
 
 class PosBillingScreen extends StatelessWidget {
   final RuvexiAppState appState;
@@ -93,11 +93,11 @@ class PosBillingScreen extends StatelessWidget {
                       margin: const EdgeInsets.only(bottom: 8),
                       child: ListTile(
                         title: Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 14)),
-                        subtitle: Text("${item.category} • ${item.durationMinutes} min", style: const TextStyle(color: RuvexiTheme.textMuted, fontSize: 12)),
+                        subtitle: Text("${item.category} • ${item.durationMinutes} min", style: TextStyle(color: RuvexiTheme.textMuted, fontSize: 12)),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text("₹${item.price.toStringAsFixed(0)}", style: const TextStyle(color: RuvexiTheme.primaryAccent, fontWeight: FontWeight.bold, fontSize: 15)),
+                            Text("₹${item.price.toStringAsFixed(0)}", style: TextStyle(color: RuvexiTheme.primaryAccent, fontWeight: FontWeight.bold, fontSize: 15)),
                             const SizedBox(width: 8),
                             IconButton(
                               icon: const Icon(Icons.add_circle, color: RuvexiTheme.primaryAccent),

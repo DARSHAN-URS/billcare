@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../core/state/ruvexi_state.dart';
-import '../../core/theme/ruvexi_theme.dart';
-import '../../shared/widgets/ruvexi_logo.dart';
+import 'package:ruvexi_mobile/core/state/ruvexi_state.dart';
+import 'package:ruvexi_mobile/core/theme/ruvexi_theme.dart';
+import 'package:ruvexi_mobile/shared/widgets/ruvexi_logo.dart';
 
 class OverviewDashboardScreen extends StatelessWidget {
   final RuvexiAppState appState;

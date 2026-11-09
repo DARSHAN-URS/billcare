@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../core/state/ruvexi_state.dart';
-import '../../core/theme/ruvexi_theme.dart';
+import 'package:ruvexi_mobile/core/state/ruvexi_state.dart';
+import 'package:ruvexi_mobile/core/theme/ruvexi_theme.dart';
 
 class SettingsStaffScreen extends StatelessWidget {
   final RuvexiAppState appState;
@@ -54,7 +54,6 @@ class SettingsStaffScreen extends StatelessWidget {
               const SizedBox(height: 10),
               _buildIntegrationTile(Icons.phone_android, "Meta WhatsApp Cloud API", "Connected • Auto follow-ups active", RuvexiTheme.primaryAccent),
               _buildIntegrationTile(Icons.account_balance, "Razorpay Payment Gateway", "Active • Instant settlements", Colors.blueAccent),
-              _buildIntegrationTile(Icons.print, "Thermal ESC/POS Bluetooth Printer", "Ready • 80mm standard paper", Colors.amberAccent),
             ],
           );
         },
@@ -78,14 +77,14 @@ class SettingsStaffScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(name, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 14)),
-              Text(role, style: const TextStyle(color: RuvexiTheme.textMuted, fontSize: 12)),
+              Text(role, style: TextStyle(color: RuvexiTheme.textMuted, fontSize: 12)),
             ],
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(comm, style: const TextStyle(color: RuvexiTheme.goldAccent, fontWeight: FontWeight.bold, fontSize: 12)),
-              Text(stats, style: const TextStyle(color: RuvexiTheme.textSecondary, fontSize: 11)),
+              Text(comm, style: TextStyle(color: RuvexiTheme.goldAccent, fontWeight: FontWeight.bold, fontSize: 12)),
+              Text(stats, style: TextStyle(color: RuvexiTheme.textSecondary, fontSize: 11)),
             ],
           ),
         ],
@@ -111,11 +110,11 @@ class SettingsStaffScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 13)),
-                Text(subtitle, style: const TextStyle(color: RuvexiTheme.textMuted, fontSize: 11)),
+                Text(subtitle, style: TextStyle(color: RuvexiTheme.textMuted, fontSize: 11)),
               ],
             ),
           ),
-          const Icon(Icons.check_circle, color: RuvexiTheme.primaryAccent, size: 16),
+          Icon(Icons.check_circle, color: RuvexiTheme.primaryAccent, size: 16),
         ],
       ),
     );

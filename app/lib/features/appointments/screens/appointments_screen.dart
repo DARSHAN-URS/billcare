@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../core/state/ruvexi_state.dart';
-import '../../core/theme/ruvexi_theme.dart';
+import 'package:ruvexi_mobile/core/state/ruvexi_state.dart';
+import 'package:ruvexi_mobile/core/theme/ruvexi_theme.dart';
 
 class AppointmentsCalendarScreen extends StatelessWidget {
   final RuvexiAppState appState;
@@ -54,9 +54,9 @@ class AppointmentsCalendarScreen extends StatelessWidget {
                         children: [
                           Text(appt.customerName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
                           const SizedBox(height: 2),
-                          Text(appt.serviceName, style: const TextStyle(color: RuvexiTheme.textMuted, fontSize: 13)),
+                          Text(appt.serviceName, style: TextStyle(color: RuvexiTheme.textMuted, fontSize: 13)),
                           const SizedBox(height: 4),
-                          Text("Stylist: ${appt.staffName}", style: const TextStyle(color: RuvexiTheme.textSecondary, fontSize: 12)),
+                          Text("Stylist: ${appt.staffName}", style: TextStyle(color: RuvexiTheme.textSecondary, fontSize: 12)),
                         ],
                       ),
                     ),
@@ -71,7 +71,7 @@ class AppointmentsCalendarScreen extends StatelessWidget {
                             color: RuvexiTheme.primaryAccent.withOpacity(0.15),
                             borderRadius: BorderRadius.circular(6),
                           ),
-                          child: Text(appt.status, style: const TextStyle(color: RuvexiTheme.primaryAccent, fontSize: 11, fontWeight: FontWeight.bold)),
+                          child: Text(appt.status, style: TextStyle(color: RuvexiTheme.primaryAccent, fontSize: 11, fontWeight: FontWeight.bold)),
                         )
                       ],
                     )

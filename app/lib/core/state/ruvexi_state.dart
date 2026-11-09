@@ -43,7 +43,7 @@ class Appointment {
   final String staffName;
   final DateTime time;
   final double price;
-  final String status; // 'Confirmed', 'In Progress', 'Completed'
+  final String status;
 
   Appointment({
     required this.id,
@@ -62,7 +62,7 @@ class WalkInQueueItem {
   final String serviceName;
   final String assignedStylist;
   final int waitMinutes;
-  final String status; // 'Waiting', 'In Chair', 'Done'
+  final String status;
 
   WalkInQueueItem({
     required this.id,
@@ -71,6 +71,44 @@ class WalkInQueueItem {
     required this.assignedStylist,
     required this.waitMinutes,
     required this.status,
+  });
+}
+
+class InventoryItem {
+  final String id;
+  final String name;
+  final String category;
+  int stock;
+  final int minAlert;
+  final String unit;
+
+  InventoryItem({
+    required this.id,
+    required this.name,
+    required this.category,
+    required this.stock,
+    required this.minAlert,
+    required this.unit,
+  });
+}
+
+class StaffAttendance {
+  final String id;
+  final String staffName;
+  final String role;
+  bool isClockedIn;
+  String checkInTime;
+  double commissionRate;
+  double todaySales;
+
+  StaffAttendance({
+    required this.id,
+    required this.staffName,
+    required this.role,
+    required this.isClockedIn,
+    required this.checkInTime,
+    required this.commissionRate,
+    required this.todaySales,
   });
 }
 
@@ -83,7 +121,7 @@ class CartItem {
 
 class RuvexiAppState extends ChangeNotifier {
   String salonName = "Ruvexi Flagship Atelier";
-  String userRole = "Owner"; // Owner, Manager, Receptionist
+  String userRole = "Owner";
   double todayRevenue = 28450.00;
   int todayInvoices = 18;
 
@@ -184,7 +222,38 @@ class RuvexiAppState extends ChangeNotifier {
     ),
   ];
 
+  List<InventoryItem> inventory = [
+    InventoryItem(id: "inv1", name: "L'Oréal Professionnel Inoa 5.0", category: "Color Tubes", stock: 18, minAlert: 5, unit: "tubes"),
+    InventoryItem(id: "inv2", name: "Olaplex No. 1 Bond Multiplier", category: "Hair Care", stock: 2, minAlert: 4, unit: "bottles"),
+    InventoryItem(id: "inv3", name: "Moroccanoil Treatment Original", category: "Finishing", stock: 7, minAlert: 3, unit: "bottles"),
+    InventoryItem(id: "inv4", name: "Dermalogica Daily Microfoliant", category: "Skincare", stock: 1, minAlert: 3, unit: "jars"),
+    InventoryItem(id: "inv5", name: "Wella Welloxon Perfect 6%", category: "Developer", stock: 14, minAlert: 5, unit: "litres"),
+  ];
+
+  List<StaffAttendance> staff = [
+    StaffAttendance(id: "st1", staffName: "Priya Varma", role: "Senior Colorist", isClockedIn: true, checkInTime: "09:45 AM", commissionRate: 0.15, todaySales: 18400.0),
+    StaffAttendance(id: "st2", staffName: "Vikram Sethi", role: "Master Barber", isClockedIn: true, checkInTime: "10:02 AM", commissionRate: 0.12, todaySales: 14200.0),
+    StaffAttendance(id: "st3", staffName: "Sunita Mohan", role: "Lead Aesthetician", isClockedIn: false, checkInTime: "--", commissionRate: 0.10, todaySales: 8600.0),
+  ];
+
   final List<CartItem> posCart = [];
+
+  void toggleStaffClockIn(String id) {
+    final idx = staff.indexWhere((s) => s.id == id);
+    if (idx >= 0) {
+      staff[idx].isClockedIn = !staff[idx].isClockedIn;
+      staff[idx].checkInTime = staff[idx].isClockedIn ? "10:30 AM" : "--";
+      notifyListeners();
+    }
+  }
+
+  void adjustStock(String id, int delta) {
+    final idx = inventory.indexWhere((item) => item.id == id);
+    if (idx >= 0) {
+      inventory[idx].stock = (inventory[idx].stock + delta).clamp(0, 999);
+      notifyListeners();
+    }
+  }
 
   void addToCart(ServiceItem service) {
     final existingIndex = posCart.indexWhere((item) => item.service.id == service.id);
@@ -207,7 +276,7 @@ class RuvexiAppState extends ChangeNotifier {
   }
 
   double get cartSubtotal => posCart.fold(0, (sum, item) => sum + (item.service.price * item.quantity));
-  double get cartTax => cartSubtotal * 0.18; // 18% GST standard
+  double get cartTax => cartSubtotal * 0.18;
   double get cartGrandTotal => cartSubtotal + cartTax;
 
   void completeCheckout(String paymentMethod) {
@@ -251,4 +320,3 @@ class RuvexiAppState extends ChangeNotifier {
     }
   }
 }
-

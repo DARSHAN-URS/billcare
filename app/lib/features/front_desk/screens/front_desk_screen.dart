@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../core/state/ruvexi_state.dart';
-import '../../core/theme/ruvexi_theme.dart';
+import 'package:ruvexi_mobile/core/state/ruvexi_state.dart';
+import 'package:ruvexi_mobile/core/theme/ruvexi_theme.dart';
 
 class FrontDeskScreen extends StatelessWidget {
   final RuvexiAppState appState;
@@ -39,7 +39,7 @@ class FrontDeskScreen extends StatelessWidget {
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 labelText: "Client Name",
-                labelStyle: const TextStyle(color: RuvexiTheme.textMuted),
+                labelStyle: TextStyle(color: RuvexiTheme.textMuted),
                 filled: true,
                 fillColor: RuvexiTheme.surface,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
@@ -51,7 +51,7 @@ class FrontDeskScreen extends StatelessWidget {
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 labelText: "Service Requested",
-                labelStyle: const TextStyle(color: RuvexiTheme.textMuted),
+                labelStyle: TextStyle(color: RuvexiTheme.textMuted),
                 filled: true,
                 fillColor: RuvexiTheme.surface,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
@@ -156,13 +156,13 @@ class FrontDeskScreen extends StatelessWidget {
                               children: [
                                 Text(item.clientName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white)),
                                 const SizedBox(height: 2),
-                                Text(item.serviceName, style: const TextStyle(color: RuvexiTheme.textMuted, fontSize: 13)),
+                                Text(item.serviceName, style: TextStyle(color: RuvexiTheme.textMuted, fontSize: 13)),
                                 const SizedBox(height: 4),
                                 Row(
                                   children: [
                                     const Icon(Icons.person, size: 13, color: RuvexiTheme.textSecondary),
                                     const SizedBox(width: 4),
-                                    Text(item.assignedStylist, style: const TextStyle(color: RuvexiTheme.textSecondary, fontSize: 12)),
+                                    Text(item.assignedStylist, style: TextStyle(color: RuvexiTheme.textSecondary, fontSize: 12)),
                                   ],
                                 )
                               ],

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../core/state/ruvexi_state.dart';
-import '../../core/theme/ruvexi_theme.dart';
+import 'package:ruvexi_mobile/core/state/ruvexi_state.dart';
+import 'package:ruvexi_mobile/core/theme/ruvexi_theme.dart';
 
 class CustomersCrmScreen extends StatelessWidget {
   final RuvexiAppState appState;
@@ -36,11 +36,11 @@ class CustomersCrmScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(client.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
-                        Text("${client.visitsCount} visits • ₹${client.totalSpent.toStringAsFixed(0)}", style: const TextStyle(color: RuvexiTheme.goldAccent, fontSize: 12, fontWeight: FontWeight.bold)),
+                        Text("${client.visitsCount} visits • ₹${client.totalSpent.toStringAsFixed(0)}", style: TextStyle(color: RuvexiTheme.goldAccent, fontSize: 12, fontWeight: FontWeight.bold)),
                       ],
                     ),
                     const SizedBox(height: 4),
-                    Text("${client.phone} • ${client.email}", style: const TextStyle(color: RuvexiTheme.textMuted, fontSize: 12)),
+                    Text("${client.phone} • ${client.email}", style: TextStyle(color: RuvexiTheme.textMuted, fontSize: 12)),
                     if (client.formulaNotes != null) ...[
                       const SizedBox(height: 10),
                       Container(

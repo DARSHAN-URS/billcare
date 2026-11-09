@@ -6,6 +6,10 @@ import 'features/front_desk/screens/front_desk_screen.dart';
 import 'features/pos/screens/pos_screen.dart';
 import 'features/appointments/screens/appointments_screen.dart';
 import 'features/crm/screens/customers_crm_screen.dart';
+import 'features/inventory/screens/inventory_screen.dart';
+import 'features/attendance/screens/attendance_staff_screen.dart';
+import 'features/reports/screens/reports_analytics_screen.dart';
+import 'features/booking/screens/public_booking_screen.dart';
 import 'features/settings/screens/settings_staff_screen.dart';
 
 void main() {
@@ -54,16 +58,63 @@ class _MainShellScreenState extends State<MainShellScreen> {
       PosBillingScreen(appState: widget.appState),
       AppointmentsCalendarScreen(appState: widget.appState),
       CustomersCrmScreen(appState: widget.appState),
+      InventoryScreen(appState: widget.appState),
+      AttendanceStaffScreen(appState: widget.appState),
+      ReportsAnalyticsScreen(appState: widget.appState),
+      PublicBookingScreen(appState: widget.appState),
       SettingsStaffScreen(appState: widget.appState),
     ];
 
     return Scaffold(
+      drawer: Drawer(
+        backgroundColor: RuvexiTheme.card,
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: const BoxDecoration(color: Color(0xFF101014)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  const Text("RUVEXI SOLUTIONS", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 18, letterSpacing: 2)),
+                  const SizedBox(height: 4),
+                  Text(widget.appState.salonName, style: const TextStyle(color: RuvexiTheme.textMuted, fontSize: 13)),
+                  const SizedBox(height: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: RuvexiTheme.primaryAccent.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      widget.appState.userRole,
+                      style: const TextStyle(color: RuvexiTheme.primaryAccent, fontSize: 11, fontWeight: FontWeight.bold),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            _buildDrawerTile(Icons.dashboard_outlined, "Overview", 0),
+            _buildDrawerTile(Icons.chair_alt_outlined, "Front Desk & Queue", 1),
+            _buildDrawerTile(Icons.point_of_sale, "POS Checkout Register", 2),
+            _buildDrawerTile(Icons.calendar_month_outlined, "Appointments & Calendar", 3),
+            _buildDrawerTile(Icons.groups_outlined, "Client Formulas & CRM", 4),
+            const Divider(color: RuvexiTheme.border),
+            _buildDrawerTile(Icons.inventory_2_outlined, "Stock & Inventory", 5),
+            _buildDrawerTile(Icons.badge_outlined, "Staff Attendance & Payouts", 6),
+            _buildDrawerTile(Icons.bar_chart, "Reports & Analytics", 7),
+            _buildDrawerTile(Icons.language, "Public Booking Portal", 8),
+            _buildDrawerTile(Icons.settings_outlined, "Salon Settings", 9),
+          ],
+        ),
+      ),
       body: IndexedStack(
         index: _currentIndex,
         children: screens,
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
+        currentIndex: _currentIndex >= 5 ? 0 : _currentIndex,
         onTap: (index) {
           setState(() {
             _currentIndex = index;
@@ -101,13 +152,30 @@ class _MainShellScreenState extends State<MainShellScreen> {
             activeIcon: Icon(Icons.groups),
             label: 'Clients',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings_outlined),
-            activeIcon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildDrawerTile(IconData icon, String title, int index) {
+    final isSelected = _currentIndex == index;
+    return ListTile(
+      leading: Icon(icon, color: isSelected ? RuvexiTheme.primaryAccent : RuvexiTheme.textMuted, size: 20),
+      title: Text(
+        title,
+        style: TextStyle(
+          color: isSelected ? Colors.white : RuvexiTheme.textMuted,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          fontSize: 13,
+        ),
+      ),
+      selected: isSelected,
+      onTap: () {
+        setState(() {
+          _currentIndex = index;
+        });
+        Navigator.pop(context);
+      },
     );
   }
 }
