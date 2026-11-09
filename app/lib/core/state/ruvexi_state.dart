@@ -125,6 +125,33 @@ class RuvexiAppState extends ChangeNotifier {
   double todayRevenue = 28450.00;
   int todayInvoices = 18;
 
+  bool isAuthenticated = false;
+  String currentUserName = "";
+  String currentUserEmail = "";
+
+  void loginWithGoogle({required String userName, required String userEmail}) {
+    isAuthenticated = true;
+    currentUserName = userName;
+    currentUserEmail = userEmail;
+    userRole = "Owner";
+    notifyListeners();
+  }
+
+  void loginWithEmail(String email) {
+    isAuthenticated = true;
+    currentUserEmail = email;
+    currentUserName = email.split('@').first;
+    userRole = "Owner";
+    notifyListeners();
+  }
+
+  void logout() {
+    isAuthenticated = false;
+    currentUserName = "";
+    currentUserEmail = "";
+    notifyListeners();
+  }
+
   List<WalkInQueueItem> walkInQueue = [
     WalkInQueueItem(
       id: "w1",

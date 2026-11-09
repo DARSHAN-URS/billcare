@@ -11,6 +11,7 @@ import 'features/attendance/screens/attendance_staff_screen.dart';
 import 'features/reports/screens/reports_analytics_screen.dart';
 import 'features/booking/screens/public_booking_screen.dart';
 import 'features/settings/screens/settings_staff_screen.dart';
+import 'features/auth/screens/splash_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,7 +34,7 @@ class _RuvexiAppState extends State<RuvexiApp> {
       title: 'RUVEXI Solutions - Salon OS',
       debugShowCheckedModeBanner: false,
       theme: RuvexiTheme.darkTheme,
-      home: MainShellScreen(appState: _appState),
+      home: SplashScreen(appState: _appState),
     );
   }
 }
