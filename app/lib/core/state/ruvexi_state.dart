@@ -192,6 +192,24 @@ class RuvexiAppState extends ChangeNotifier {
   String currentUserName = "Darshan";
   String currentUserEmail = "ruvexisolutions@gmail.com";
 
+  Future<bool> login({required String identifier, required String password}) async {
+    isAuthenticated = true;
+    currentUserEmail = identifier;
+    currentUserName = identifier.contains('@') ? identifier.split('@').first : "Darshan";
+    userRole = "Owner";
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> loginWithGoogle() async {
+    isAuthenticated = true;
+    currentUserEmail = "ruvexisolutions@gmail.com";
+    currentUserName = "Darshan";
+    userRole = "Owner";
+    notifyListeners();
+    return true;
+  }
+
   // Selected customer in POS
   Customer? posSelectedCustomer;
 
