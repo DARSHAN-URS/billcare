@@ -47,31 +47,33 @@ class OverviewDashboardScreen extends StatelessWidget {
                 const Text("Operational Overview & Performance", style: TextStyle(color: RuvexiTheme.textMuted, fontSize: 13)),
                 const SizedBox(height: 20),
 
-                // Metrics Row
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildMetricCard(
-                        "Today's Revenue",
-                        "₹${appState.todayRevenue.toStringAsFixed(0)}",
-                        Icons.trending_up,
-                        RuvexiTheme.primaryAccent,
-                        "+18% vs yesterday",
+                // Metrics Row - If Staff, hide gross financial profit metrics
+                if (appState.userRole == "Owner") ...[
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildMetricCard(
+                          "Today's Revenue",
+                          "₹${appState.todayRevenue.toStringAsFixed(0)}",
+                          Icons.trending_up,
+                          RuvexiTheme.primaryAccent,
+                          "+18% vs yesterday",
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildMetricCard(
-                        "Invoices Settled",
-                        appState.todayInvoices.toString(),
-                        Icons.receipt_long,
-                        RuvexiTheme.goldAccent,
-                        "Average bill ₹${(appState.todayRevenue / (appState.todayInvoices > 0 ? appState.todayInvoices : 1)).toStringAsFixed(0)}",
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildMetricCard(
+                          "Invoices Settled",
+                          appState.todayInvoices.toString(),
+                          Icons.receipt_long,
+                          RuvexiTheme.goldAccent,
+                          "Average bill ₹${(appState.todayRevenue / (appState.todayInvoices > 0 ? appState.todayInvoices : 1)).toStringAsFixed(0)}",
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                ],
                 Row(
                   children: [
                     Expanded(

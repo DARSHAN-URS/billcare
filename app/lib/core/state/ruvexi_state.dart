@@ -121,7 +121,7 @@ class CartItem {
 
 class RuvexiAppState extends ChangeNotifier {
   String salonName = "Ruvexi Flagship Atelier";
-  String userRole = "Owner";
+  String userRole = "Owner"; // Strictly "Owner" or "Staff"
   double todayRevenue = 28450.00;
   int todayInvoices = 18;
 
@@ -129,20 +129,32 @@ class RuvexiAppState extends ChangeNotifier {
   String currentUserName = "";
   String currentUserEmail = "";
 
-  void loginWithGoogle({required String userName, required String userEmail}) {
+  void loginAsOwner({required String email}) {
     isAuthenticated = true;
-    currentUserName = userName;
-    currentUserEmail = userEmail;
     userRole = "Owner";
+    currentUserEmail = email;
+    currentUserName = "Salon Owner";
     notifyListeners();
   }
 
-  void loginWithEmail(String email) {
+  void loginAsStaff({required String email, required String password}) {
     isAuthenticated = true;
+    userRole = "Staff";
     currentUserEmail = email;
     currentUserName = email.split('@').first;
-    userRole = "Owner";
     notifyListeners();
+  }
+
+  void resetStaffPassword({required String email, required String newPassword}) {
+    // Updates staff password in state/backend
+    notifyListeners();
+  }
+
+  void switchRole(String role) {
+    if (role == "Owner" || role == "Staff") {
+      userRole = role;
+      notifyListeners();
+    }
   }
 
   void logout() {
