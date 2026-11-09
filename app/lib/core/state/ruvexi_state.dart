@@ -137,6 +137,24 @@ class RuvexiAppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<bool> login({required String identifier, required String password}) async {
+    isAuthenticated = true;
+    currentUserEmail = identifier;
+    currentUserName = identifier.contains('@') ? identifier.split('@').first : "Salon Director";
+    userRole = "Owner";
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> loginWithGoogle() async {
+    isAuthenticated = true;
+    currentUserEmail = "director@ruvexi.com";
+    currentUserName = "Salon Director";
+    userRole = "Owner";
+    notifyListeners();
+    return true;
+  }
+
   void loginAsStaff({required String email, required String password}) {
     isAuthenticated = true;
     userRole = "Staff";
