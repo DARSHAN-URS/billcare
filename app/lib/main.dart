@@ -156,16 +156,24 @@ class _MainShellScreenState extends State<MainShellScreen> {
   @override
   Widget build(BuildContext context) {
     final screens = [
-      OverviewDashboardScreen(appState: widget.appState),        // 0: Home
-      AppointmentsCalendarScreen(appState: widget.appState),     // 1: Appointments
-      PosBillingScreen(appState: widget.appState),               // 2: POS
-      CustomersCrmScreen(appState: widget.appState),             // 3: Customers
-      FrontDeskScreen(appState: widget.appState),                // 4: Front Desk
-      InventoryScreen(appState: widget.appState),                // 5: Inventory
-      AttendanceStaffScreen(appState: widget.appState),          // 6: Attendance
-      ReportsAnalyticsScreen(appState: widget.appState),         // 7: Reports
-      PublicBookingScreen(appState: widget.appState),            // 8: Booking
-      SettingsStaffScreen(appState: widget.appState),            // 9: Settings
+      OverviewDashboardScreen(
+        appState: widget.appState,
+        onNavigateToTab: (index) {
+          setState(() {
+            _currentNavIndex = (index <= 3) ? index : 4;
+            _activeScreenIndex = index;
+          });
+        },
+      ), // 0: Home
+      AppointmentsCalendarScreen(appState: widget.appState), // 1: Appointments
+      PosBillingScreen(appState: widget.appState), // 2: POS
+      CustomersCrmScreen(appState: widget.appState), // 3: Customers
+      FrontDeskScreen(appState: widget.appState), // 4: Front Desk
+      InventoryScreen(appState: widget.appState), // 5: Inventory
+      AttendanceStaffScreen(appState: widget.appState), // 6: Attendance
+      ReportsAnalyticsScreen(appState: widget.appState), // 7: Reports
+      PublicBookingScreen(appState: widget.appState), // 8: Booking
+      SettingsStaffScreen(appState: widget.appState), // 9: Settings
     ];
 
     return Scaffold(
@@ -181,27 +189,23 @@ class _MainShellScreenState extends State<MainShellScreen> {
   // Exact bottom navigation bar matching the user's reference image
   Widget _buildPremiumFloatingBottomBar() {
     return Container(
-      margin: const EdgeInsets.fromLTRB(14, 0, 14, 18),
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFF09090B),
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: const Color(0xFF27272A), width: 1.2),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.7),
-            blurRadius: 24,
-            offset: const Offset(0, 10),
+        color: const Color(0xFF070908),
+        border: Border(
+          top: BorderSide(
+            color: Colors.white.withValues(alpha: 0.10),
+            width: 0.9,
           ),
-        ],
+        ),
       ),
+      padding: const EdgeInsets.fromLTRB(10, 10, 10, 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _buildNavItem(
             index: 0,
             screenIndex: 0,
-            iconOutline: Icons.home_outlined,
+            iconOutline: Icons.home_rounded,
             iconFilled: Icons.home_rounded,
             label: "Home",
           ),
@@ -215,8 +219,8 @@ class _MainShellScreenState extends State<MainShellScreen> {
           _buildNavItem(
             index: 2,
             screenIndex: 2,
-            iconOutline: Icons.account_balance_wallet_outlined,
-            iconFilled: Icons.account_balance_wallet_rounded,
+            iconOutline: Icons.point_of_sale_outlined,
+            iconFilled: Icons.point_of_sale_rounded,
             label: "POS",
           ),
           _buildNavItem(
@@ -282,7 +286,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            Icons.more_horiz_rounded,
+            Icons.grid_view_rounded,
             color: isSelected ? RuvexiTheme.primaryAccent : const Color(0xFFD4D4D8),
             size: 22,
           ),
