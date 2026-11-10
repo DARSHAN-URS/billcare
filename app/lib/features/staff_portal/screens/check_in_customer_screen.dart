@@ -388,3 +388,4 @@ class _CheckInCustomerScreenState extends State<CheckInCustomerScreen> {
     );
   }
 }
+

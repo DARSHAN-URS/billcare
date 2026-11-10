@@ -321,3 +321,4 @@ class _InSalonCustomerDetailsScreenState extends State<InSalonCustomerDetailsScr
     );
   }
 }
+

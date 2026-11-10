@@ -289,3 +289,4 @@ class _InSalonScreenState extends State<InSalonScreen> {
     );
   }
 }
+
