@@ -408,3 +408,4 @@ class _NewAppointmentScreenState extends State<NewAppointmentScreen> {
     );
   }
 }
+

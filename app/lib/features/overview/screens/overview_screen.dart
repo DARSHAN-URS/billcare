@@ -215,32 +215,76 @@ class OverviewDashboardScreen extends StatelessWidget {
         ),
 
         // Owner Role Badge Pill
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-          decoration: BoxDecoration(
-            color: const Color(0xFF141915),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: const Color(0xFF22C55E).withValues(alpha: 0.35),
-              width: 1,
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: const [
-              Icon(Icons.workspace_premium_rounded, size: 16, color: Color(0xFFFACC15)),
-              SizedBox(width: 6),
-              Text(
-                "Owner",
-                style: TextStyle(
-                  color: Color(0xFF22C55E),
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.bold,
+        GestureDetector(
+          onTap: () {
+            showModalBottomSheet(
+              context: context,
+              backgroundColor: const Color(0xFF101311),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              builder: (ctx) => Padding(
+                padding: const EdgeInsets.all(22),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("Switch Workspace Role", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 14),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.workspace_premium_rounded, color: Color(0xFFFACC15)),
+                      title: const Text("Owner Dashboard", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                      subtitle: const Text("Full financials, analytics, staff & settings", style: TextStyle(color: Colors.white54, fontSize: 12)),
+                      trailing: appState.userRole == "Owner" ? const Icon(Icons.check_circle, color: Color(0xFF22C55E)) : null,
+                      onTap: () {
+                        Navigator.pop(ctx);
+                        appState.switchRole("Owner");
+                      },
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.support_agent_rounded, color: Color(0xFF22C55E)),
+                      title: const Text("Receptionist / Staff Desk", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                      subtitle: const Text("Check-in queue, seats, and rapid billing", style: TextStyle(color: Colors.white54, fontSize: 12)),
+                      trailing: appState.userRole == "Receptionist" ? const Icon(Icons.check_circle, color: Color(0xFF22C55E)) : null,
+                      onTap: () {
+                        Navigator.pop(ctx);
+                        appState.switchRole("Receptionist");
+                      },
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(width: 4),
-              Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: Color(0xFF22C55E)),
-            ],
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+            decoration: BoxDecoration(
+              color: const Color(0xFF141915),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: const Color(0xFF22C55E).withValues(alpha: 0.35),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(Icons.workspace_premium_rounded, size: 16, color: Color(0xFFFACC15)),
+                SizedBox(width: 6),
+                Text(
+                  "Owner",
+                  style: TextStyle(
+                    color: Color(0xFF22C55E),
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(width: 4),
+                Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: Color(0xFF22C55E)),
+              ],
+            ),
           ),
         ),
       ],

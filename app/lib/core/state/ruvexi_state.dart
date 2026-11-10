@@ -179,6 +179,49 @@ class CartItem {
   CartItem({required this.service, this.quantity = 1});
 }
 
+class SalonSeat {
+  final String id; // e.g., "S-1"
+  bool isInUse;
+  String? currentClientId;
+  String? currentClientName;
+
+  SalonSeat({
+    required this.id,
+    this.isInUse = false,
+    this.currentClientId,
+    this.currentClientName,
+  });
+}
+
+class InSalonClient {
+  final String id;
+  final String customerName;
+  final String phone;
+  List<ServiceItem> services;
+  String assignedStaff;
+  String seatId; // e.g., "S-1" or "Waiting"
+  final String checkInTime;
+  int elapsedMinutes;
+  String status; // "In Salon", "Waiting", "Completed"
+  String notes;
+
+  InSalonClient({
+    required this.id,
+    required this.customerName,
+    required this.phone,
+    required this.services,
+    required this.assignedStaff,
+    required this.seatId,
+    required this.checkInTime,
+    this.elapsedMinutes = 5,
+    this.status = "In Salon",
+    this.notes = "",
+  });
+
+  String get servicesSummary => services.map((s) => s.name).join(" + ");
+  double get totalServiceAmount => services.fold(0.0, (sum, s) => sum + s.price);
+}
+
 class RuvexiAppState extends ChangeNotifier {
   String salonName = "Ruvexi Salon & Spa";
   String salonLocation = "Chikmagaluru, Karnataka";
@@ -195,11 +238,129 @@ class RuvexiAppState extends ChangeNotifier {
   Future<bool> login({required String identifier, required String password}) async {
     isAuthenticated = true;
     currentUserEmail = identifier;
-    currentUserName = identifier.contains('@') ? identifier.split('@').first : "Darshan";
-    userRole = "Owner";
+    final lower = identifier.toLowerCase();
+    if (lower.contains('staff') || lower.contains('anjali') || lower.contains('reception')) {
+      userRole = "Receptionist";
+      currentUserName = "Anjali";
+    } else {
+      userRole = "Owner";
+      currentUserName = identifier.contains('@') ? identifier.split('@').first : "Darshan";
+    }
     notifyListeners();
     return true;
   }
+
+  void switchRole(String role) {
+    if (role == "Owner" || role == "Receptionist") {
+      userRole = role;
+      currentUserName = role == "Owner" ? "Darshan" : "Anjali";
+      notifyListeners();
+    }
+  }
+
+  // Selected customer in POS & active in-salon client being billed
+  Customer? posSelectedCustomer;
+  InSalonClient? activeBillingClient;
+  int staffCompletedCount = 8;
+
+  // Seats / Stations S-1 to S-6
+  final List<SalonSeat> seats = [
+    SalonSeat(id: "S-1", isInUse: true, currentClientId: "ins_1", currentClientName: "Priya Sharma"),
+    SalonSeat(id: "S-2", isInUse: true, currentClientId: "ins_2", currentClientName: "Arjun Rao"),
+    SalonSeat(id: "S-3", isInUse: true, currentClientId: "ins_3", currentClientName: "Neha R"),
+    SalonSeat(id: "S-4", isInUse: true, currentClientId: "ins_4", currentClientName: "Rahul M"),
+    SalonSeat(id: "S-5", isInUse: false),
+    SalonSeat(id: "S-6", isInUse: false),
+  ];
+
+  // In Salon Clients (Receptionist Floor)
+  final List<InSalonClient> inSalonClients = [
+    InSalonClient(
+      id: "ins_1",
+      customerName: "Priya Sharma",
+      phone: "+91 98765 43210",
+      services: [
+        ServiceItem(id: "s1", name: "Hair Cut", category: "Hair", price: 399.0, durationMinutes: 30),
+        ServiceItem(id: "s2", name: "Hair Spa", category: "Hair", price: 1199.0, durationMinutes: 60),
+      ],
+      assignedStaff: "Manoj K",
+      seatId: "S-1",
+      checkInTime: "10:00 AM",
+      elapsedMinutes: 28,
+      status: "In Salon",
+      notes: "Client prefers mild products.",
+    ),
+    InSalonClient(
+      id: "ins_2",
+      customerName: "Arjun Rao",
+      phone: "+91 87654 32109",
+      services: [
+        ServiceItem(id: "s4", name: "Beard Grooming", category: "Beard", price: 299.0, durationMinutes: 20),
+      ],
+      assignedStaff: "Kiran S",
+      seatId: "S-2",
+      checkInTime: "10:15 AM",
+      elapsedMinutes: 18,
+      status: "In Salon",
+    ),
+    InSalonClient(
+      id: "ins_3",
+      customerName: "Neha R",
+      phone: "+91 99876 54321",
+      services: [
+        ServiceItem(id: "s3", name: "Hair Color", category: "Hair", price: 2499.0, durationMinutes: 90),
+      ],
+      assignedStaff: "Pooja M",
+      seatId: "S-3",
+      checkInTime: "09:50 AM",
+      elapsedMinutes: 40,
+      status: "In Salon",
+    ),
+    InSalonClient(
+      id: "ins_4",
+      customerName: "Rahul M",
+      phone: "+91 96543 21098",
+      services: [
+        ServiceItem(id: "s1", name: "Hair Cut", category: "Hair", price: 399.0, durationMinutes: 30),
+      ],
+      assignedStaff: "Rohit D",
+      seatId: "S-4",
+      checkInTime: "10:22 AM",
+      elapsedMinutes: 12,
+      status: "In Salon",
+    ),
+    InSalonClient(
+      id: "ins_5",
+      customerName: "Sneha P",
+      phone: "+91 93456 78901",
+      services: [
+        ServiceItem(id: "s5", name: "Facial", category: "Skin", price: 1299.0, durationMinutes: 60),
+      ],
+      assignedStaff: "Anjali R",
+      seatId: "Waiting",
+      checkInTime: "10:28 AM",
+      elapsedMinutes: 6,
+      status: "Waiting",
+    ),
+    InSalonClient(
+      id: "ins_6",
+      customerName: "Vivek K",
+      phone: "+91 90987 65432",
+      services: [
+        ServiceItem(id: "s2", name: "Hair Spa", category: "Hair", price: 1199.0, durationMinutes: 60),
+      ],
+      assignedStaff: "Manoj K",
+      seatId: "Waiting",
+      checkInTime: "10:31 AM",
+      elapsedMinutes: 3,
+      status: "Waiting",
+    ),
+  ];
+
+  int get inSalonActiveCount => inSalonClients.where((c) => c.status == "In Salon").length;
+  int get waitingClientsCount => inSalonClients.where((c) => c.status == "Waiting").length;
+  int get seatsInUseCount => seats.where((s) => s.isInUse).length;
+  int get seatsAvailableCount => seats.where((s) => !s.isInUse).length;
 
   Future<bool> loginWithGoogle() async {
     isAuthenticated = true;
@@ -209,9 +370,6 @@ class RuvexiAppState extends ChangeNotifier {
     notifyListeners();
     return true;
   }
-
-  // Selected customer in POS
-  Customer? posSelectedCustomer;
 
   // Catalog of services
   final List<ServiceItem> catalog = [
@@ -646,10 +804,164 @@ class RuvexiAppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void checkInCustomer({
+    required String customerName,
+    required String phone,
+    required List<ServiceItem> services,
+    required String assignedStaff,
+    required String seatId,
+    String notes = "",
+  }) {
+    final newId = "ins_${DateTime.now().millisecondsSinceEpoch}";
+    final isWaiting = seatId == "Waiting";
+    final now = TimeOfDayHelper.formatNow();
+
+    final newClient = InSalonClient(
+      id: newId,
+      customerName: customerName,
+      phone: phone.isNotEmpty ? phone : "+91 98765 00000",
+      services: services,
+      assignedStaff: assignedStaff,
+      seatId: seatId,
+      checkInTime: now,
+      elapsedMinutes: 1,
+      status: isWaiting ? "Waiting" : "In Salon",
+      notes: notes,
+    );
+
+    inSalonClients.insert(0, newClient);
+
+    if (!isWaiting) {
+      final seatIdx = seats.indexWhere((s) => s.id == seatId);
+      if (seatIdx >= 0) {
+        seats[seatIdx].isInUse = true;
+        seats[seatIdx].currentClientId = newId;
+        seats[seatIdx].currentClientName = customerName;
+      }
+    }
+
+    // Add to CRM if not exists
+    final existsInCrm = customers.any((c) => c.name.toLowerCase() == customerName.toLowerCase());
+    if (!existsInCrm) {
+      customers.insert(
+        0,
+        Customer(
+          id: "c_${DateTime.now().millisecondsSinceEpoch}",
+          name: customerName,
+          phone: phone.isNotEmpty ? phone : "+91 98765 00000",
+          email: "${customerName.toLowerCase().replaceAll(' ', '.')}@example.com",
+          visitsCount: 1,
+          totalSpent: 0,
+          tag: "New",
+        ),
+      );
+    }
+
+    notifyListeners();
+  }
+
+  void updateInSalonClient({
+    required String clientId,
+    String? newSeatId,
+    String? newStaff,
+    List<ServiceItem>? newServices,
+  }) {
+    final idx = inSalonClients.indexWhere((c) => c.id == clientId);
+    if (idx < 0) return;
+
+    final client = inSalonClients[idx];
+
+    if (newSeatId != null && newSeatId != client.seatId) {
+      // Free old seat
+      final oldSeatIdx = seats.indexWhere((s) => s.id == client.seatId);
+      if (oldSeatIdx >= 0) {
+        seats[oldSeatIdx].isInUse = false;
+        seats[oldSeatIdx].currentClientId = null;
+        seats[oldSeatIdx].currentClientName = null;
+      }
+      // Occupy new seat
+      if (newSeatId != "Waiting") {
+        final newSeatIdx = seats.indexWhere((s) => s.id == newSeatId);
+        if (newSeatIdx >= 0) {
+          seats[newSeatIdx].isInUse = true;
+          seats[newSeatIdx].currentClientId = client.id;
+          seats[newSeatIdx].currentClientName = client.customerName;
+        }
+        client.status = "In Salon";
+      } else {
+        client.status = "Waiting";
+      }
+      client.seatId = newSeatId;
+    }
+
+    if (newStaff != null) client.assignedStaff = newStaff;
+    if (newServices != null && newServices.isNotEmpty) client.services = newServices;
+
+    notifyListeners();
+  }
+
+  void moveClientToBilling(InSalonClient client) {
+    activeBillingClient = client;
+
+    // Set selected customer
+    final existingIdx = customers.indexWhere((c) => c.name.toLowerCase() == client.customerName.toLowerCase());
+    if (existingIdx >= 0) {
+      posSelectedCustomer = customers[existingIdx];
+    } else {
+      posSelectedCustomer = Customer(
+        id: "tmp_${client.id}",
+        name: client.customerName,
+        phone: client.phone,
+        email: "",
+        visitsCount: 1,
+        totalSpent: 0,
+      );
+    }
+
+    // Load client services into cart
+    posCart.clear();
+    for (final svc in client.services) {
+      posCart.add(CartItem(service: svc, quantity: 1));
+    }
+
+    notifyListeners();
+  }
+
+  void completeStaffCheckout({required String method, required double amount}) {
+    todayRevenue += amount;
+    staffCompletedCount += 1;
+
+    if (activeBillingClient != null) {
+      final client = activeBillingClient!;
+      client.status = "Completed";
+
+      // Free the occupied seat
+      final seatIdx = seats.indexWhere((s) => s.id == client.seatId);
+      if (seatIdx >= 0) {
+        seats[seatIdx].isInUse = false;
+        seats[seatIdx].currentClientId = null;
+        seats[seatIdx].currentClientName = null;
+      }
+      activeBillingClient = null;
+    }
+
+    posCart.clear();
+    notifyListeners();
+  }
+
   void logout() {
     isAuthenticated = false;
     currentUserName = "";
     currentUserEmail = "";
     notifyListeners();
+  }
+}
+
+class TimeOfDayHelper {
+  static String formatNow() {
+    final now = DateTime.now();
+    final hour12 = now.hour > 12 ? now.hour - 12 : (now.hour == 0 ? 12 : now.hour);
+    final period = now.hour >= 12 ? "PM" : "AM";
+    return "${hour12.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')} $period";
   }
 }

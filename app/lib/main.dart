@@ -6,8 +6,11 @@ import 'package:ruvexi_mobile/features/appointments/screens/appointments_screen.
 import 'package:ruvexi_mobile/features/pos/screens/pos_screen.dart';
 import 'package:ruvexi_mobile/features/crm/screens/customers_crm_screen.dart';
 import 'package:ruvexi_mobile/features/more/screens/more_screen.dart';
+import 'package:ruvexi_mobile/features/staff_portal/screens/staff_home_screen.dart';
+import 'package:ruvexi_mobile/features/staff_portal/screens/staff_customers_screen.dart';
+import 'package:ruvexi_mobile/features/staff_portal/screens/staff_billing_screen.dart';
+import 'package:ruvexi_mobile/features/staff_portal/screens/staff_more_screen.dart';
 import 'package:ruvexi_mobile/features/auth/screens/splash_screen.dart';
-import 'package:ruvexi_mobile/features/auth/screens/login_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,43 +48,77 @@ class MainShellScreen extends StatefulWidget {
 }
 
 class _MainShellScreenState extends State<MainShellScreen> {
-  // Navigation indices matching the custom bar:
-  // 0: Home (Overview)
-  // 1: Appointments
-  // 2: POS
-  // 3: Customers (CRM)
-  // 4: More (Complete Access Grid)
   int _currentNavIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-    final screens = [
-      OverviewDashboardScreen(
-        appState: widget.appState,
-        onNavigateToTab: (index) {
-          setState(() {
-            _currentNavIndex = (index <= 4) ? index : 4;
-          });
-        },
-      ), // 0: Home
-      AppointmentsCalendarScreen(appState: widget.appState), // 1: Appointments
-      PosBillingScreen(appState: widget.appState), // 2: POS
-      CustomersCrmScreen(appState: widget.appState), // 3: Customers
-      MoreScreen(appState: widget.appState), // 4: More (Image 1 Screen 10)
-    ];
+    return ListenableBuilder(
+      listenable: widget.appState,
+      builder: (context, _) {
+        final isStaff = widget.appState.userRole == "Receptionist";
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF060706),
-      body: IndexedStack(
-        index: _currentNavIndex,
-        children: screens,
-      ),
-      bottomNavigationBar: _buildPremiumFloatingBottomBar(),
+        if (isStaff) {
+          final staffIndex = _currentNavIndex > 3 ? 0 : _currentNavIndex;
+          final staffScreens = [
+            StaffHomeScreen(
+              appState: widget.appState,
+              onNavigateToTab: (idx) {
+                setState(() => _currentNavIndex = idx.clamp(0, 3));
+              },
+            ),
+            StaffCustomersScreen(
+              appState: widget.appState,
+              showBackButton: false,
+            ),
+            StaffBillingScreen(
+              appState: widget.appState,
+              showBackButton: false,
+            ),
+            StaffMoreScreen(
+              appState: widget.appState,
+            ),
+          ];
+
+          return Scaffold(
+            backgroundColor: const Color(0xFF060706),
+            body: IndexedStack(
+              index: staffIndex,
+              children: staffScreens,
+            ),
+            bottomNavigationBar: _buildStaffBottomBar(staffIndex),
+          );
+        }
+
+        // Owner Role Shell (5 tabs)
+        final ownerIndex = _currentNavIndex > 4 ? 0 : _currentNavIndex;
+        final ownerScreens = [
+          OverviewDashboardScreen(
+            appState: widget.appState,
+            onNavigateToTab: (index) {
+              setState(() {
+                _currentNavIndex = (index <= 4) ? index : 4;
+              });
+            },
+          ),
+          AppointmentsCalendarScreen(appState: widget.appState),
+          PosBillingScreen(appState: widget.appState),
+          CustomersCrmScreen(appState: widget.appState),
+          MoreScreen(appState: widget.appState),
+        ];
+
+        return Scaffold(
+          backgroundColor: const Color(0xFF060706),
+          body: IndexedStack(
+            index: ownerIndex,
+            children: ownerScreens,
+          ),
+          bottomNavigationBar: _buildOwnerBottomBar(ownerIndex),
+        );
+      },
     );
   }
 
-  // Exact bottom navigation bar matching the user's reference image
-  Widget _buildPremiumFloatingBottomBar() {
+  Widget _buildStaffBottomBar(int selectedIndex) {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF070908),
@@ -98,30 +135,83 @@ class _MainShellScreenState extends State<MainShellScreen> {
         children: [
           _buildNavItem(
             index: 0,
+            selectedIndex: selectedIndex,
+            iconOutline: Icons.home_outlined,
+            iconFilled: Icons.home_rounded,
+            label: "Home",
+          ),
+          _buildNavItem(
+            index: 1,
+            selectedIndex: selectedIndex,
+            iconOutline: Icons.people_outline_rounded,
+            iconFilled: Icons.people_rounded,
+            label: "Customers",
+          ),
+          _buildNavItem(
+            index: 2,
+            selectedIndex: selectedIndex,
+            iconOutline: Icons.point_of_sale_outlined,
+            iconFilled: Icons.point_of_sale_rounded,
+            label: "Billing",
+          ),
+          _buildNavItem(
+            index: 3,
+            selectedIndex: selectedIndex,
+            iconOutline: Icons.grid_view_rounded,
+            iconFilled: Icons.grid_view_rounded,
+            label: "More",
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOwnerBottomBar(int selectedIndex) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF070908),
+        border: Border(
+          top: BorderSide(
+            color: Colors.white.withValues(alpha: 0.10),
+            width: 0.9,
+          ),
+        ),
+      ),
+      padding: const EdgeInsets.fromLTRB(10, 10, 10, 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildNavItem(
+            index: 0,
+            selectedIndex: selectedIndex,
             iconOutline: Icons.home_rounded,
             iconFilled: Icons.home_rounded,
             label: "Home",
           ),
           _buildNavItem(
             index: 1,
+            selectedIndex: selectedIndex,
             iconOutline: Icons.calendar_month_outlined,
             iconFilled: Icons.calendar_month_rounded,
             label: "Appointments",
           ),
           _buildNavItem(
             index: 2,
+            selectedIndex: selectedIndex,
             iconOutline: Icons.point_of_sale_outlined,
             iconFilled: Icons.point_of_sale_rounded,
             label: "POS",
           ),
           _buildNavItem(
             index: 3,
+            selectedIndex: selectedIndex,
             iconOutline: Icons.people_outline_rounded,
             iconFilled: Icons.people_rounded,
             label: "Customers",
           ),
           _buildNavItem(
             index: 4,
+            selectedIndex: selectedIndex,
             iconOutline: Icons.grid_view_rounded,
             iconFilled: Icons.grid_view_rounded,
             label: "More",
@@ -133,11 +223,12 @@ class _MainShellScreenState extends State<MainShellScreen> {
 
   Widget _buildNavItem({
     required int index,
+    required int selectedIndex,
     required IconData iconOutline,
     required IconData iconFilled,
     required String label,
   }) {
-    final isSelected = _currentNavIndex == index;
+    final isSelected = selectedIndex == index;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,

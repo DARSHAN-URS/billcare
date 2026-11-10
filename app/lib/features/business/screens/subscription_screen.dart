@@ -247,3 +247,4 @@ class SubscriptionScreen extends StatelessWidget {
     );
   }
 }
+

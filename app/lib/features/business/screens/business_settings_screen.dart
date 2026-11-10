@@ -290,3 +290,4 @@ class BusinessSettingsScreen extends StatelessWidget {
     );
   }
 }
+
