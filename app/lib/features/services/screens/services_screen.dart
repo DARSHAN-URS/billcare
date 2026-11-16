@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ruvexi_mobile/core/state/ruvexi_state.dart';
 import 'package:ruvexi_mobile/core/theme/ruvexi_theme.dart';
+import 'package:ruvexi_mobile/shared/widgets/salon_notification_dialog.dart';
 
 class ServicesPricingScreen extends StatefulWidget {
   final RuvexiAppState appState;
@@ -13,9 +14,17 @@ class ServicesPricingScreen extends StatefulWidget {
 
 class _ServicesPricingScreenState extends State<ServicesPricingScreen> {
   int _selectedTab = 0; // 0: Services, 1: Packages
-  int _selectedCategoryIndex = 0; // 0: All, 1: Hair, 2: Skin, 3: Beard, 4: Spa
+  int _selectedCategoryIndex = 0;
 
-  final List<String> _categories = ["All", "Hair", "Skin", "Beard", "Spa"];
+  List<String> get _categories {
+    final set = <String>{};
+    for (final s in widget.appState.catalog) {
+      final c = s.category.trim();
+      if (c.isNotEmpty) set.add(c);
+    }
+    final sorted = set.toList()..sort();
+    return ["All", ...sorted];
+  }
 
   void _showAddServiceDialog() {
     final nameCtrl = TextEditingController();
@@ -123,12 +132,14 @@ class _ServicesPricingScreenState extends State<ServicesPricingScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search, color: Colors.white70, size: 20),
-            onPressed: () {},
+            icon: const Icon(Icons.sync_rounded, color: Color(0xFF22C55E), size: 20),
+            tooltip: "Sync Services",
+            onPressed: () => widget.appState.syncWorkspace(),
           ),
           IconButton(
             icon: const Icon(Icons.notifications_outlined, color: Colors.white70, size: 20),
-            onPressed: () {},
+            tooltip: "Salon Alerts",
+            onPressed: () => showSalonNotificationModal(context, widget.appState),
           ),
         ],
       ),
@@ -160,12 +171,16 @@ class _ServicesPricingScreenState extends State<ServicesPricingScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     itemCount: _categories.length,
                     itemBuilder: (context, index) {
-                      final cat = _categories[index];
+                      final cats = _categories;
+                      final cat = cats[index];
                       final isSelected = _selectedCategoryIndex == index;
+                      final count = cat == "All"
+                          ? widget.appState.catalog.length
+                          : widget.appState.catalog.where((s) => s.category.toLowerCase() == cat.toLowerCase()).length;
                       return GestureDetector(
                         onTap: () => setState(() => _selectedCategoryIndex = index),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                           margin: const EdgeInsets.only(right: 8),
                           decoration: BoxDecoration(
                             color: isSelected ? const Color(0xFF22C55E) : const Color(0xFF101311),
@@ -175,7 +190,7 @@ class _ServicesPricingScreenState extends State<ServicesPricingScreen> {
                             ),
                           ),
                           child: Text(
-                            cat,
+                            cat == "All" ? "All ($count)" : "$cat ($count)",
                             style: TextStyle(
                               color: isSelected ? Colors.black : Colors.white70,
                               fontSize: 12,
@@ -248,7 +263,9 @@ class _ServicesPricingScreenState extends State<ServicesPricingScreen> {
   }
 
   Widget _buildServicesList() {
-    final selectedCat = _categories[_selectedCategoryIndex];
+    final cats = _categories;
+    final catIndex = _selectedCategoryIndex >= cats.length ? 0 : _selectedCategoryIndex;
+    final selectedCat = cats[catIndex];
     final list = widget.appState.catalog.where((s) {
       if (selectedCat == "All") return true;
       return s.category.toLowerCase() == selectedCat.toLowerCase();

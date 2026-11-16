@@ -62,21 +62,22 @@ class StaffMoreScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 18),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                icon: const Icon(Icons.swap_horiz_rounded, color: Color(0xFF22C55E), size: 18),
-                label: const Text("Switch to Owner Mode", style: TextStyle(color: Color(0xFF22C55E), fontWeight: FontWeight.bold)),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Color(0xFF22C55E)),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            if (appState.canSwitchRoles)
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.swap_horiz_rounded, color: Color(0xFF22C55E), size: 18),
+                  label: const Text("Switch to Owner Mode", style: TextStyle(color: Color(0xFF22C55E), fontWeight: FontWeight.bold)),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFF22C55E)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    appState.switchRole("Owner");
+                  },
                 ),
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  appState.switchRole("Owner");
-                },
               ),
-            ),
           ],
         ),
       ),
@@ -245,10 +246,12 @@ class StaffMoreScreen extends StatelessWidget {
                     width: double.infinity,
                     height: 52,
                     child: OutlinedButton.icon(
-                      onPressed: () {
-                        appState.logout();
-                        Navigator.of(context).pushReplacement(
+                      onPressed: () async {
+                        await appState.logout();
+                        if (!context.mounted) return;
+                        Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(builder: (_) => LoginScreen(appState: appState)),
+                          (route) => false,
                         );
                       },
                       icon: const Icon(Icons.logout_rounded, color: Color(0xFFEF4444), size: 18),

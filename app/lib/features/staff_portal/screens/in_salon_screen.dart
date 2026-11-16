@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ruvexi_mobile/core/state/ruvexi_state.dart';
 import 'package:ruvexi_mobile/shared/widgets/ruvexi_logo.dart';
+import 'package:ruvexi_mobile/shared/widgets/customer_avatar.dart';
+import 'package:ruvexi_mobile/shared/widgets/salon_notification_dialog.dart';
 import 'package:ruvexi_mobile/features/staff_portal/screens/check_in_customer_screen.dart';
 import 'package:ruvexi_mobile/features/staff_portal/screens/in_salon_customer_details_screen.dart';
 import 'package:ruvexi_mobile/features/staff_portal/screens/seats_stations_screen.dart';
@@ -57,7 +59,8 @@ class _InSalonScreenState extends State<InSalonScreen> {
                       const RuvexiLogoWidget(fontSize: 16, showSubtitle: true),
                       IconButton(
                         icon: const Icon(Icons.notifications_outlined, color: Colors.white70, size: 22),
-                        onPressed: () {},
+                        tooltip: "Salon Alerts",
+                        onPressed: () => showSalonNotificationModal(context, widget.appState),
                       ),
                     ],
                   ),
@@ -224,13 +227,9 @@ class _InSalonScreenState extends State<InSalonScreen> {
         ),
         child: Row(
           children: [
-            CircleAvatar(
+            CustomerAvatarWidget(
+              name: client.customerName,
               radius: 19,
-              backgroundColor: const Color(0xFF2E2638),
-              child: Text(
-                initials,
-                style: const TextStyle(color: Color(0xFFD8B4FE), fontWeight: FontWeight.bold, fontSize: 12),
-              ),
             ),
             const SizedBox(width: 12),
             Expanded(

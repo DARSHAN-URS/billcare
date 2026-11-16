@@ -82,7 +82,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final customer = widget.appState.posSelectedCustomer ?? widget.appState.customers.first;
+    final customer = widget.appState.posSelectedCustomer ??
+        (widget.appState.customers.isNotEmpty
+            ? widget.appState.customers.first
+            : Customer(id: "walkin", name: "Walk-in Guest", phone: "", email: "", visitsCount: 1, totalSpent: 0));
 
     return Scaffold(
       backgroundColor: const Color(0xFF060706),

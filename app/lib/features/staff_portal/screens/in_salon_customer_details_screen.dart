@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ruvexi_mobile/core/state/ruvexi_state.dart';
 import 'package:ruvexi_mobile/shared/widgets/ruvexi_logo.dart';
+import 'package:ruvexi_mobile/shared/widgets/customer_avatar.dart';
+import 'package:ruvexi_mobile/shared/widgets/salon_notification_dialog.dart';
 import 'package:ruvexi_mobile/features/staff_portal/screens/staff_billing_screen.dart';
 
 class InSalonCustomerDetailsScreen extends StatefulWidget {
@@ -123,7 +125,8 @@ class _InSalonCustomerDetailsScreenState extends State<InSalonCustomerDetailsScr
                   const RuvexiLogoWidget(fontSize: 16, showSubtitle: true),
                   IconButton(
                     icon: const Icon(Icons.notifications_outlined, color: Colors.white70, size: 22),
-                    onPressed: () {},
+                    tooltip: "Salon Alerts",
+                    onPressed: () => showSalonNotificationModal(context, widget.appState),
                   ),
                 ],
               ),
@@ -161,13 +164,9 @@ class _InSalonCustomerDetailsScreenState extends State<InSalonCustomerDetailsScr
                       ),
                       child: Row(
                         children: [
-                          CircleAvatar(
+                          CustomerAvatarWidget(
+                            name: client.customerName,
                             radius: 26,
-                            backgroundColor: const Color(0xFF312E81),
-                            child: Text(
-                              initials,
-                              style: const TextStyle(color: Color(0xFFA5B4FC), fontWeight: FontWeight.bold, fontSize: 17),
-                            ),
                           ),
                           const SizedBox(width: 14),
                           Expanded(

@@ -43,7 +43,24 @@ export function ServicesView() {
   const [newMaterialUnit, setNewMaterialUnit] = useState("ml");
   const [newPopular, setNewPopular] = useState(false);
 
-  const categories = ["All", "Hair", "Skin & Spa", "Nails", "Beard & Grooming", "Makeup"];
+  const categories = useMemo(() => {
+    const defaultOrder = [
+      "All",
+      "Waxing",
+      "Hair",
+      "Beard & Grooming",
+      "Hair Colour",
+      "Nails",
+      "Skin & Spa",
+      "Threading",
+      "Hair Spa",
+      "Massage",
+      "Facial",
+    ];
+    const srvCats = Array.from(new Set(services.map((s) => s.category).filter(Boolean)));
+    const extra = srvCats.filter((c) => !defaultOrder.includes(c));
+    return [...defaultOrder.filter((c) => c === "All" || srvCats.includes(c)), ...extra];
+  }, [services]);
 
   const filteredServices = services.filter((s) => {
     const matchesCategory = activeCategory === "All" || s.category === activeCategory;

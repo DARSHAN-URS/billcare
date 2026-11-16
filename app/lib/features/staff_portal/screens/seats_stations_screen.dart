@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ruvexi_mobile/core/state/ruvexi_state.dart';
 import 'package:ruvexi_mobile/shared/widgets/ruvexi_logo.dart';
+import 'package:ruvexi_mobile/shared/widgets/salon_notification_dialog.dart';
 import 'package:ruvexi_mobile/features/staff_portal/screens/in_salon_customer_details_screen.dart';
 import 'package:ruvexi_mobile/features/staff_portal/screens/check_in_customer_screen.dart';
 
@@ -34,7 +35,8 @@ class SeatsStationsScreen extends StatelessWidget {
                       const RuvexiLogoWidget(fontSize: 16, showSubtitle: true),
                       IconButton(
                         icon: const Icon(Icons.notifications_outlined, color: Colors.white70, size: 22),
-                        onPressed: () {},
+                        tooltip: "Salon Alerts",
+                        onPressed: () => showSalonNotificationModal(context, appState),
                       ),
                     ],
                   ),

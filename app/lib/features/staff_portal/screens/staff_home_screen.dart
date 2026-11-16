@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ruvexi_mobile/core/state/ruvexi_state.dart';
 import 'package:ruvexi_mobile/shared/widgets/ruvexi_logo.dart';
 import 'package:ruvexi_mobile/features/staff_portal/screens/check_in_customer_screen.dart';
+import 'package:ruvexi_mobile/shared/widgets/salon_notification_dialog.dart';
 import 'package:ruvexi_mobile/features/staff_portal/screens/in_salon_screen.dart';
 import 'package:ruvexi_mobile/features/staff_portal/screens/seats_stations_screen.dart';
 import 'package:ruvexi_mobile/features/appointments/screens/appointments_screen.dart';
@@ -104,11 +105,7 @@ class StaffHomeScreen extends StatelessWidget {
                             clipBehavior: Clip.none,
                             children: [
                               GestureDetector(
-                                onTap: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text("Floor updates: 4 seats occupied, 2 available")),
-                                  );
-                                },
+                                onTap: () => showSalonNotificationModal(context, appState),
                                 child: Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(

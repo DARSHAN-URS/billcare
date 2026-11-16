@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ruvexi_mobile/core/state/ruvexi_state.dart';
 import 'package:ruvexi_mobile/core/theme/ruvexi_theme.dart';
+import 'package:ruvexi_mobile/shared/widgets/salon_notification_dialog.dart';
 
 class InventoryScreen extends StatefulWidget {
   final RuvexiAppState appState;
@@ -188,12 +189,14 @@ class _InventoryScreenState extends State<InventoryScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search, color: Colors.white70, size: 20),
-            onPressed: () {},
+            icon: const Icon(Icons.sync_rounded, color: Color(0xFF22C55E), size: 20),
+            tooltip: "Sync Inventory",
+            onPressed: () => widget.appState.syncWorkspace(),
           ),
           IconButton(
             icon: const Icon(Icons.notifications_outlined, color: Colors.white70, size: 20),
-            onPressed: () {},
+            tooltip: "Low Stock Alerts",
+            onPressed: () => showSalonNotificationModal(context, widget.appState),
           ),
         ],
       ),

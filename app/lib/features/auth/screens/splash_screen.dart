@@ -39,27 +39,34 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     );
     _fadeController.forward();
 
-    // 3. Auto-navigate to Main or Login screen after splash
-    Future.delayed(const Duration(milliseconds: 2500), () {
-      if (!mounted) return;
-      if (widget.appState.isAuthenticated) {
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder: (_, __, ___) => MainShellScreen(appState: widget.appState),
-            transitionsBuilder: (_, anim, __, child) => FadeTransition(opacity: anim, child: child),
-            transitionDuration: const Duration(milliseconds: 500),
-          ),
-        );
-      } else {
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder: (_, __, ___) => LoginScreen(appState: widget.appState),
-            transitionsBuilder: (_, anim, __, child) => FadeTransition(opacity: anim, child: child),
-            transitionDuration: const Duration(milliseconds: 500),
-          ),
-        );
-      }
-    });
+    // 3. Restore JWT session & sync Railway workspace while splash displays
+    _initAndNavigate();
+  }
+
+  Future<void> _initAndNavigate() async {
+    final results = await Future.wait<dynamic>([
+      Future.delayed(const Duration(milliseconds: 1800)),
+      widget.appState.restoreSession(),
+    ]);
+    if (!mounted) return;
+    final authenticated = results[1] == true || widget.appState.isAuthenticated;
+    if (authenticated) {
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (_, __, ___) => MainShellScreen(appState: widget.appState),
+          transitionsBuilder: (_, anim, __, child) => FadeTransition(opacity: anim, child: child),
+          transitionDuration: const Duration(milliseconds: 500),
+        ),
+      );
+    } else {
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (_, __, ___) => LoginScreen(appState: widget.appState),
+          transitionsBuilder: (_, anim, __, child) => FadeTransition(opacity: anim, child: child),
+          transitionDuration: const Duration(milliseconds: 500),
+        ),
+      );
+    }
   }
 
   @override

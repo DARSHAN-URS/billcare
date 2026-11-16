@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:ruvexi_mobile/core/state/ruvexi_state.dart';
 import 'package:ruvexi_mobile/shared/widgets/ruvexi_logo.dart';
+import 'package:ruvexi_mobile/shared/widgets/upi_qr_dialog.dart';
+import 'package:ruvexi_mobile/shared/widgets/salon_notification_dialog.dart';
 import 'package:ruvexi_mobile/features/staff_portal/screens/checkout_complete_screen.dart';
 
 class StaffPaymentScreen extends StatefulWidget {
   final RuvexiAppState appState;
   final double totalAmount;
   final String customerName;
+  final String customerPhone;
   final List<Map<String, dynamic>> billedItems;
 
   const StaffPaymentScreen({
@@ -14,6 +17,7 @@ class StaffPaymentScreen extends StatefulWidget {
     required this.appState,
     required this.totalAmount,
     required this.customerName,
+    this.customerPhone = "",
     this.billedItems = const [],
   });
 
@@ -51,20 +55,50 @@ class _StaffPaymentScreenState extends State<StaffPaymentScreen> {
     },
   ];
 
-  void _completePayment() {
+  Future<void> _completePayment() async {
     final tag = _methods[_selectedMethod]["tag"] as String;
-    widget.appState.completeStaffCheckout(method: tag, amount: widget.totalAmount);
+    if (tag == "UPI") {
+      final invNum = "RVX-${DateTime.now().millisecondsSinceEpoch % 100000}";
+      showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (ctx) => UpiQrModalDialog(
+          appState: widget.appState,
+          amount: widget.totalAmount,
+          customerName: widget.customerName,
+          invoiceNumber: invNum,
+          onPaymentConfirmed: () => _executeStaffCheckoutBackend("UPI"),
+        ),
+      );
+      return;
+    }
+    await _executeStaffCheckoutBackend(tag);
+  }
 
-    Navigator.of(context).pushReplacement(
+  Future<void> _executeStaffCheckoutBackend(String tag) async {
+    try {
+      await widget.appState.completeStaffCheckout(method: tag, amount: widget.totalAmount);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString()), backgroundColor: Colors.redAccent),
+      );
+      return;
+    }
+    if (!mounted) return;
+
+    Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(
         builder: (_) => CheckoutCompleteScreen(
           appState: widget.appState,
           amount: widget.totalAmount,
           customerName: widget.customerName,
+          customerPhone: widget.customerPhone,
           paymentMethod: tag,
           billedItems: widget.billedItems,
         ),
       ),
+      (route) => route.isFirst,
     );
   }
 
@@ -85,7 +119,8 @@ class _StaffPaymentScreenState extends State<StaffPaymentScreen> {
                   const RuvexiLogoWidget(fontSize: 16, showSubtitle: true),
                   IconButton(
                     icon: const Icon(Icons.notifications_outlined, color: Colors.white70, size: 22),
-                    onPressed: () {},
+                    tooltip: "Salon Alerts",
+                    onPressed: () => showSalonNotificationModal(context, widget.appState),
                   ),
                 ],
               ),
@@ -246,15 +281,17 @@ class _StaffPaymentScreenState extends State<StaffPaymentScreen> {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                           elevation: 0,
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              "Complete Payment",
-                              style: TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold),
+                              _selectedMethod == 0
+                                  ? "Show UPI QR Code (₹${widget.totalAmount.toStringAsFixed(0)})"
+                                  : "Complete Payment",
+                              style: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold),
                             ),
-                            SizedBox(width: 8),
-                            Icon(Icons.check_rounded, color: Colors.black, size: 18),
+                            const SizedBox(width: 8),
+                            Icon(_selectedMethod == 0 ? Icons.qr_code_rounded : Icons.check_rounded, color: Colors.black, size: 18),
                           ],
                         ),
                       ),

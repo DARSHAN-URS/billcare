@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:ruvexi_mobile/core/state/ruvexi_state.dart';
 import 'package:ruvexi_mobile/core/theme/ruvexi_theme.dart';
 import 'package:ruvexi_mobile/features/appointments/screens/appointment_details_screen.dart';
 import 'package:ruvexi_mobile/features/appointments/screens/new_appointment_screen.dart';
+import 'package:ruvexi_mobile/shared/widgets/salon_notification_dialog.dart';
 
 class AppointmentsCalendarScreen extends StatefulWidget {
   final RuvexiAppState appState;
@@ -15,15 +17,20 @@ class AppointmentsCalendarScreen extends StatefulWidget {
 
 class _AppointmentsCalendarScreenState extends State<AppointmentsCalendarScreen> {
   int _selectedFilterTab = 0; // 0: Today, 1: Upcoming, 2: Completed
-  int _selectedDayIndex = 0; // 0: Tue 09, 1: Wed 10, etc.
+  int _selectedDayIndex = 0;
+  late final List<Map<String, String>> _days;
 
-  final List<Map<String, String>> _days = [
-    {"day": "Tue", "date": "09 Nov"},
-    {"day": "Wed", "date": "10"},
-    {"day": "Thu", "date": "11"},
-    {"day": "Fri", "date": "12"},
-    {"day": "Sat", "date": "13"},
-  ];
+  @override
+  void initState() {
+    super.initState();
+    final now = DateTime.now();
+    _days = List.generate(7, (idx) {
+      final d = now.add(Duration(days: idx));
+      final dayName = DateFormat('E').format(d);
+      final dateStr = idx == 0 ? DateFormat('dd MMM').format(d) : DateFormat('dd').format(d);
+      return {"day": dayName, "date": dateStr};
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +45,15 @@ class _AppointmentsCalendarScreenState extends State<AppointmentsCalendarScreen>
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
               child: Row(
                 children: [
+                  if (Navigator.canPop(context)) ...[
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    const SizedBox(width: 10),
+                  ],
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -83,17 +99,17 @@ class _AppointmentsCalendarScreenState extends State<AppointmentsCalendarScreen>
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: Colors.white.withOpacity(0.1)),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.content_cut, size: 12, color: Color(0xFF22C55E)),
-                        SizedBox(width: 6),
+                        const Icon(Icons.storefront_rounded, size: 12, color: Color(0xFF22C55E)),
+                        const SizedBox(width: 6),
                         Text(
-                          "Ruvexi Salon & Spa",
-                          style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                          widget.appState.salonName,
+                          style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
                         ),
-                        SizedBox(width: 4),
-                        Icon(Icons.keyboard_arrow_down, size: 14, color: Colors.white60),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.check_circle_rounded, size: 12, color: Color(0xFF22C55E)),
                       ],
                     ),
                   ),
@@ -101,11 +117,8 @@ class _AppointmentsCalendarScreenState extends State<AppointmentsCalendarScreen>
                   // Bell notification
                   IconButton(
                     icon: const Icon(Icons.notifications_outlined, color: Colors.white, size: 22),
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("No new appointment notifications")),
-                      );
-                    },
+                    tooltip: "Salon Alerts",
+                    onPressed: () => showSalonNotificationModal(context, widget.appState),
                   ),
                 ],
               ),

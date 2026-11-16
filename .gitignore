@@ -48,3 +48,8 @@ backend/*.pyc
 backend/venv/
 backend/.venv/
 *.py[cod]
+*.db
+*.sqlite3
+*.sqlite
+website/tsconfig.tsbuildinfo
+

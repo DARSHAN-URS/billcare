@@ -58,6 +58,26 @@ export function PosView() {
   const [categoryFilter, setCategoryFilter] = useState<string>("All");
   const [itemTypeTab, setItemTypeTab] = useState<"services" | "retail">("services");
 
+  // Dynamic Categories from Services Catalog
+  const availableCategories = useMemo(() => {
+    const defaultOrder = [
+      "All",
+      "Waxing",
+      "Hair",
+      "Beard & Grooming",
+      "Hair Colour",
+      "Nails",
+      "Skin & Spa",
+      "Threading",
+      "Hair Spa",
+      "Massage",
+      "Facial",
+    ];
+    const srvCats = Array.from(new Set(services.map((s) => s.category).filter(Boolean)));
+    const extra = srvCats.filter((c) => !defaultOrder.includes(c));
+    return [...defaultOrder.filter((c) => c === "All" || srvCats.includes(c)), ...extra];
+  }, [services]);
+
   // Payment, Tip & Discount
   const [discountCode, setDiscountCode] = useState<string>("");
   const [appliedDiscount, setAppliedDiscount] = useState<number>(0);
@@ -471,20 +491,42 @@ export function PosView() {
               </div>
 
               {itemTypeTab === "services" && (
-                <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
-                  {["All", "Hair", "Skin & Spa", "Nails", "Beard & Grooming"].map((cat) => (
-                    <button
-                      key={cat}
-                      onClick={() => setCategoryFilter(cat)}
-                      className={`px-3.5 py-1.5 rounded-lg whitespace-nowrap text-xs font-bold transition-all ${
-                        categoryFilter === cat
-                          ? "bg-[#FACC15] text-[#080808] shadow-sm"
-                          : "bg-[#181818] text-[#A1A1AA] hover:text-[#F8FAFC] border border-[#27272A]"
-                      }`}
-                    >
-                      {cat}
-                    </button>
-                  ))}
+                <div className="space-y-2 pt-1 border-t border-[#27272A]/60">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="font-mono uppercase tracking-wider font-semibold text-[#FACC15] flex items-center gap-1.5">
+                      <Sparkles className="w-3 h-3 text-[#FACC15]" />
+                      Select Category
+                    </span>
+                    <span className="text-[#A1A1AA] text-[10px] font-mono">
+                      {categoryFilter === "All" ? `${services.length} services in catalog` : `${filteredServices.length} services in ${categoryFilter}`}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+                    {availableCategories.map((cat) => {
+                      const count = cat === "All" ? services.length : services.filter((s) => s.category === cat).length;
+                      return (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => setCategoryFilter(cat)}
+                          className={`px-3 py-1.5 rounded-lg whitespace-nowrap text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 ${
+                            categoryFilter === cat
+                              ? "bg-[#FACC15] text-[#080808] shadow-sm font-extrabold"
+                              : "bg-[#181818] text-[#A1A1AA] hover:text-[#F8FAFC] border border-[#27272A]"
+                          }`}
+                        >
+                          <span>{cat}</span>
+                          <span
+                            className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                              categoryFilter === cat ? "bg-[#080808]/20 text-[#080808]" : "bg-[#27272A] text-[#71717A]"
+                            }`}
+                          >
+                            {count}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
@@ -492,62 +534,111 @@ export function PosView() {
             {/* Catalog Grid */}
             <div className="max-h-[620px] overflow-y-auto pr-1 space-y-3">
               {itemTypeTab === "services" ? (
-                filteredServices.length === 0 ? (
-                  <div className="bg-[#101010] border border-[#27272A] p-12 rounded-2xl text-center space-y-3">
-                    <div className="w-14 h-14 rounded-full bg-[#181818] border border-[#27272A] text-[#FACC15] flex items-center justify-center mx-auto">
-                      <Scissors className="w-7 h-7" />
-                    </div>
-                    <h4 className="font-serif font-bold text-[#F8FAFC] text-sm">No treatments found</h4>
-                    <p className="text-xs text-[#71717A]">
-                      No salon service matches "{catalogSearch}" in {categoryFilter === "All" ? "any category" : categoryFilter}.
-                    </p>
-                    <button
-                      onClick={() => {
-                        setCatalogSearch("");
-                        setCategoryFilter("All");
-                      }}
-                      className="px-4 py-2 bg-[#FACC15] hover:bg-[#EAB308] text-[#080808] rounded-xl text-xs font-bold transition-all shadow-sm"
-                    >
-                      Reset Catalog Filter
-                    </button>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                    {filteredServices.map((srv) => (
-                      <div
-                        key={srv.id}
-                        onClick={() => addToCart({ id: srv.id, name: srv.name, price: srv.price, type: "service" })}
-                        className="bg-[#151515] border border-[#27272A] group p-4 rounded-xl hover:border-[#FACC15]/50 hover:bg-[#181818] transition-all cursor-pointer flex flex-col justify-between"
+                <>
+                  {categoryFilter !== "All" && (
+                    <div className="flex items-center justify-between bg-[#151515] border border-[#27272A] px-3.5 py-2 rounded-xl">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-[#F8FAFC]">{categoryFilter}</span>
+                        <span className="text-[11px] text-[#A1A1AA]">({filteredServices.length} services)</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setCategoryFilter("All")}
+                        className="text-[11px] font-mono text-[#FACC15] hover:underline flex items-center gap-1 cursor-pointer"
                       >
-                        <div>
-                          <div className="flex items-start justify-between gap-2">
-                            <span className="text-[10px] font-mono uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-[#181818] text-[#FACC15] border border-[#27272A]">
-                              {srv.category}
+                        <span>View All Categories</span>
+                      </button>
+                    </div>
+                  )}
+
+                  {categoryFilter === "All" && !catalogSearch && (
+                    <div className="bg-[#101010] border border-[#27272A] p-3.5 rounded-2xl space-y-2 mb-2">
+                      <div className="text-[11px] font-mono uppercase tracking-wider text-[#71717A] flex items-center justify-between">
+                        <span>Select a Category to Browse</span>
+                        <span className="text-[#FACC15]">{availableCategories.filter((c) => c !== "All").length} Categories</span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                        {availableCategories
+                          .filter((c) => c !== "All")
+                          .map((cat) => {
+                            const count = services.filter((s) => s.category === cat).length;
+                            return (
+                              <button
+                                key={cat}
+                                type="button"
+                                onClick={() => setCategoryFilter(cat)}
+                                className="bg-[#161616] hover:bg-[#1f1f1f] border border-[#27272A] hover:border-[#FACC15]/40 p-2.5 rounded-xl text-left transition-all group cursor-pointer"
+                              >
+                                <div className="text-xs font-bold text-[#F8FAFC] group-hover:text-[#FACC15] transition-colors truncate">
+                                  {cat}
+                                </div>
+                                <div className="text-[10px] text-[#71717A] font-mono mt-0.5">
+                                  {count} {count === 1 ? "service" : "services"}
+                                </div>
+                              </button>
+                            );
+                          })}
+                      </div>
+                    </div>
+                  )}
+
+                  {filteredServices.length === 0 ? (
+                    <div className="bg-[#101010] border border-[#27272A] p-12 rounded-2xl text-center space-y-3">
+                      <div className="w-14 h-14 rounded-full bg-[#181818] border border-[#27272A] text-[#FACC15] flex items-center justify-center mx-auto">
+                        <Scissors className="w-7 h-7" />
+                      </div>
+                      <h4 className="font-serif font-bold text-[#F8FAFC] text-sm">No treatments found</h4>
+                      <p className="text-xs text-[#71717A]">
+                        No salon service matches "{catalogSearch}" in {categoryFilter === "All" ? "any category" : categoryFilter}.
+                      </p>
+                      <button
+                        onClick={() => {
+                          setCatalogSearch("");
+                          setCategoryFilter("All");
+                        }}
+                        className="px-4 py-2 bg-[#FACC15] hover:bg-[#EAB308] text-[#080808] rounded-xl text-xs font-bold transition-all shadow-sm"
+                      >
+                        Reset Catalog Filter
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                      {filteredServices.map((srv) => (
+                        <div
+                          key={srv.id}
+                          onClick={() => addToCart({ id: srv.id, name: srv.name, price: srv.price, type: "service" })}
+                          className="bg-[#151515] border border-[#27272A] group p-4 rounded-xl hover:border-[#FACC15]/50 hover:bg-[#181818] transition-all cursor-pointer flex flex-col justify-between"
+                        >
+                          <div>
+                            <div className="flex items-start justify-between gap-2">
+                              <span className="text-[10px] font-mono uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-[#181818] text-[#FACC15] border border-[#27272A]">
+                                {srv.category}
+                              </span>
+                              <span className="text-xs text-[#71717A] font-mono flex items-center gap-1">
+                                <Clock className="w-3.5 h-3.5 text-[#71717A]" /> {srv.durationMinutes}m
+                              </span>
+                            </div>
+                            <h4 className="text-sm font-bold text-[#F8FAFC] mt-2.5 group-hover:text-[#FACC15] transition-colors leading-snug">
+                              {srv.name}
+                            </h4>
+                            <p className="text-xs text-[#71717A] mt-1 line-clamp-2 leading-relaxed">
+                              {srv.description}
+                            </p>
+                          </div>
+
+                          <div className="mt-4 pt-3 border-t border-[#27272A] flex items-center justify-between">
+                            <span className="text-base font-extrabold text-[#FACC15] font-mono">
+                              {formatCurrency(srv.price)}
                             </span>
-                            <span className="text-xs text-[#71717A] font-mono flex items-center gap-1">
-                              <Clock className="w-3.5 h-3.5 text-[#71717A]" /> {srv.durationMinutes}m
+                            <span className="inline-flex items-center gap-1 text-xs font-bold text-[#FACC15] group-hover:translate-x-1 transition-transform">
+                              <Plus className="w-3.5 h-3.5" /> Add
                             </span>
                           </div>
-                          <h4 className="text-sm font-bold text-[#F8FAFC] mt-2.5 group-hover:text-[#FACC15] transition-colors leading-snug">
-                            {srv.name}
-                          </h4>
-                          <p className="text-xs text-[#71717A] mt-1 line-clamp-2 leading-relaxed">
-                            {srv.description}
-                          </p>
                         </div>
-
-                        <div className="mt-4 pt-3 border-t border-[#27272A] flex items-center justify-between">
-                          <span className="text-base font-extrabold text-[#FACC15] font-mono">
-                            {formatCurrency(srv.price)}
-                          </span>
-                          <span className="inline-flex items-center gap-1 text-xs font-bold text-[#FACC15] group-hover:translate-x-1 transition-transform">
-                            <Plus className="w-3.5 h-3.5" /> Add
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )
+                      ))}
+                    </div>
+                  )}
+                </>
               ) : filteredRetailProducts.length === 0 ? (
                 <div className="bg-[#101010] border border-[#27272A] p-12 rounded-2xl text-center space-y-3">
                   <div className="w-14 h-14 rounded-full bg-[#181818] border border-[#27272A] text-emerald-400 flex items-center justify-center mx-auto">

@@ -7,6 +7,7 @@ import 'package:ruvexi_mobile/features/appointments/screens/appointment_details_
 import 'package:ruvexi_mobile/features/services/screens/services_screen.dart';
 import 'package:ruvexi_mobile/features/inventory/screens/inventory_screen.dart';
 import 'package:ruvexi_mobile/features/reports/screens/reports_analytics_screen.dart';
+import 'package:ruvexi_mobile/shared/widgets/salon_notification_dialog.dart';
 
 class OverviewDashboardScreen extends StatelessWidget {
   final RuvexiAppState appState;
@@ -139,11 +140,7 @@ class OverviewDashboardScreen extends StatelessWidget {
               clipBehavior: Clip.none,
               children: [
                 GestureDetector(
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("All systems operational. No unread alerts.")),
-                    );
-                  },
+                  onTap: () => showSalonNotificationModal(context, appState),
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
@@ -217,6 +214,7 @@ class OverviewDashboardScreen extends StatelessWidget {
         // Owner Role Badge Pill
         GestureDetector(
           onTap: () {
+            if (!appState.canSwitchRoles) return;
             showModalBottomSheet(
               context: context,
               backgroundColor: const Color(0xFF101311),

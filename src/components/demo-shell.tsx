@@ -528,22 +528,7 @@ export function DemoShell({ initialTab = "frontdesk", initialSubTab }: DemoShell
               {!isSidebarCollapsed && <span>Quick POS Bill</span>}
             </button>
 
-            {/* Trial Status Pill (when expanded) */}
-            {!isSidebarCollapsed && salon.subscriptionStatus === "trial" && (
-              <div
-                onClick={() => handleSelectTab("subscription")}
-                className="cursor-pointer bg-[#FACC15]/10 border border-[#FACC15]/25 hover:border-[#FACC15] rounded-xl px-2.5 py-1.5 flex items-center justify-between transition-colors"
-                title="7-Day Free Trial Active. Click to view subscription options."
-              >
-                <div className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#FACC15] animate-ping" />
-                  <span className="text-[11px] font-mono text-[#FACC15] font-semibold">
-                    7-Day Trial: {typeof salon.trialDaysLeft === "number" ? salon.trialDaysLeft : 7}d left
-                  </span>
-                </div>
-                <ChevronRight className="w-3 h-3 text-[#FACC15]" />
-              </div>
-            )}
+
           </div>
 
           {/* Middle Nav Items (Receptionist Operations) */}
@@ -635,26 +620,16 @@ export function DemoShell({ initialTab = "frontdesk", initialSubTab }: DemoShell
             </div>
 
             {/* Quick Links (when expanded) */}
-            {!isSidebarCollapsed && (
-              <div className="flex items-center justify-between text-[11px] text-[#71717A] font-medium px-1">
+            {!isSidebarCollapsed && user?.role === "admin" && (
+              <div className="flex items-center justify-end text-[11px] text-[#71717A] font-medium px-1">
                 <Link
-                  href="/book"
-                  className="hover:text-[#F8FAFC] flex items-center gap-1.5 transition-colors"
-                  target="_blank"
+                  href="/admin"
+                  className="text-[#FACC15] hover:text-[#EAB308] font-bold flex items-center gap-1 transition-colors"
+                  title="BillCare Platform Super Admin Hub"
                 >
-                  <Globe className="w-3 h-3 text-[#71717A]" />
-                  <span>Client Site ↗</span>
+                  <ShieldCheck className="w-3 h-3 text-[#FACC15]" />
+                  <span>Super Admin</span>
                 </Link>
-                {user?.role === "admin" && (
-                  <Link
-                    href="/admin"
-                    className="text-[#FACC15] hover:text-[#EAB308] font-bold flex items-center gap-1 transition-colors"
-                    title="BillCare Platform Super Admin Hub"
-                  >
-                    <ShieldCheck className="w-3 h-3 text-[#FACC15]" />
-                    <span>Super Admin</span>
-                  </Link>
-                )}
               </div>
             )}
           </div>
@@ -750,14 +725,6 @@ export function DemoShell({ initialTab = "frontdesk", initialSubTab }: DemoShell
               <div className="pt-3 border-t border-[#27272A] space-y-2">
                 <div className="flex items-center justify-between text-[11px] text-[#71717A] px-1">
                   <span className="text-[#F8FAFC] font-medium">{user?.name || "Receptionist"}</span>
-                  <Link
-                    href="/book"
-                    className="hover:text-[#F8FAFC] flex items-center gap-1 transition-colors"
-                    target="_blank"
-                  >
-                    <Globe className="w-3 h-3" />
-                    <span>Client Site ↗</span>
-                  </Link>
                 </div>
 
                 <button

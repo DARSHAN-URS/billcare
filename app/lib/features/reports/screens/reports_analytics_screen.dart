@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ruvexi_mobile/core/state/ruvexi_state.dart';
 import 'package:ruvexi_mobile/core/theme/ruvexi_theme.dart';
+import 'package:ruvexi_mobile/shared/widgets/salon_notification_dialog.dart';
 import 'package:ruvexi_mobile/features/expenses/screens/expenses_screen.dart';
 import 'package:ruvexi_mobile/features/staff/screens/staff_management_screen.dart';
 import 'package:ruvexi_mobile/features/inventory/screens/inventory_screen.dart';
@@ -71,12 +72,13 @@ class _ReportsAnalyticsScreenState extends State<ReportsAnalyticsScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF060706),
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
-          onPressed: () {
-            if (Navigator.canPop(context)) Navigator.pop(context);
-          },
-        ),
+        automaticallyImplyLeading: false,
+        leading: Navigator.canPop(context)
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
+                onPressed: () => Navigator.pop(context),
+              )
+            : null,
         title: const Text(
           "Reports",
           style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
@@ -101,7 +103,8 @@ class _ReportsAnalyticsScreenState extends State<ReportsAnalyticsScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.notifications_outlined, color: Colors.white70, size: 20),
-            onPressed: () {},
+            tooltip: "Salon Alerts",
+            onPressed: () => showSalonNotificationModal(context, widget.appState),
           ),
         ],
       ),

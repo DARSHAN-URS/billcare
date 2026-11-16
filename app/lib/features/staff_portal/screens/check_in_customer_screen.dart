@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:ruvexi_mobile/core/state/ruvexi_state.dart';
+import 'package:ruvexi_mobile/core/widgets/category_service_picker_sheet.dart';
 import 'package:ruvexi_mobile/shared/widgets/ruvexi_logo.dart';
 import 'package:ruvexi_mobile/features/staff_portal/screens/seats_stations_screen.dart';
 import 'package:ruvexi_mobile/features/staff_portal/screens/in_salon_screen.dart';
+import 'package:ruvexi_mobile/shared/widgets/salon_notification_dialog.dart';
 
 class CheckInCustomerScreen extends StatefulWidget {
   final RuvexiAppState appState;
@@ -41,62 +43,19 @@ class _CheckInCustomerScreenState extends State<CheckInCustomerScreen> {
     super.dispose();
   }
 
-  void _pickServices() {
-    showModalBottomSheet(
+  void _pickServices() async {
+    final picked = await CategoryServicePickerSheet.showMulti(
       context: context,
-      backgroundColor: const Color(0xFF101311),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setModalState) => Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text("Select Services", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                  TextButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    child: const Text("Done", style: TextStyle(color: Color(0xFF22C55E), fontWeight: FontWeight.bold)),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Flexible(
-                child: ListView(
-                  shrinkWrap: true,
-                  children: widget.appState.catalog.map((svc) {
-                    final isSelected = _selectedServices.any((s) => s.id == svc.id);
-                    return CheckboxListTile(
-                      contentPadding: EdgeInsets.zero,
-                      activeColor: const Color(0xFF22C55E),
-                      checkColor: Colors.black,
-                      value: isSelected,
-                      title: Text(svc.name, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
-                      subtitle: Text("₹${svc.price.toInt()} • ${svc.durationMinutes} min", style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12)),
-                      onChanged: (val) {
-                        setModalState(() {
-                          if (val == true) {
-                            _selectedServices.add(svc);
-                          } else {
-                            _selectedServices.removeWhere((s) => s.id == svc.id);
-                          }
-                        });
-                        setState(() {});
-                      },
-                    );
-                  }).toList(),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      catalog: widget.appState.catalog,
+      title: "Select Services by Category",
+      selected: _selectedServices,
     );
+    if (picked != null) {
+      setState(() {
+        _selectedServices.clear();
+        _selectedServices.addAll(picked);
+      });
+    }
   }
 
   void _pickStaff() {
@@ -205,7 +164,8 @@ class _CheckInCustomerScreenState extends State<CheckInCustomerScreen> {
                   const RuvexiLogoWidget(fontSize: 16, showSubtitle: true),
                   IconButton(
                     icon: const Icon(Icons.notifications_outlined, color: Colors.white70, size: 22),
-                    onPressed: () {},
+                    tooltip: "Salon Alerts",
+                    onPressed: () => showSalonNotificationModal(context, widget.appState),
                   ),
                 ],
               ),

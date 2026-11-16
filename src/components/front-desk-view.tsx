@@ -94,6 +94,7 @@ export function FrontDeskView({ onNavigateTab, onGoToPosBilling }: FrontDeskView
   // Form Fields
   const [walkInName, setWalkInName] = useState("");
   const [walkInPhone, setWalkInPhone] = useState("+91 ");
+  const [walkInCatFilter, setWalkInCatFilter] = useState("All");
   const [walkInService, setWalkInService] = useState(services[0]?.name || "Haircut");
   const [walkInStaff, setWalkInStaff] = useState(staff[0]?.name || "Priya Sharma");
   const [walkInChair, setWalkInChair] = useState<number>(1);
@@ -101,6 +102,26 @@ export function FrontDeskView({ onNavigateTab, onGoToPosBilling }: FrontDeskView
   // Step 2 & 3: Fill Services Taken for In-Chair Client Modal
   const [serviceModalApt, setServiceModalApt] = useState<any>(null);
   const [selectedServiceList, setSelectedServiceList] = useState<string[]>([]);
+  const [serviceModalCatFilter, setServiceModalCatFilter] = useState("All");
+
+  const frontDeskCategories = useMemo(() => {
+    const defaultOrder = [
+      "All",
+      "Waxing",
+      "Hair",
+      "Beard & Grooming",
+      "Hair Colour",
+      "Nails",
+      "Skin & Spa",
+      "Threading",
+      "Hair Spa",
+      "Massage",
+      "Facial",
+    ];
+    const srvCats = Array.from(new Set(services.map((s) => s.category).filter(Boolean)));
+    const extra = srvCats.filter((c) => !defaultOrder.includes(c));
+    return [...defaultOrder.filter((c) => c === "All" || srvCats.includes(c)), ...extra];
+  }, [services]);
 
   // Step 4: Billing with QR & Split Pay Modal
   const [billingApt, setBillingApt] = useState<any>(null);
@@ -1299,9 +1320,32 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
               </div>
             )}
 
-            {/* Steps 2-4: Service, Stylist & Chair Selection */}
+            {/* Steps 2-4: Category, Service, Stylist & Chair Selection */}
             <form onSubmit={handleAllotChairAndBegin} className="space-y-3.5 pt-1">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
+                {/* Category Selection */}
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-[#A1A1AA]">Category</label>
+                  <select
+                    value={walkInCatFilter}
+                    onChange={(e) => {
+                      const newCat = e.target.value;
+                      setWalkInCatFilter(newCat);
+                      const matched = services.filter((s) => newCat === "All" || s.category === newCat);
+                      if (matched.length > 0 && !matched.some((s) => s.name === walkInService)) {
+                        setWalkInService(matched[0].name);
+                      }
+                    }}
+                    className="w-full px-2.5 py-2 bg-[#111111] border border-[#27272A] rounded-xl text-xs text-[#F8FAFC] focus:outline-none focus:border-[#FACC15]"
+                  >
+                    {frontDeskCategories.map((c) => (
+                      <option key={c} value={c} className="bg-[#151515]">
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 {/* Service Selection */}
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-[#A1A1AA]">Service</label>
@@ -1310,11 +1354,13 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
                     onChange={(e) => setWalkInService(e.target.value)}
                     className="w-full px-2.5 py-2 bg-[#111111] border border-[#27272A] rounded-xl text-xs text-[#F8FAFC] focus:outline-none focus:border-[#FACC15]"
                   >
-                    {services.map((s) => (
-                      <option key={s.id} value={s.name} className="bg-[#151515]">
-                        {s.name} ({formatCurrency(s.price)})
-                      </option>
-                    ))}
+                    {services
+                      .filter((s) => walkInCatFilter === "All" || s.category === walkInCatFilter)
+                      .map((s) => (
+                        <option key={s.id} value={s.name} className="bg-[#151515]">
+                          {s.name} ({formatCurrency(s.price)})
+                        </option>
+                      ))}
                   </select>
                 </div>
 
@@ -1403,9 +1449,36 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-medium text-[#A1A1AA]">Available Services:</label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-medium text-[#A1A1AA]">Select Category & Services:</label>
+                <span className="text-[11px] font-mono text-[#FACC15]">{selectedServiceList.length} selected</span>
+              </div>
+
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+                {frontDeskCategories.map((cat) => {
+                  const count = cat === "All" ? services.length : services.filter((s) => s.category === cat).length;
+                  return (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => setServiceModalCatFilter(cat)}
+                      className={`px-2.5 py-1 rounded-lg whitespace-nowrap text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
+                        serviceModalCatFilter === cat
+                          ? "bg-[#FACC15] text-[#080808]"
+                          : "bg-[#111111] text-[#A1A1AA] hover:text-[#F8FAFC] border border-[#27272A]"
+                      }`}
+                    >
+                      <span>{cat}</span>
+                      <span className="text-[9px] opacity-75 ml-1">({count})</span>
+                    </button>
+                  );
+                })}
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-60 overflow-y-auto p-0.5">
-                {services.map((srv) => {
+                {services
+                  .filter((s) => serviceModalCatFilter === "All" || s.category === serviceModalCatFilter)
+                  .map((srv) => {
                   const isSelected = selectedServiceList.includes(srv.name);
                   return (
                     <button
@@ -1418,8 +1491,11 @@ We look forward to seeing you again soon! 💇‍♀️✨`;
                           : "bg-[#111111] text-[#A1A1AA] border-[#27272A] hover:border-[#3F3F46]"
                       }`}
                     >
-                      <span className="truncate">{srv.name}</span>
-                      <span className="font-mono text-[11px] shrink-0 ml-1">
+                      <div className="min-w-0">
+                        <div className="text-[9px] font-mono uppercase text-[#FACC15]/70">{srv.category}</div>
+                        <div className="truncate font-semibold text-[#F8FAFC]">{srv.name}</div>
+                      </div>
+                      <span className="font-mono text-[11px] shrink-0 ml-1 text-[#FACC15]">
                         {formatCurrency(srv.price)}
                       </span>
                     </button>

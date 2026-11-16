@@ -1,4 +1,9 @@
 import 'package:flutter/foundation.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:intl/intl.dart';
+import '../network/api_config.dart';
+import '../network/ruvexi_api_client.dart';
+import 'olg_default_catalog.dart';
 
 class ServiceItem {
   final String id;
@@ -6,6 +11,11 @@ class ServiceItem {
   final String category;
   final double price;
   final int durationMinutes;
+  final int bufferMinutes;
+  final String description;
+  final bool popular;
+  final bool isOnlineBookable;
+  final bool isActive;
 
   ServiceItem({
     required this.id,
@@ -13,7 +23,29 @@ class ServiceItem {
     required this.category,
     required this.price,
     required this.durationMinutes,
+    this.bufferMinutes = 5,
+    this.description = '',
+    this.popular = false,
+    this.isOnlineBookable = true,
+    this.isActive = true,
   });
+
+  factory ServiceItem.fromJson(Map<String, dynamic> json) {
+    return ServiceItem(
+      id: (json['id'] ?? '').toString(),
+      name: (json['name'] ?? 'Service').toString(),
+      category: (json['category'] ?? 'Hair').toString(),
+      price: (json['price'] is num) ? (json['price'] as num).toDouble() : double.tryParse('${json['price']}') ?? 0.0,
+      durationMinutes: (json['durationMinutes'] is num)
+          ? (json['durationMinutes'] as num).toInt()
+          : int.tryParse('${json['durationMinutes']}') ?? 45,
+      bufferMinutes: (json['bufferMinutes'] is num) ? (json['bufferMinutes'] as num).toInt() : 5,
+      description: (json['description'] ?? '').toString(),
+      popular: json['popular'] == true,
+      isOnlineBookable: json['isOnlineBookable'] != false,
+      isActive: json['isActive'] != false,
+    );
+  }
 }
 
 class PackageItem {
@@ -53,11 +85,36 @@ class Customer {
     required this.email,
     required this.visitsCount,
     required this.totalSpent,
-    this.loyaltyPoints = 500,
-    this.membership = "Classic (Active)",
+    this.loyaltyPoints = 50,
+    this.membership = "Standard",
     this.formulaNotes,
     this.tag = "Regular",
   });
+
+  factory Customer.fromJson(Map<String, dynamic> json) {
+    final visits = (json['visitsCount'] ?? json['totalVisits'] ?? 0);
+    final spent = (json['totalSpent'] ?? json['totalSpend'] ?? 0.0);
+    final visitsInt = visits is num ? visits.toInt() : int.tryParse('$visits') ?? 0;
+    final tagsRaw = json['tags'];
+    String derivedTag = visitsInt <= 1 ? 'New' : 'Regular';
+    if (tagsRaw is List && tagsRaw.isNotEmpty) {
+      derivedTag = tagsRaw.first.toString();
+    }
+    return Customer(
+      id: (json['id'] ?? '').toString(),
+      name: (json['name'] ?? 'Guest').toString(),
+      phone: (json['phone'] ?? '').toString(),
+      email: (json['email'] ?? '').toString(),
+      visitsCount: visitsInt,
+      totalSpent: spent is num ? spent.toDouble() : double.tryParse('$spent') ?? 0.0,
+      loyaltyPoints: (json['loyaltyPoints'] is num)
+          ? (json['loyaltyPoints'] as num).toInt()
+          : int.tryParse('${json['loyaltyPoints']}') ?? 50,
+      membership: (json['vipTier'] ?? 'Standard').toString(),
+      formulaNotes: (json['formulaNotes'] ?? json['notes'])?.toString(),
+      tag: derivedTag,
+    );
+  }
 }
 
 class Appointment {
@@ -75,15 +132,64 @@ class Appointment {
   Appointment({
     required this.id,
     required this.customerName,
-    this.customerPhone = "+91 98765 43210",
+    this.customerPhone = "",
     required this.serviceName,
     required this.staffName,
     required this.time,
-    this.durationMinutes = 60,
+    this.durationMinutes = 45,
     required this.price,
     required this.status,
-    this.notes = "Client prefers mild products.",
+    this.notes = "",
   });
+
+  factory Appointment.fromJson(Map<String, dynamic> json) {
+    final dateStr = (json['date'] ?? '').toString().trim();
+    final timeStr = (json['startTime'] ?? json['time'] ?? '11:00').toString().trim();
+    DateTime parsedTime = DateTime.now();
+    try {
+      final baseDate = dateStr.isNotEmpty ? DateTime.parse(dateStr) : DateTime.now();
+      final match = RegExp(r'^(\d{1,2}):(\d{2})(?:\s*(AM|PM))?', caseSensitive: false).firstMatch(timeStr);
+      if (match != null) {
+        int h = int.parse(match.group(1)!);
+        final m = int.parse(match.group(2)!);
+        final ampm = match.group(3)?.toUpperCase();
+        if (ampm == 'PM' && h < 12) h += 12;
+        if (ampm == 'AM' && h == 12) h = 0;
+        parsedTime = DateTime(baseDate.year, baseDate.month, baseDate.day, h.clamp(0, 23), m.clamp(0, 59));
+      } else {
+        parsedTime = baseDate;
+      }
+    } catch (_) {
+      parsedTime = DateTime.now();
+    }
+
+    final rawStatus = (json['status'] ?? 'confirmed').toString().toLowerCase().trim();
+    String uiStatus = 'Confirmed';
+    if (rawStatus == 'in_service' || rawStatus == 'in service') {
+      uiStatus = 'In Service';
+    } else if (rawStatus == 'completed') {
+      uiStatus = 'Completed';
+    } else if (rawStatus == 'cancelled') {
+      uiStatus = 'Cancelled';
+    } else if (rawStatus == 'upcoming' || rawStatus == 'pending' || rawStatus == 'scheduled') {
+      uiStatus = 'Upcoming';
+    }
+
+    return Appointment(
+      id: (json['id'] ?? '').toString(),
+      customerName: (json['customerName'] ?? 'Guest').toString(),
+      customerPhone: (json['customerPhone'] ?? '').toString(),
+      serviceName: (json['serviceName'] ?? 'Salon Service').toString(),
+      staffName: (json['staffName'] ?? 'Stylist').toString(),
+      time: parsedTime,
+      durationMinutes: (json['durationMinutes'] is num)
+          ? (json['durationMinutes'] as num).toInt()
+          : int.tryParse('${json['durationMinutes']}') ?? 45,
+      price: (json['price'] is num) ? (json['price'] as num).toDouble() : double.tryParse('${json['price']}') ?? 0.0,
+      status: uiStatus,
+      notes: (json['notes'] ?? '').toString(),
+    );
+  }
 }
 
 class StaffMember {
@@ -104,16 +210,49 @@ class StaffMember {
     required this.id,
     required this.name,
     required this.role,
-    this.phone = "+91 98451 22334",
+    this.phone = "",
     this.isActive = true,
     this.isClockedIn = true,
-    this.checkInTime = "09:30 AM",
-    this.servicesCount = 156,
-    this.serviceRevenue = 72400.0,
+    this.checkInTime = "--",
+    this.servicesCount = 0,
+    this.serviceRevenue = 0.0,
     this.commissionRate = 0.10,
     this.rating = 4.8,
-    this.assignedServicesCount = 12,
+    this.assignedServicesCount = 0,
   });
+
+  String get staffName => name;
+  double get todaySales => serviceRevenue;
+
+  factory StaffMember.fromJson(Map<String, dynamic> json) {
+    final rawRate = (json['commissionRate'] is num)
+        ? (json['commissionRate'] as num).toDouble()
+        : double.tryParse('${json['commissionRate']}') ?? 10.0;
+    final normalizedRate = rawRate > 1.0 ? rawRate / 100.0 : rawRate;
+    final clockedIn = json['isClockedIn'] == true;
+    final clockedAt = (json['clockedInAt'] ?? '').toString();
+
+    return StaffMember(
+      id: (json['id'] ?? '').toString(),
+      name: (json['name'] ?? 'Staff').toString(),
+      role: (json['role'] ?? 'Stylist').toString(),
+      phone: (json['phone'] ?? '').toString(),
+      isActive: json['isActive'] != false,
+      isClockedIn: clockedIn,
+      checkInTime: clockedAt.isNotEmpty ? clockedAt : (clockedIn ? 'Clocked In' : '--'),
+      servicesCount: (json['totalServicesCompleted'] ?? json['todayServicesCount'] ?? 0) is num
+          ? ((json['totalServicesCompleted'] ?? json['todayServicesCount']) as num).toInt()
+          : 0,
+      serviceRevenue: (json['todayRevenue'] is num)
+          ? (json['todayRevenue'] as num).toDouble()
+          : double.tryParse('${json['todayRevenue']}') ?? 0.0,
+      commissionRate: normalizedRate,
+      rating: (json['rating'] is num) ? (json['rating'] as num).toDouble() : 4.8,
+      assignedServicesCount: (json['todayServicesCount'] is num)
+          ? (json['todayServicesCount'] as num).toInt()
+          : 0,
+    );
+  }
 }
 
 class InventoryItem {
@@ -136,6 +275,22 @@ class InventoryItem {
   });
 
   bool get isLowStock => stock <= minAlert;
+
+  factory InventoryItem.fromJson(Map<String, dynamic> json) {
+    return InventoryItem(
+      id: (json['id'] ?? '').toString(),
+      name: (json['name'] ?? 'Product').toString(),
+      sizeVolume: (json['brand'] ?? json['usageType'] ?? 'Professional').toString(),
+      category: (json['category'] ?? 'Hair Care').toString(),
+      stock: (json['currentStock'] is num)
+          ? (json['currentStock'] as num).toInt()
+          : int.tryParse('${json['currentStock']}') ?? 0,
+      minAlert: (json['minThreshold'] is num)
+          ? (json['minThreshold'] as num).toInt()
+          : int.tryParse('${json['minThreshold']}') ?? 5,
+      unit: (json['unit'] ?? 'pcs').toString(),
+    );
+  }
 }
 
 class ExpenseItem {
@@ -152,6 +307,23 @@ class ExpenseItem {
     required this.date,
     this.note = "",
   });
+
+  factory ExpenseItem.fromJson(Map<String, dynamic> json) {
+    DateTime parsedDate = DateTime.now();
+    try {
+      final raw = (json['date'] ?? '').toString();
+      if (raw.isNotEmpty) parsedDate = DateTime.parse(raw);
+    } catch (_) {}
+    final title = (json['title'] ?? '').toString();
+    final notes = (json['notes'] ?? '').toString();
+    return ExpenseItem(
+      id: (json['id'] ?? '').toString(),
+      category: (json['category'] ?? 'Supplies').toString(),
+      amount: (json['amount'] is num) ? (json['amount'] as num).toDouble() : double.tryParse('${json['amount']}') ?? 0.0,
+      date: parsedDate,
+      note: notes.isNotEmpty ? notes : title,
+    );
+  }
 }
 
 class OfferItem {
@@ -223,492 +395,453 @@ class InSalonClient {
 }
 
 class RuvexiAppState extends ChangeNotifier {
-  String salonName = "Ruvexi Salon & Spa";
-  String salonLocation = "Chikmagaluru, Karnataka";
-  String userRole = "Owner";
-  double todayRevenue = 42600.00;
-  int todayAppointmentsCount = 24;
-  int todayClientsCount = 18;
-  double todayProfit = 8920.00;
+  final RuvexiApiClient api = RuvexiApiClient();
 
-  bool isAuthenticated = true;
-  String currentUserName = "Darshan";
-  String currentUserEmail = "ruvexisolutions@gmail.com";
+  String salonId = "";
+  String salonSlug = "";
+  String salonName = "Ruvexi Salon & Spa";
+  String salonLocation = "";
+  String salonPhone = "";
+  String salonGstin = "";
+  String salonUpiId = "";
+  int salonChairs = 6;
+
+  // Subscription state (fetched live from Railway)
+  String subscriptionStatus = "trial";
+  String subscriptionPlan = "free_trial";
+  bool isTrialActive = true;
+  int trialDaysLeft = 7;
+  String? trialEndsAt;
+  String conciergeWhatsapp = "";
+  String conciergeUpiId = "";
+
+  // Role state (RBAC enforced)
+  String backendRole = "SALON_RECEPTIONIST";
+  String userRole = "Receptionist"; // UI display mode: "Owner" | "Receptionist"
+  bool get canSwitchRoles {
+    final normalized = backendRole.toUpperCase();
+    return normalized == "SALON_MANAGER" ||
+        normalized == "OWNER" ||
+        normalized == "MANAGER" ||
+        normalized == "ADMIN" ||
+        normalized == "MASTER_ADMIN";
+  }
+
+  double todayRevenue = 0.0;
+  int todayAppointmentsCount = 0;
+  int todayClientsCount = 0;
+  double todayProfit = 0.0;
+
+  bool isAuthenticated = false;
+  bool isSyncing = false;
+  String? lastSyncError;
+  String currentUserName = "";
+  String currentUserEmail = "";
+
+  Customer? posSelectedCustomer;
+  InSalonClient? activeBillingClient;
+  int staffCompletedCount = 0;
+
+  final List<SalonSeat> seats = [];
+  final List<InSalonClient> inSalonClients = [];
+  final List<ServiceItem> catalog = [];
+  final List<PackageItem> packages = [];
+  final List<Appointment> appointments = [];
+  final List<Customer> customers = [];
+  final List<StaffMember> staff = [];
+  final List<InventoryItem> inventory = [];
+  final List<ExpenseItem> expenses = [];
+  final List<OfferItem> offers = [];
+  final List<CartItem> posCart = [];
+  final List<Map<String, dynamic>> invoices = [];
+
+  double discountAmount = 0.0;
+
+  RuvexiAppState() {
+    catalog.addAll(defaultOlgCatalog);
+    api.onUnauthorized = () {
+      _clearWorkspaceData();
+      isAuthenticated = false;
+      notifyListeners();
+    };
+  }
+
+  void _rebuildSeats(int chairCount) {
+    final count = chairCount.clamp(1, 24);
+    seats.clear();
+    for (int i = 1; i <= count; i++) {
+      final seatId = "S-$i";
+      final occupying = inSalonClients.where((c) => c.seatId == seatId && c.status == "In Salon").toList();
+      seats.add(SalonSeat(
+        id: seatId,
+        isInUse: occupying.isNotEmpty,
+        currentClientId: occupying.isNotEmpty ? occupying.first.id : null,
+        currentClientName: occupying.isNotEmpty ? occupying.first.customerName : null,
+      ));
+    }
+  }
+
+  void _clearWorkspaceData() {
+    salonId = "";
+    salonSlug = "";
+    salonName = "Ruvexi Salon & Spa";
+    salonLocation = "";
+    salonPhone = "";
+    salonGstin = "";
+    salonUpiId = "";
+    salonChairs = 6;
+    subscriptionStatus = "trial";
+    subscriptionPlan = "free_trial";
+    isTrialActive = true;
+    trialDaysLeft = 7;
+    trialEndsAt = null;
+    conciergeWhatsapp = "";
+    conciergeUpiId = "";
+    backendRole = "SALON_RECEPTIONIST";
+    userRole = "Receptionist";
+    currentUserName = "";
+    currentUserEmail = "";
+    todayRevenue = 0.0;
+    todayAppointmentsCount = 0;
+    todayClientsCount = 0;
+    todayProfit = 0.0;
+    staffCompletedCount = 0;
+    posSelectedCustomer = null;
+    activeBillingClient = null;
+    catalog.clear();
+    catalog.addAll(defaultOlgCatalog);
+    customers.clear();
+    staff.clear();
+    inventory.clear();
+    appointments.clear();
+    expenses.clear();
+    invoices.clear();
+    inSalonClients.clear();
+    seats.clear();
+    posCart.clear();
+  }
+
+  void _applyUserAndSalon(Map<String, dynamic>? userMap, Map<String, dynamic>? salonMap) {
+    if (userMap != null) {
+      currentUserName = (userMap['name'] ?? '').toString();
+      currentUserEmail = (userMap['email'] ?? '').toString();
+      backendRole = (userMap['role'] ?? 'SALON_RECEPTIONIST').toString().toUpperCase();
+      userRole = canSwitchRoles ? 'Owner' : 'Receptionist';
+    }
+    if (salonMap != null) {
+      salonId = (salonMap['id'] ?? '').toString();
+      salonSlug = (salonMap['slug'] ?? '').toString();
+      salonName = (salonMap['name'] ?? 'Ruvexi Salon & Spa').toString();
+      final city = (salonMap['city'] ?? '').toString();
+      final branch = (salonMap['branch'] ?? '').toString();
+      salonLocation = city.isNotEmpty ? city : (branch.isNotEmpty ? branch : (salonMap['address'] ?? '').toString());
+      salonPhone = (salonMap['phone'] ?? '').toString();
+      salonGstin = (salonMap['gstin'] ?? '').toString();
+      salonUpiId = (salonMap['upiId'] ?? '').toString();
+      salonChairs = (salonMap['chairs'] is num) ? (salonMap['chairs'] as num).toInt() : 6;
+      subscriptionStatus = (salonMap['subscriptionStatus'] ?? 'trial').toString();
+      subscriptionPlan = (salonMap['subscriptionPlan'] ?? 'free_trial').toString();
+      isTrialActive = salonMap['isTrialActive'] != false;
+      trialDaysLeft = (salonMap['trialDaysLeft'] is num) ? (salonMap['trialDaysLeft'] as num).toInt() : 7;
+      trialEndsAt = salonMap['trialEndsAt']?.toString();
+    }
+  }
+
+  Future<bool> restoreSession() async {
+    final token = await api.getToken();
+    if (token == null || token.isEmpty) {
+      isAuthenticated = false;
+      notifyListeners();
+      return false;
+    }
+
+    try {
+      await syncWorkspace();
+      isAuthenticated = true;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      await api.clearToken();
+      _clearWorkspaceData();
+      isAuthenticated = false;
+      notifyListeners();
+      return false;
+    }
+  }
 
   Future<bool> login({required String identifier, required String password}) async {
+    lastSyncError = null;
+    final res = await api.login(identifier: identifier, password: password);
+    _applyUserAndSalon(
+      res['user'] is Map ? Map<String, dynamic>.from(res['user']) : null,
+      res['salon'] is Map ? Map<String, dynamic>.from(res['salon']) : null,
+    );
     isAuthenticated = true;
-    currentUserEmail = identifier;
-    final lower = identifier.toLowerCase();
-    if (lower.contains('staff') || lower.contains('anjali') || lower.contains('reception')) {
-      userRole = "Receptionist";
-      currentUserName = "Anjali";
-    } else {
-      userRole = "Owner";
-      currentUserName = identifier.contains('@') ? identifier.split('@').first : "Darshan";
-    }
+    await syncWorkspace();
     notifyListeners();
     return true;
   }
 
-  void switchRole(String role) {
-    if (role == "Owner" || role == "Receptionist") {
-      userRole = role;
-      currentUserName = role == "Owner" ? "Darshan" : "Anjali";
+  Future<bool> signup({
+    required String ownerName,
+    required String salonNameInput,
+    required String email,
+    required String password,
+    String phone = '',
+    String city = 'Bengaluru',
+  }) async {
+    lastSyncError = null;
+    final res = await api.signup(
+      ownerName: ownerName,
+      salonName: salonNameInput,
+      email: email,
+      password: password,
+      phone: phone,
+      city: city,
+    );
+    _applyUserAndSalon(
+      res['user'] is Map ? Map<String, dynamic>.from(res['user']) : null,
+      res['salon'] is Map ? Map<String, dynamic>.from(res['salon']) : null,
+    );
+    isAuthenticated = true;
+    await syncWorkspace();
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> loginWithGoogle() async {
+    lastSyncError = null;
+    String clientId = RuvexiApiConfig.googleClientId;
+    if (clientId.isEmpty) {
+      try {
+        final cfg = await api.fetchPublicConfig();
+        clientId = (cfg['googleClientId'] ?? '').toString();
+      } catch (_) {}
+    }
+
+    final googleSignIn = GoogleSignIn(
+      scopes: const ['email', 'profile'],
+      serverClientId: clientId.isNotEmpty ? clientId : null,
+    );
+
+    final account = await googleSignIn.signIn();
+    if (account == null) {
+      throw RuvexiApiException('Google sign-in was cancelled.');
+    }
+
+    final auth = await account.authentication;
+    if ((auth.idToken == null || auth.idToken!.isEmpty) &&
+        (auth.accessToken == null || auth.accessToken!.isEmpty)) {
+      throw RuvexiApiException('Could not obtain Google credentials. Please sign in with email & password.');
+    }
+
+    final res = await api.googleAuth(idToken: auth.idToken, accessToken: auth.accessToken);
+    _applyUserAndSalon(
+      res['user'] is Map ? Map<String, dynamic>.from(res['user']) : null,
+      res['salon'] is Map ? Map<String, dynamic>.from(res['salon']) : null,
+    );
+    isAuthenticated = true;
+    await syncWorkspace();
+    notifyListeners();
+    return true;
+  }
+
+  Future<void> requestPasswordReset(String email) async {
+    await api.requestPasswordReset(email);
+  }
+
+  Future<void> requestOtp(String phone) async {
+    await api.requestOtp(phone);
+  }
+
+  Future<bool> verifyOtp({required String phone, required String otp}) async {
+    lastSyncError = null;
+    final res = await api.verifyOtp(phone: phone, otp: otp);
+    _applyUserAndSalon(
+      res['user'] is Map ? Map<String, dynamic>.from(res['user']) : null,
+      res['salon'] is Map ? Map<String, dynamic>.from(res['salon']) : null,
+    );
+    isAuthenticated = true;
+    await syncWorkspace();
+    notifyListeners();
+    return true;
+  }
+
+  Future<void> syncWorkspace() async {
+    isSyncing = true;
+    lastSyncError = null;
+    notifyListeners();
+
+    try {
+      final data = await api.fetchBootstrap();
+      _applyUserAndSalon(
+        data['user'] is Map ? Map<String, dynamic>.from(data['user']) : null,
+        data['salon'] is Map ? Map<String, dynamic>.from(data['salon']) : null,
+      );
+
+      final rawServices = (data['services'] as List?) ?? [];
+      final parsedServices = rawServices.whereType<Map>().map((m) => ServiceItem.fromJson(Map<String, dynamic>.from(m))).toList();
+      catalog
+        ..clear()
+        ..addAll(parsedServices.isNotEmpty ? parsedServices : defaultOlgCatalog);
+
+      final rawCustomers = (data['customers'] as List?) ?? [];
+      customers
+        ..clear()
+        ..addAll(rawCustomers.whereType<Map>().map((m) => Customer.fromJson(Map<String, dynamic>.from(m))));
+
+      final rawStaff = (data['staff'] as List?) ?? [];
+      staff
+        ..clear()
+        ..addAll(rawStaff.whereType<Map>().map((m) => StaffMember.fromJson(Map<String, dynamic>.from(m))));
+
+      final rawInventory = (data['inventory'] as List?) ?? [];
+      inventory
+        ..clear()
+        ..addAll(rawInventory.whereType<Map>().map((m) => InventoryItem.fromJson(Map<String, dynamic>.from(m))));
+
+      final rawAppointments = (data['appointments'] as List?) ?? [];
+      appointments
+        ..clear()
+        ..addAll(rawAppointments.whereType<Map>().map((m) => Appointment.fromJson(Map<String, dynamic>.from(m))));
+
+      final rawInvoices = (data['invoices'] as List?) ?? [];
+      invoices
+        ..clear()
+        ..addAll(rawInvoices.whereType<Map>().map((m) => Map<String, dynamic>.from(m)));
+
+      try {
+        final rawExpenses = await api.fetchExpenses();
+        expenses
+          ..clear()
+          ..addAll(rawExpenses.whereType<Map>().map((m) => ExpenseItem.fromJson(Map<String, dynamic>.from(m))));
+      } catch (_) {}
+
+      try {
+        final sub = await api.fetchSubscriptionStatus();
+        subscriptionStatus = (sub['subscriptionStatus'] ?? subscriptionStatus).toString();
+        subscriptionPlan = (sub['subscriptionPlan'] ?? subscriptionPlan).toString();
+        isTrialActive = sub['isTrialActive'] != false;
+        trialDaysLeft = (sub['trialDaysLeft'] is num) ? (sub['trialDaysLeft'] as num).toInt() : trialDaysLeft;
+        trialEndsAt = sub['trialEndsAt']?.toString() ?? trialEndsAt;
+        conciergeWhatsapp = (sub['conciergeWhatsapp'] ?? '').toString();
+        conciergeUpiId = (sub['conciergeUpiId'] ?? '').toString();
+      } catch (_) {}
+
+      // Sync In-Salon active clients from active "In Service" appointments
+      inSalonClients.clear();
+      int chairIdx = 1;
+      for (final apt in appointments) {
+        if (apt.status == 'In Service') {
+          final seatId = chairIdx <= salonChairs ? 'S-${chairIdx++}' : 'Waiting';
+          final matchedServices = catalog.where((s) => s.name.toLowerCase() == apt.serviceName.toLowerCase()).toList();
+          inSalonClients.add(InSalonClient(
+            id: apt.id,
+            customerName: apt.customerName,
+            phone: apt.customerPhone,
+            services: matchedServices.isNotEmpty
+                ? matchedServices
+                : [ServiceItem(id: apt.id, name: apt.serviceName, category: 'Hair', price: apt.price, durationMinutes: apt.durationMinutes)],
+            assignedStaff: apt.staffName,
+            seatId: seatId,
+            checkInTime: DateFormat('hh:mm a').format(apt.time),
+            elapsedMinutes: DateTime.now().difference(apt.time).inMinutes.clamp(1, 180),
+            status: seatId == 'Waiting' ? 'Waiting' : 'In Salon',
+            notes: apt.notes,
+          ));
+        }
+      }
+      _rebuildSeats(salonChairs);
+
+      // Compute dashboard KPIs from real server records
+      final todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      double revToday = 0.0;
+      int completedCount = 0;
+      for (final inv in invoices) {
+        final status = (inv['status'] ?? '').toString().toLowerCase();
+        final dateField = (inv['paidAt'] ?? inv['createdAt'] ?? inv['date'] ?? '').toString();
+        if (status == 'paid' && dateField.startsWith(todayStr)) {
+          revToday += (inv['grandTotal'] is num) ? (inv['grandTotal'] as num).toDouble() : 0.0;
+          completedCount += 1;
+        }
+      }
+
+      if (revToday == 0.0 && invoices.isNotEmpty) {
+        for (final inv in invoices) {
+          if ((inv['status'] ?? '').toString().toLowerCase() == 'paid') {
+            revToday += (inv['grandTotal'] is num) ? (inv['grandTotal'] as num).toDouble() : 0.0;
+            completedCount += 1;
+          }
+        }
+      }
+
+      todayRevenue = revToday;
+      todayAppointmentsCount = appointments.where((a) => DateFormat('yyyy-MM-dd').format(a.time) == todayStr).length;
+      if (todayAppointmentsCount == 0) todayAppointmentsCount = appointments.length;
+      todayClientsCount = customers.length;
+      staffCompletedCount = completedCount;
+      todayProfit = (revToday - totalExpenses).clamp(0.0, double.infinity);
+
+      if (canSwitchRoles) {
+        try {
+          final report = await api.fetchReportsSummary();
+          if (report['netProfit'] is num) {
+            todayProfit = (report['netProfit'] as num).toDouble();
+          }
+        } catch (_) {}
+      }
+    } finally {
+      isSyncing = false;
       notifyListeners();
     }
   }
 
-  // Selected customer in POS & active in-salon client being billed
-  Customer? posSelectedCustomer;
-  InSalonClient? activeBillingClient;
-  int staffCompletedCount = 8;
+  void switchRole(String role) {
+    if (!canSwitchRoles) return;
+    if (role == "Owner" || role == "Receptionist") {
+      userRole = role;
+      notifyListeners();
+    }
+  }
 
-  // Seats / Stations S-1 to S-6
-  final List<SalonSeat> seats = [
-    SalonSeat(id: "S-1", isInUse: true, currentClientId: "ins_1", currentClientName: "Priya Sharma"),
-    SalonSeat(id: "S-2", isInUse: true, currentClientId: "ins_2", currentClientName: "Arjun Rao"),
-    SalonSeat(id: "S-3", isInUse: true, currentClientId: "ins_3", currentClientName: "Neha R"),
-    SalonSeat(id: "S-4", isInUse: true, currentClientId: "ins_4", currentClientName: "Rahul M"),
-    SalonSeat(id: "S-5", isInUse: false),
-    SalonSeat(id: "S-6", isInUse: false),
-  ];
+  Future<void> updateSalonProfile({String? name, String? location, String? gstin}) async {
+    final trimmedName = name?.trim();
+    final trimmedLoc = location?.trim();
+    final trimmedGstin = gstin?.trim();
+    final updated = await api.updateSalonSettings({
+      if (trimmedName != null && trimmedName.isNotEmpty) 'name': trimmedName,
+      if (trimmedLoc != null && trimmedLoc.isNotEmpty) 'city': trimmedLoc,
+      if (trimmedGstin != null && trimmedGstin.isNotEmpty) 'gstin': trimmedGstin,
+    });
+    _applyUserAndSalon(null, updated);
+    notifyListeners();
+  }
 
-  // In Salon Clients (Receptionist Floor)
-  final List<InSalonClient> inSalonClients = [
-    InSalonClient(
-      id: "ins_1",
-      customerName: "Priya Sharma",
-      phone: "+91 98765 43210",
-      services: [
-        ServiceItem(id: "s1", name: "Hair Cut", category: "Hair", price: 399.0, durationMinutes: 30),
-        ServiceItem(id: "s2", name: "Hair Spa", category: "Hair", price: 1199.0, durationMinutes: 60),
-      ],
-      assignedStaff: "Manoj K",
-      seatId: "S-1",
-      checkInTime: "10:00 AM",
-      elapsedMinutes: 28,
-      status: "In Salon",
-      notes: "Client prefers mild products.",
-    ),
-    InSalonClient(
-      id: "ins_2",
-      customerName: "Arjun Rao",
-      phone: "+91 87654 32109",
-      services: [
-        ServiceItem(id: "s4", name: "Beard Grooming", category: "Beard", price: 299.0, durationMinutes: 20),
-      ],
-      assignedStaff: "Kiran S",
-      seatId: "S-2",
-      checkInTime: "10:15 AM",
-      elapsedMinutes: 18,
-      status: "In Salon",
-    ),
-    InSalonClient(
-      id: "ins_3",
-      customerName: "Neha R",
-      phone: "+91 99876 54321",
-      services: [
-        ServiceItem(id: "s3", name: "Hair Color", category: "Hair", price: 2499.0, durationMinutes: 90),
-      ],
-      assignedStaff: "Pooja M",
-      seatId: "S-3",
-      checkInTime: "09:50 AM",
-      elapsedMinutes: 40,
-      status: "In Salon",
-    ),
-    InSalonClient(
-      id: "ins_4",
-      customerName: "Rahul M",
-      phone: "+91 96543 21098",
-      services: [
-        ServiceItem(id: "s1", name: "Hair Cut", category: "Hair", price: 399.0, durationMinutes: 30),
-      ],
-      assignedStaff: "Rohit D",
-      seatId: "S-4",
-      checkInTime: "10:22 AM",
-      elapsedMinutes: 12,
-      status: "In Salon",
-    ),
-    InSalonClient(
-      id: "ins_5",
-      customerName: "Sneha P",
-      phone: "+91 93456 78901",
-      services: [
-        ServiceItem(id: "s5", name: "Facial", category: "Skin", price: 1299.0, durationMinutes: 60),
-      ],
-      assignedStaff: "Anjali R",
-      seatId: "Waiting",
-      checkInTime: "10:28 AM",
-      elapsedMinutes: 6,
-      status: "Waiting",
-    ),
-    InSalonClient(
-      id: "ins_6",
-      customerName: "Vivek K",
-      phone: "+91 90987 65432",
-      services: [
-        ServiceItem(id: "s2", name: "Hair Spa", category: "Hair", price: 1199.0, durationMinutes: 60),
-      ],
-      assignedStaff: "Manoj K",
-      seatId: "Waiting",
-      checkInTime: "10:31 AM",
-      elapsedMinutes: 3,
-      status: "Waiting",
-    ),
-  ];
+  Future<void> updateSalonPaymentSettings({required String upiId}) async {
+    final trimmedUpi = upiId.trim();
+    salonUpiId = trimmedUpi;
+    notifyListeners();
+    try {
+      final updated = await api.updateSalonSettings({
+        'upiId': trimmedUpi,
+      });
+      _applyUserAndSalon(null, updated);
+      notifyListeners();
+    } catch (_) {}
+  }
 
   int get inSalonActiveCount => inSalonClients.where((c) => c.status == "In Salon").length;
   int get waitingClientsCount => inSalonClients.where((c) => c.status == "Waiting").length;
   int get seatsInUseCount => seats.where((s) => s.isInUse).length;
   int get seatsAvailableCount => seats.where((s) => !s.isInUse).length;
 
-  Future<bool> loginWithGoogle() async {
-    isAuthenticated = true;
-    currentUserEmail = "ruvexisolutions@gmail.com";
-    currentUserName = "Darshan";
-    userRole = "Owner";
-    notifyListeners();
-    return true;
-  }
-
-  // Catalog of services
-  final List<ServiceItem> catalog = [
-    ServiceItem(id: "s1", name: "Hair Cut", category: "Hair", price: 399.0, durationMinutes: 30),
-    ServiceItem(id: "s2", name: "Hair Spa", category: "Hair", price: 1199.0, durationMinutes: 60),
-    ServiceItem(id: "s3", name: "Hair Color", category: "Hair", price: 2499.0, durationMinutes: 90),
-    ServiceItem(id: "s4", name: "Beard Grooming", category: "Beard", price: 299.0, durationMinutes: 20),
-    ServiceItem(id: "s5", name: "Facial", category: "Skin", price: 1299.0, durationMinutes: 60),
-    ServiceItem(id: "s6", name: "Head Massage & Oil", category: "Spa", price: 599.0, durationMinutes: 30),
-    ServiceItem(id: "s7", name: "Deep Cleanse Pedicure", category: "Spa", price: 899.0, durationMinutes: 45),
-  ];
-
-  // Packages
-  final List<PackageItem> packages = [
-    PackageItem(
-      id: "pkg1",
-      title: "Royal Grooming Package",
-      description: "Hair Cut + Beard Sculpt + Hair Spa + Head Massage",
-      price: 2199.0,
-      originalPrice: 2896.0,
-      servicesIncluded: ["Hair Cut", "Beard Grooming", "Hair Spa", "Head Massage"],
-    ),
-    PackageItem(
-      id: "pkg2",
-      title: "Glow & Radiance Combo",
-      description: "Skin Fruit Facial + Hair Spa + Manicure",
-      price: 2799.0,
-      originalPrice: 3599.0,
-      servicesIncluded: ["Facial", "Hair Spa", "Pedicure"],
-    ),
-    PackageItem(
-      id: "pkg3",
-      title: "Executive Styling Series",
-      description: "5 Precision Haircuts + 3 Beard Trims",
-      price: 2499.0,
-      originalPrice: 3100.0,
-      servicesIncluded: ["5x Hair Cut", "3x Beard Trim"],
-    ),
-  ];
-
-  // Appointments matching the screens
-  final List<Appointment> appointments = [
-    Appointment(
-      id: "apt_1",
-      customerName: "Priya Sharma",
-      customerPhone: "+91 98765 43210",
-      serviceName: "Hair Cut + Hair Spa",
-      staffName: "Manoj K",
-      time: DateTime(2026, 11, 9, 10, 0),
-      durationMinutes: 60,
-      price: 1399.0,
-      status: "In Service",
-      notes: "Client prefers mild products.",
-    ),
-    Appointment(
-      id: "apt_2",
-      customerName: "Arjun Rao",
-      customerPhone: "+91 87654 32109",
-      serviceName: "Beard Grooming",
-      staffName: "Kiran S",
-      time: DateTime(2026, 11, 9, 11, 30),
-      durationMinutes: 20,
-      price: 299.0,
-      status: "Confirmed",
-      notes: "Fade beard neatly.",
-    ),
-    Appointment(
-      id: "apt_3",
-      customerName: "Neha R",
-      customerPhone: "+91 99876 54321",
-      serviceName: "Hair Color",
-      staffName: "Pooja M",
-      time: DateTime(2026, 11, 9, 13, 0),
-      durationMinutes: 90,
-      price: 2499.0,
-      status: "Upcoming",
-      notes: "No ammonia developer.",
-    ),
-    Appointment(
-      id: "apt_4",
-      customerName: "Rahul M",
-      customerPhone: "+91 96543 21098",
-      serviceName: "Hair Cut",
-      staffName: "Rohit D",
-      time: DateTime(2026, 11, 9, 14, 30),
-      durationMinutes: 30,
-      price: 399.0,
-      status: "Confirmed",
-      notes: "Short crop with texture.",
-    ),
-    Appointment(
-      id: "apt_5",
-      customerName: "Sneha P",
-      customerPhone: "+91 93456 78901",
-      serviceName: "Facial",
-      staffName: "Anjali R",
-      time: DateTime(2026, 11, 9, 16, 0),
-      durationMinutes: 60,
-      price: 1299.0,
-      status: "Upcoming",
-      notes: "Organic fruit extract mask.",
-    ),
-    Appointment(
-      id: "apt_6",
-      customerName: "Vivek K",
-      customerPhone: "+91 90987 65432",
-      serviceName: "Hair Spa",
-      staffName: "Manoj K",
-      time: DateTime(2026, 11, 9, 17, 30),
-      durationMinutes: 60,
-      price: 1199.0,
-      status: "Confirmed",
-      notes: "Deep hydration scalp therapy.",
-    ),
-  ];
-
-  // Customers CRM
-  final List<Customer> customers = [
-    Customer(
-      id: "c1",
-      name: "Priya Sharma",
-      phone: "+91 98765 43210",
-      email: "priya.sharma@example.com",
-      visitsCount: 12,
-      totalSpent: 18240.0,
-      loyaltyPoints: 1240,
-      membership: "Classic (Active)",
-      formulaNotes: "Client prefers mild products.",
-      tag: "Regular",
-    ),
-    Customer(
-      id: "c2",
-      name: "Arjun Rao",
-      phone: "+91 87654 32109",
-      email: "arjun.rao@example.com",
-      visitsCount: 8,
-      totalSpent: 9850.0,
-      loyaltyPoints: 780,
-      membership: "Classic (Active)",
-      formulaNotes: "Prefers beard balm, no chemical aftershaves.",
-      tag: "Regular",
-    ),
-    Customer(
-      id: "c3",
-      name: "Neha R",
-      phone: "+91 99876 54321",
-      email: "neha.r@example.com",
-      visitsCount: 5,
-      totalSpent: 14200.0,
-      loyaltyPoints: 620,
-      membership: "Classic (Active)",
-      formulaNotes: "L'Oreal Inoa 5.0 with 20 vol.",
-      tag: "Regular",
-    ),
-    Customer(
-      id: "c4",
-      name: "Rahul M",
-      phone: "+91 96543 21098",
-      email: "rahul.m@example.com",
-      visitsCount: 3,
-      totalSpent: 2850.0,
-      loyaltyPoints: 210,
-      membership: "Standard",
-      formulaNotes: "Side taper, matte clay.",
-      tag: "New",
-    ),
-    Customer(
-      id: "c5",
-      name: "Sneha P",
-      phone: "+91 93456 78901",
-      email: "sneha.p@example.com",
-      visitsCount: 7,
-      totalSpent: 11300.0,
-      loyaltyPoints: 890,
-      membership: "Classic (Active)",
-      formulaNotes: "Sensitive skin, avoids citrus scrubs.",
-      tag: "Regular",
-    ),
-    Customer(
-      id: "c6",
-      name: "Vivek K",
-      phone: "+91 90987 65432",
-      email: "vivek.k@example.com",
-      visitsCount: 4,
-      totalSpent: 5600.0,
-      loyaltyPoints: 340,
-      membership: "Standard",
-      formulaNotes: "Anti-dandruff tea-tree wash.",
-      tag: "Regular",
-    ),
-  ];
-
-  // Staff list matching Screen 5 & Staff Profile
-  final List<StaffMember> staff = [
-    StaffMember(
-      id: "st_1",
-      name: "Manoj K",
-      role: "Senior Stylist",
-      phone: "+91 98451 22334",
-      isActive: true,
-      isClockedIn: true,
-      checkInTime: "09:15 AM",
-      servicesCount: 156,
-      serviceRevenue: 72400.0,
-      commissionRate: 0.10,
-      rating: 4.8,
-      assignedServicesCount: 12,
-    ),
-    StaffMember(
-      id: "st_2",
-      name: "Kiran S",
-      role: "Hair Stylist",
-      phone: "+91 98451 22335",
-      isActive: true,
-      isClockedIn: true,
-      checkInTime: "09:30 AM",
-      servicesCount: 124,
-      serviceRevenue: 54200.0,
-      commissionRate: 0.10,
-      rating: 4.7,
-      assignedServicesCount: 8,
-    ),
-    StaffMember(
-      id: "st_3",
-      name: "Pooja M",
-      role: "Skin Expert",
-      phone: "+91 98451 22336",
-      isActive: true,
-      isClockedIn: true,
-      checkInTime: "09:45 AM",
-      servicesCount: 98,
-      serviceRevenue: 48600.0,
-      commissionRate: 0.12,
-      rating: 4.9,
-      assignedServicesCount: 6,
-    ),
-    StaffMember(
-      id: "st_4",
-      name: "Rohit D",
-      role: "Barber",
-      phone: "+91 98451 22337",
-      isActive: true,
-      isClockedIn: true,
-      checkInTime: "10:00 AM",
-      servicesCount: 142,
-      serviceRevenue: 38900.0,
-      commissionRate: 0.08,
-      rating: 4.6,
-      assignedServicesCount: 5,
-    ),
-    StaffMember(
-      id: "st_5",
-      name: "Anjali R",
-      role: "Salon Assistant",
-      phone: "+91 98451 22338",
-      isActive: true,
-      isClockedIn: false,
-      checkInTime: "--",
-      servicesCount: 86,
-      serviceRevenue: 22400.0,
-      commissionRate: 0.06,
-      rating: 4.5,
-      assignedServicesCount: 4,
-    ),
-  ];
-
-  // Inventory matching Screen 7
-  final List<InventoryItem> inventory = [
-    InventoryItem(id: "inv1", name: "Loreal Shampoo", sizeVolume: "1 Litre", category: "Hair Care", stock: 12, minAlert: 10, unit: "bottles"),
-    InventoryItem(id: "inv2", name: "Hair Serum", sizeVolume: "100 ml", category: "Hair Care", stock: 5, minAlert: 10, unit: "bottles"),
-    InventoryItem(id: "inv3", name: "Face Cleanser", sizeVolume: "250 ml", category: "Skin Care", stock: 28, minAlert: 15, unit: "bottles"),
-    InventoryItem(id: "inv4", name: "Hair Color (Black)", sizeVolume: "50 g", category: "Hair Care", stock: 8, minAlert: 10, unit: "tubes"),
-    InventoryItem(id: "inv5", name: "Styling Wax Matte", sizeVolume: "75 g", category: "Hair Care", stock: 22, minAlert: 8, unit: "jars"),
-    InventoryItem(id: "inv6", name: "Hydrating Rose Mist", sizeVolume: "200 ml", category: "Skin Care", stock: 19, minAlert: 6, unit: "bottles"),
-    InventoryItem(id: "inv7", name: "Titanium Thinning Shears", sizeVolume: "6 inch", category: "Tools", stock: 7, minAlert: 4, unit: "pcs"),
-  ];
-
-  int get totalInventoryItemsCount => 1248;
+  int get totalInventoryItemsCount => inventory.fold(0, (sum, i) => sum + i.stock);
   int get lowStockInventoryCount => inventory.where((i) => i.isLowStock).length;
-
-  // Expenses matching Screen 8b
-  final List<ExpenseItem> expenses = [
-    ExpenseItem(id: "exp1", category: "Products & Inventory", amount: 28500.0, date: DateTime(2026, 11, 2), note: "Monthly stock replenishment"),
-    ExpenseItem(id: "exp2", category: "Rent", amount: 15000.0, date: DateTime(2026, 11, 1), note: "Atelier floor commercial lease"),
-    ExpenseItem(id: "exp3", category: "Utilities (Electricity, Water)", amount: 4200.0, date: DateTime(2026, 11, 4), note: "BESCOM & water board"),
-    ExpenseItem(id: "exp4", category: "Staff Incentives", amount: 8000.0, date: DateTime(2026, 11, 5), note: "Diwali festival bonus advance"),
-    ExpenseItem(id: "exp5", category: "Others", amount: 6700.0, date: DateTime(2026, 11, 7), note: "Laundry, sanitizers & pantry supplies"),
-  ];
 
   double get totalExpenses => expenses.fold(0, (sum, e) => sum + e.amount);
 
-  // Offers matching Screen 8c
-  final List<OfferItem> offers = [
-    OfferItem(
-      id: "off1",
-      title: "Flat 20% Off",
-      description: "On Hair Spa & Hair Care",
-      validity: "01 Nov - 30 Nov 2026",
-      isActive: true,
-      discountPercent: 20,
-    ),
-    OfferItem(
-      id: "off2",
-      title: "Beard Grooming Combo @ ₹499",
-      description: "Beard Trim + Charcoal Wash + Hot Towel",
-      validity: "01 Nov - 30 Nov 2026",
-      isActive: true,
-      discountPercent: 15,
-    ),
-    OfferItem(
-      id: "off3",
-      title: "Facial + Clean Up @ ₹1,299",
-      description: "Valid Till: 15 Nov 2026",
-      validity: "Valid Till: 15 Nov 2026",
-      isActive: false,
-      discountPercent: 25,
-    ),
-  ];
-
-  // POS Cart
-  final List<CartItem> posCart = [
-    CartItem(
-      service: ServiceItem(id: "s1", name: "Hair Cut", category: "Hair", price: 399.0, durationMinutes: 30),
-      quantity: 1,
-    ),
-    CartItem(
-      service: ServiceItem(id: "s2", name: "Hair Spa", category: "Hair", price: 1199.0, durationMinutes: 60),
-      quantity: 1,
-    ),
-    CartItem(
-      service: ServiceItem(id: "s4", name: "Beard Grooming", category: "Beard", price: 299.0, durationMinutes: 20),
-      quantity: 1,
-    ),
-  ];
-
-  double discountAmount = 100.0;
-
   double get cartSubtotal => posCart.fold(0, (sum, item) => sum + (item.service.price * item.quantity));
-  double get cartTax => (cartSubtotal - discountAmount) * 0.18;
+  double get cartTax => ((cartSubtotal - discountAmount).clamp(0, double.infinity)) * 0.18;
   double get cartTotalPayable => (cartSubtotal - discountAmount + cartTax).clamp(0, double.infinity);
 
   void updateCartQuantity(String serviceId, int delta) {
@@ -744,51 +877,198 @@ class RuvexiAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void completePayment({required String method, double? amount}) {
+  Future<void> completePayment({required String method, double? amount}) async {
     final total = amount ?? cartTotalPayable;
+    final itemsPayload = posCart.isNotEmpty
+        ? posCart
+            .map((c) => {
+                  'serviceId': c.service.id,
+                  'name': c.service.name,
+                  'price': c.service.price,
+                  'quantity': c.quantity,
+                })
+            .toList()
+        : [
+            {'name': 'Salon Service', 'price': total, 'quantity': 1}
+          ];
+
+    await api.createInvoice({
+      if (posSelectedCustomer != null && !posSelectedCustomer!.id.startsWith('tmp_'))
+        'customerId': posSelectedCustomer!.id,
+      'customerName': posSelectedCustomer?.name ?? 'Walk-in Guest',
+      'customerPhone': posSelectedCustomer?.phone ?? '',
+      'items': itemsPayload,
+      'subtotal': posCart.isNotEmpty ? cartSubtotal : total,
+      'discountAmount': discountAmount,
+      'taxPercent': posCart.isNotEmpty ? 18.0 : 0.0,
+      'paymentMethod': method,
+      'status': 'paid',
+    });
+
     todayRevenue += total;
     todayClientsCount += 1;
-    todayAppointmentsCount += 1;
     clearCart();
-    notifyListeners();
+    await syncWorkspace();
   }
 
-  void addAppointment(Appointment appt) {
+  Future<void> addAppointment(Appointment appt) async {
     appointments.insert(0, appt);
     notifyListeners();
+    try {
+      final created = await api.createAppointment({
+        'customerName': appt.customerName,
+        'customerPhone': appt.customerPhone,
+        'serviceName': appt.serviceName,
+        'staffName': appt.staffName,
+        'date': DateFormat('yyyy-MM-dd').format(appt.time),
+        'startTime': DateFormat('HH:mm').format(appt.time),
+        'durationMinutes': appt.durationMinutes,
+        'price': appt.price,
+        'status': appt.status.toLowerCase().replaceAll(' ', '_'),
+        'notes': appt.notes,
+        'source': 'mobile_app',
+        'allowDoubleBooking': true,
+      });
+      appointments[0] = Appointment.fromJson(created);
+      notifyListeners();
+    } catch (e) {
+      appointments.remove(appt);
+      lastSyncError = e.toString();
+      notifyListeners();
+      rethrow;
+    }
   }
 
-  void updateAppointmentStatus(String id, String newStatus) {
+  Future<void> updateAppointmentStatus(String id, String newStatus) async {
     final idx = appointments.indexWhere((a) => a.id == id);
+    final previous = idx >= 0 ? appointments[idx].status : null;
     if (idx >= 0) {
       appointments[idx].status = newStatus;
       notifyListeners();
     }
+    try {
+      await api.updateAppointmentStatus(id, newStatus.toLowerCase().replaceAll(' ', '_'));
+    } catch (e) {
+      if (idx >= 0 && previous != null) {
+        appointments[idx].status = previous;
+      }
+      lastSyncError = e.toString();
+      notifyListeners();
+    }
   }
 
-  void addCustomer(Customer customer) {
+  Future<void> addCustomer(Customer customer) async {
     customers.insert(0, customer);
     notifyListeners();
+    try {
+      final created = await api.createCustomer({
+        'name': customer.name,
+        'phone': customer.phone,
+        'email': customer.email,
+        'formulaNotes': customer.formulaNotes ?? '',
+        'vipTier': customer.membership,
+      });
+      customers[0] = Customer.fromJson(created);
+      notifyListeners();
+    } catch (e) {
+      customers.remove(customer);
+      lastSyncError = e.toString();
+      notifyListeners();
+    }
   }
 
-  void addStaff(StaffMember staffMember) {
+  Future<void> addStaff(StaffMember staffMember) async {
     staff.add(staffMember);
     notifyListeners();
+    try {
+      final created = await api.createStaff({
+        'name': staffMember.name,
+        'role': staffMember.role,
+        'phone': staffMember.phone,
+        'commissionRate': staffMember.commissionRate * 100.0,
+      });
+      final idx = staff.indexOf(staffMember);
+      if (idx >= 0) staff[idx] = StaffMember.fromJson(created);
+      notifyListeners();
+    } catch (e) {
+      staff.remove(staffMember);
+      lastSyncError = e.toString();
+      notifyListeners();
+    }
   }
 
-  void addService(ServiceItem service) {
+  Future<void> toggleStaffClockIn(String id) async {
+    final idx = staff.indexWhere((s) => s.id == id);
+    if (idx >= 0) {
+      staff[idx].isClockedIn = !staff[idx].isClockedIn;
+      notifyListeners();
+      try {
+        final updated = await api.toggleStaffClock(id);
+        staff[idx] = StaffMember.fromJson(updated);
+        notifyListeners();
+      } catch (_) {}
+    }
+  }
+
+  Future<void> addService(ServiceItem service) async {
     catalog.add(service);
     notifyListeners();
+    try {
+      final created = await api.createService({
+        'name': service.name,
+        'category': service.category,
+        'price': service.price,
+        'durationMinutes': service.durationMinutes,
+      });
+      final idx = catalog.indexOf(service);
+      if (idx >= 0) catalog[idx] = ServiceItem.fromJson(created);
+      notifyListeners();
+    } catch (e) {
+      catalog.remove(service);
+      lastSyncError = e.toString();
+      notifyListeners();
+    }
   }
 
-  void addInventoryItem(InventoryItem item) {
+  Future<void> addInventoryItem(InventoryItem item) async {
     inventory.insert(0, item);
     notifyListeners();
+    try {
+      final created = await api.createInventoryItem({
+        'name': item.name,
+        'category': item.category,
+        'currentStock': item.stock,
+        'minThreshold': item.minAlert,
+        'unit': item.unit,
+        'brand': item.sizeVolume,
+      });
+      inventory[0] = InventoryItem.fromJson(created);
+      notifyListeners();
+    } catch (e) {
+      inventory.remove(item);
+      lastSyncError = e.toString();
+      notifyListeners();
+    }
   }
 
-  void addExpense(ExpenseItem item) {
+  Future<void> addExpense(ExpenseItem item) async {
     expenses.insert(0, item);
     notifyListeners();
+    try {
+      final created = await api.createExpense({
+        'title': item.note.isNotEmpty ? item.note : item.category,
+        'category': item.category,
+        'amount': item.amount,
+        'date': DateFormat('yyyy-MM-dd').format(item.date),
+        'notes': item.note,
+      });
+      expenses[0] = ExpenseItem.fromJson(created);
+      notifyListeners();
+    } catch (e) {
+      expenses.remove(item);
+      lastSyncError = e.toString();
+      notifyListeners();
+    }
   }
 
   void toggleOfferStatus(String id) {
@@ -804,22 +1084,22 @@ class RuvexiAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void checkInCustomer({
+  Future<void> checkInCustomer({
     required String customerName,
     required String phone,
     required List<ServiceItem> services,
     required String assignedStaff,
     required String seatId,
     String notes = "",
-  }) {
-    final newId = "ins_${DateTime.now().millisecondsSinceEpoch}";
+  }) async {
+    final tempId = "ins_${DateTime.now().millisecondsSinceEpoch}";
     final isWaiting = seatId == "Waiting";
     final now = TimeOfDayHelper.formatNow();
 
     final newClient = InSalonClient(
-      id: newId,
+      id: tempId,
       customerName: customerName,
-      phone: phone.isNotEmpty ? phone : "+91 98765 00000",
+      phone: phone,
       services: services,
       assignedStaff: assignedStaff,
       seatId: seatId,
@@ -835,29 +1115,32 @@ class RuvexiAppState extends ChangeNotifier {
       final seatIdx = seats.indexWhere((s) => s.id == seatId);
       if (seatIdx >= 0) {
         seats[seatIdx].isInUse = true;
-        seats[seatIdx].currentClientId = newId;
+        seats[seatIdx].currentClientId = tempId;
         seats[seatIdx].currentClientName = customerName;
       }
     }
 
-    // Add to CRM if not exists
-    final existsInCrm = customers.any((c) => c.name.toLowerCase() == customerName.toLowerCase());
-    if (!existsInCrm) {
-      customers.insert(
-        0,
-        Customer(
-          id: "c_${DateTime.now().millisecondsSinceEpoch}",
-          name: customerName,
-          phone: phone.isNotEmpty ? phone : "+91 98765 00000",
-          email: "${customerName.toLowerCase().replaceAll(' ', '.')}@example.com",
-          visitsCount: 1,
-          totalSpent: 0,
-          tag: "New",
-        ),
-      );
-    }
-
     notifyListeners();
+
+    try {
+      final totalServicePrice = services.fold(0.0, (s, item) => s + item.price);
+      final created = await api.createAppointment({
+        'customerName': customerName,
+        'customerPhone': phone,
+        'serviceName': services.map((s) => s.name).join(' + '),
+        'staffName': assignedStaff,
+        'date': DateFormat('yyyy-MM-dd').format(DateTime.now()),
+        'startTime': DateFormat('HH:mm').format(DateTime.now()),
+        'durationMinutes': services.fold(0, (s, item) => s + item.durationMinutes),
+        'price': totalServicePrice > 0 ? totalServicePrice : 500.0,
+        'status': 'in_service',
+        'notes': notes,
+        'source': 'front_desk',
+        'allowDoubleBooking': true,
+      });
+      appointments.insert(0, Appointment.fromJson(created));
+      notifyListeners();
+    } catch (_) {}
   }
 
   void updateInSalonClient({
@@ -872,14 +1155,12 @@ class RuvexiAppState extends ChangeNotifier {
     final client = inSalonClients[idx];
 
     if (newSeatId != null && newSeatId != client.seatId) {
-      // Free old seat
       final oldSeatIdx = seats.indexWhere((s) => s.id == client.seatId);
       if (oldSeatIdx >= 0) {
         seats[oldSeatIdx].isInUse = false;
         seats[oldSeatIdx].currentClientId = null;
         seats[oldSeatIdx].currentClientName = null;
       }
-      // Occupy new seat
       if (newSeatId != "Waiting") {
         final newSeatIdx = seats.indexWhere((s) => s.id == newSeatId);
         if (newSeatIdx >= 0) {
@@ -903,7 +1184,6 @@ class RuvexiAppState extends ChangeNotifier {
   void moveClientToBilling(InSalonClient client) {
     activeBillingClient = client;
 
-    // Set selected customer
     final existingIdx = customers.indexWhere((c) => c.name.toLowerCase() == client.customerName.toLowerCase());
     if (existingIdx >= 0) {
       posSelectedCustomer = customers[existingIdx];
@@ -918,7 +1198,6 @@ class RuvexiAppState extends ChangeNotifier {
       );
     }
 
-    // Load client services into cart
     posCart.clear();
     for (final svc in client.services) {
       posCart.add(CartItem(service: svc, quantity: 1));
@@ -927,15 +1206,16 @@ class RuvexiAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void completeStaffCheckout({required String method, required double amount}) {
-    todayRevenue += amount;
-    staffCompletedCount += 1;
+  Future<void> completeStaffCheckout({required String method, required double amount}) async {
+    await completePayment(method: method, amount: amount);
 
     if (activeBillingClient != null) {
       final client = activeBillingClient!;
       client.status = "Completed";
+      if (!client.id.startsWith('ins_')) {
+        await updateAppointmentStatus(client.id, 'Completed');
+      }
 
-      // Free the occupied seat
       final seatIdx = seats.indexWhere((s) => s.id == client.seatId);
       if (seatIdx >= 0) {
         seats[seatIdx].isInUse = false;
@@ -945,14 +1225,13 @@ class RuvexiAppState extends ChangeNotifier {
       activeBillingClient = null;
     }
 
-    posCart.clear();
     notifyListeners();
   }
 
-  void logout() {
+  Future<void> logout() async {
+    await api.clearToken();
+    _clearWorkspaceData();
     isAuthenticated = false;
-    currentUserName = "";
-    currentUserEmail = "";
     notifyListeners();
   }
 }

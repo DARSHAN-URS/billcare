@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ruvexi_mobile/core/state/ruvexi_state.dart';
+import 'package:ruvexi_mobile/core/widgets/category_service_picker_sheet.dart';
 import 'package:ruvexi_mobile/shared/widgets/ruvexi_logo.dart';
+import 'package:ruvexi_mobile/shared/widgets/salon_notification_dialog.dart';
 import 'package:ruvexi_mobile/features/staff_portal/screens/staff_payment_screen.dart';
 
 class StaffBillingScreen extends StatefulWidget {
@@ -25,12 +27,10 @@ class _StaffBillingScreenState extends State<StaffBillingScreen> {
   @override
   void initState() {
     super.initState();
-    // Ensure default cart matches Screen 6 if empty
-    if (widget.appState.posCart.isEmpty) {
-      widget.appState.posCart.addAll([
-        CartItem(service: widget.appState.catalog[0], quantity: 1), // Hair Cut ₹399
-        CartItem(service: widget.appState.catalog[1], quantity: 1), // Hair Spa ₹1199
-      ]);
+    if (widget.appState.posCart.isEmpty && widget.appState.catalog.isNotEmpty) {
+      widget.appState.posCart.add(CartItem(service: widget.appState.catalog.first, quantity: 1));
+    }
+    if (widget.appState.customers.isNotEmpty) {
       widget.appState.posSelectedCustomer ??= widget.appState.customers.first;
     }
   }
@@ -82,34 +82,13 @@ class _StaffBillingScreenState extends State<StaffBillingScreen> {
   }
 
   void _showAddServiceSheet() {
-    showModalBottomSheet(
+    CategoryServicePickerSheet.showAddToCart(
       context: context,
-      backgroundColor: const Color(0xFF101311),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("Add Service to Bill", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            ...widget.appState.catalog.map((s) => ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.content_cut, color: Color(0xFF22C55E), size: 20),
-                  title: Text(s.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
-                  subtitle: Text("₹${s.price.toInt()} • ${s.durationMinutes} min", style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12)),
-                  trailing: const Icon(Icons.add_circle_outline, color: Color(0xFF22C55E)),
-                  onTap: () {
-                    widget.appState.addServiceToCart(s);
-                    Navigator.pop(ctx);
-                  },
-                )),
-          ],
-        ),
-      ),
+      catalog: widget.appState.catalog,
+      title: "Add Service to Bill",
+      onAdd: (s) {
+        widget.appState.addServiceToCart(s);
+      },
     );
   }
 
@@ -181,7 +160,8 @@ class _StaffBillingScreenState extends State<StaffBillingScreen> {
                       const RuvexiLogoWidget(fontSize: 16, showSubtitle: true),
                       IconButton(
                         icon: const Icon(Icons.notifications_outlined, color: Colors.white70, size: 22),
-                        onPressed: () {},
+                        tooltip: "Salon Alerts",
+                        onPressed: () => showSalonNotificationModal(context, widget.appState),
                       ),
                     ],
                   ),
@@ -401,6 +381,7 @@ class _StaffBillingScreenState extends State<StaffBillingScreen> {
                                           appState: widget.appState,
                                           totalAmount: totalPayable.roundToDouble(),
                                           customerName: customerName,
+                                          customerPhone: customerPhone,
                                           billedItems: itemsList,
                                         ),
                                       ),

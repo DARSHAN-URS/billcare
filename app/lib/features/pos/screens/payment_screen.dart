@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:ruvexi_mobile/core/network/api_config.dart';
 import 'package:ruvexi_mobile/core/state/ruvexi_state.dart';
 import 'package:ruvexi_mobile/core/theme/ruvexi_theme.dart';
+import 'package:ruvexi_mobile/shared/widgets/upi_qr_dialog.dart';
+import 'package:ruvexi_mobile/features/staff_portal/screens/checkout_complete_screen.dart';
 
 class PaymentScreen extends StatefulWidget {
   final RuvexiAppState appState;
@@ -48,85 +52,59 @@ class _PaymentScreenState extends State<PaymentScreen> {
     },
   ];
 
-  void _collectPayment() {
+  Future<void> _collectPayment() async {
     final methodTag = _methods[_selectedMethodIndex]["tag"] as String;
-    widget.appState.completePayment(method: methodTag, amount: widget.amount);
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF101311),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: Color(0xFF22C55E), width: 1),
+    if (methodTag == "UPI") {
+      final invNum = "RVX-${DateTime.now().millisecondsSinceEpoch % 100000}";
+      showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (ctx) => UpiQrModalDialog(
+          appState: widget.appState,
+          amount: widget.amount,
+          customerName: widget.customerName,
+          invoiceNumber: invNum,
+          onPaymentConfirmed: () => _executePaymentBackend("UPI", invNum),
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF122C1A),
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFF22C55E).withOpacity(0.4)),
-              ),
-              child: const Icon(Icons.check_rounded, color: Color(0xFF22C55E), size: 36),
-            ),
-            const SizedBox(height: 18),
-            const Text(
-              "Payment Received",
-              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              "₹${widget.amount.toInt()} collected via $methodTag",
-              style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              "Invoice #RVX-${DateTime.now().millisecondsSinceEpoch % 100000}",
-              style: const TextStyle(color: Color(0xFF22C55E), fontSize: 12, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    icon: const Icon(Icons.print_outlined, size: 16, color: Colors.white),
-                    label: const Text("Receipt", style: TextStyle(color: Colors.white, fontSize: 13)),
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: Colors.white.withOpacity(0.2)),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                      Navigator.pop(context); // back to pos/home
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Receipt printed & sent to WhatsApp")),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF22C55E),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                      Navigator.pop(context);
-                    },
-                    child: const Text("Done", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-                  ),
-                ),
-              ],
-            )
-          ],
+      );
+      return;
+    }
+    await _executePaymentBackend(methodTag);
+  }
+
+  Future<void> _executePaymentBackend(String methodTag, [String? explicitInvoiceNum]) async {
+    final billed = widget.appState.posCart
+        .map((c) => {
+              'name': c.service.name,
+              'price': c.service.price,
+              'qty': c.quantity,
+            })
+        .toList();
+    final customerPhone = widget.appState.posSelectedCustomer?.phone ?? '';
+
+    try {
+      await widget.appState.completePayment(method: methodTag, amount: widget.amount);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString()), backgroundColor: Colors.redAccent),
+      );
+      return;
+    }
+    if (!mounted) return;
+
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (_) => CheckoutCompleteScreen(
+          appState: widget.appState,
+          amount: widget.amount,
+          customerName: widget.customerName,
+          customerPhone: customerPhone,
+          paymentMethod: methodTag,
+          billedItems: billed,
         ),
       ),
+      (route) => route.isFirst,
     );
   }
 
@@ -278,7 +256,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   elevation: 0,
                 ),
                 child: Text(
-                  "Collect Payment ₹${widget.amount.toInt()}",
+                  _selectedMethodIndex == 0
+                      ? "Show UPI QR Code (₹${widget.amount.toInt()})"
+                      : "Collect Payment ₹${widget.amount.toInt()}",
                   style: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold),
                 ),
               ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:ruvexi_mobile/core/state/ruvexi_state.dart';
 import 'package:ruvexi_mobile/core/theme/ruvexi_theme.dart';
 import 'package:ruvexi_mobile/features/crm/screens/customer_profile_screen.dart';
+import 'package:ruvexi_mobile/shared/widgets/customer_avatar.dart';
+import 'package:ruvexi_mobile/shared/widgets/salon_notification_dialog.dart';
 
 class CustomersCrmScreen extends StatefulWidget {
   final RuvexiAppState appState;
@@ -123,12 +125,14 @@ class _CustomersCrmScreenState extends State<CustomersCrmScreen> {
                   Row(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.search, color: Colors.white70, size: 22),
-                        onPressed: () {},
+                        icon: const Icon(Icons.sync_rounded, color: Color(0xFF22C55E), size: 22),
+                        tooltip: "Sync with Cloud",
+                        onPressed: () => widget.appState.syncWorkspace(),
                       ),
                       IconButton(
                         icon: const Icon(Icons.notifications_outlined, color: Colors.white70, size: 22),
-                        onPressed: () {},
+                        tooltip: "Salon Notifications",
+                        onPressed: () => showSalonNotificationModal(context, widget.appState),
                       ),
                     ],
                   ),
@@ -266,17 +270,9 @@ class _CustomersCrmScreenState extends State<CustomersCrmScreen> {
         ),
         child: Row(
           children: [
-            CircleAvatar(
-              radius: 18,
-              backgroundColor: const Color(0xFF2E2638),
-              child: Text(
-                initials,
-                style: const TextStyle(
-                  color: Color(0xFFD8B4FE),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
-              ),
+            CustomerAvatarWidget(
+              name: customer.name,
+              radius: 20,
             ),
             const SizedBox(width: 14),
             Expanded(

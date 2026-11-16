@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ruvexi_mobile/core/state/ruvexi_state.dart';
 import 'package:ruvexi_mobile/core/theme/ruvexi_theme.dart';
 import 'package:ruvexi_mobile/features/business/screens/subscription_screen.dart';
+import 'package:ruvexi_mobile/shared/widgets/salon_notification_dialog.dart';
 
 class BusinessSettingsScreen extends StatelessWidget {
   final RuvexiAppState appState;
@@ -53,14 +54,22 @@ class BusinessSettingsScreen extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF22C55E)),
-                onPressed: () {
-                  appState.salonName = nameCtrl.text.trim();
-                  appState.salonLocation = locCtrl.text.trim();
-                  appState.notifyListeners();
+                onPressed: () async {
+                  final newName = nameCtrl.text.trim();
+                  final newLoc = locCtrl.text.trim();
                   Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Business profile updated")),
-                  );
+                  try {
+                    await appState.updateSalonProfile(name: newName, location: newLoc);
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Business profile saved to Railway")),
+                    );
+                  } catch (e) {
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(e.toString()), backgroundColor: Colors.redAccent),
+                    );
+                  }
                 },
                 child: const Text("Save Changes", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
               ),
@@ -114,6 +123,110 @@ class BusinessSettingsScreen extends StatelessWidget {
     );
   }
 
+  void _showUpiSettingsSheet(BuildContext context) {
+    final upiCtrl = TextEditingController(text: appState.salonUpiId);
+    final payeeCtrl = TextEditingController(text: appState.salonName);
+    final gstinCtrl = TextEditingController(text: appState.salonGstin);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF101311),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          left: 22,
+          right: 22,
+          top: 22,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + 22,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Direct UPI & GST Settings",
+              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              "Configure your merchant UPI ID. Customer counter QR settlements go straight to your salon account with zero fees.",
+              style: TextStyle(color: Colors.white60, fontSize: 12),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: upiCtrl,
+              style: const TextStyle(color: Colors.white, fontFamily: 'monospace'),
+              decoration: InputDecoration(
+                labelText: "Salon Merchant UPI ID (VPA)",
+                hintText: "e.g. salon@okhdfcbank or 9845011223@paytm",
+                labelStyle: const TextStyle(color: Color(0xFF22C55E)),
+                hintStyle: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 12),
+                filled: true,
+                fillColor: const Color(0xFF141815),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: payeeCtrl,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: "UPI Payee Display Name",
+                labelStyle: const TextStyle(color: Color(0xFF22C55E)),
+                filled: true,
+                fillColor: const Color(0xFF141815),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: gstinCtrl,
+              style: const TextStyle(color: Colors.white, fontFamily: 'monospace'),
+              decoration: InputDecoration(
+                labelText: "GSTIN Tax Number (Optional)",
+                labelStyle: const TextStyle(color: Color(0xFF22C55E)),
+                filled: true,
+                fillColor: const Color(0xFF141815),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+              ),
+            ),
+            const SizedBox(height: 18),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF22C55E)),
+                onPressed: () async {
+                  final newUpi = upiCtrl.text.trim();
+                  final newGstin = gstinCtrl.text.trim();
+                  Navigator.pop(ctx);
+                  try {
+                    await appState.updateSalonPaymentSettings(upiId: newUpi);
+                    if (newGstin.isNotEmpty) {
+                      await appState.updateSalonProfile(gstin: newGstin);
+                    }
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Salon Direct UPI & Tax settings saved successfully")),
+                    );
+                  } catch (e) {
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(e.toString()), backgroundColor: Colors.redAccent),
+                    );
+                  }
+                },
+                child: const Text("Save Payment Settings", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -121,12 +234,13 @@ class BusinessSettingsScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFF060706),
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
-          onPressed: () {
-            if (Navigator.canPop(context)) Navigator.pop(context);
-          },
-        ),
+        automaticallyImplyLeading: false,
+        leading: Navigator.canPop(context)
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
+                onPressed: () => Navigator.pop(context),
+              )
+            : null,
         title: const Text(
           "Business",
           style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
@@ -134,7 +248,8 @@ class BusinessSettingsScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_outlined, color: Colors.white70, size: 20),
-            onPressed: () {},
+            tooltip: "Salon Alerts",
+            onPressed: () => showSalonNotificationModal(context, appState),
           ),
         ],
       ),
@@ -210,7 +325,7 @@ class BusinessSettingsScreen extends StatelessWidget {
             _buildSettingTile(
               icon: Icons.workspace_premium_outlined,
               title: "Subscription & Plan",
-              trailingBadge: "Active",
+              trailingBadge: appState.subscriptionStatus.toUpperCase(),
               onTap: () {
                 Navigator.push(
                   context,
@@ -221,19 +336,25 @@ class BusinessSettingsScreen extends StatelessWidget {
             _buildSettingTile(
               icon: Icons.receipt_long_outlined,
               title: "Payments & Tax (GST)",
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("GSTIN: 29RUVEXI9824C1Z9 (18% Auto-Applied)")),
-                );
-              },
+              trailingBadge: appState.salonUpiId.isNotEmpty ? "DIRECT UPI" : "SETUP UPI",
+              onTap: () => _showUpiSettingsSheet(context),
             ),
             _buildSettingTile(
               icon: Icons.cloud_done_outlined,
-              title: "Data & Backup",
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("All records synced to Supabase Cloud Engine")),
-                );
+              title: "Sync Workspace Now",
+              onTap: () async {
+                try {
+                  await appState.syncWorkspace();
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Workspace synced with Railway cloud")),
+                  );
+                } catch (e) {
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(e.toString()), backgroundColor: Colors.redAccent),
+                  );
+                }
               },
             ),
             const SizedBox(height: 30),

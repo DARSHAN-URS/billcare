@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:ruvexi_mobile/core/state/ruvexi_state.dart';
 import 'package:ruvexi_mobile/core/theme/ruvexi_theme.dart';
+import 'package:ruvexi_mobile/core/widgets/category_service_picker_sheet.dart';
 import 'package:ruvexi_mobile/features/pos/screens/checkout_screen.dart';
+import 'package:ruvexi_mobile/shared/widgets/customer_avatar.dart';
 
 class PosBillingScreen extends StatefulWidget {
   final RuvexiAppState appState;
@@ -49,9 +51,9 @@ class _PosBillingScreenState extends State<PosBillingScreen> {
             ...widget.appState.customers.map(
               (c) => ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: CircleAvatar(
-                  backgroundColor: const Color(0xFF1F2420),
-                  child: Text(c.name[0], style: const TextStyle(color: Color(0xFF22C55E))),
+                leading: CustomerAvatarWidget(
+                  name: c.name,
+                  radius: 18,
                 ),
                 title: Text(c.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
                 subtitle: Text(c.phone, style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12)),
@@ -71,39 +73,13 @@ class _PosBillingScreenState extends State<PosBillingScreen> {
   }
 
   void _showAddMoreServices() {
-    showModalBottomSheet(
+    CategoryServicePickerSheet.showAddToCart(
       context: context,
-      backgroundColor: const Color(0xFF101311),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Add Service to Bill",
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 14),
-            ...widget.appState.catalog.map(
-              (s) => ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.content_cut, color: Color(0xFF22C55E)),
-                title: Text(s.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
-                subtitle: Text("₹${s.price.toInt()} • ${s.durationMinutes} mins", style: TextStyle(color: Colors.white.withOpacity(0.5))),
-                trailing: const Icon(Icons.add_circle_outline, color: Color(0xFF22C55E)),
-                onTap: () {
-                  widget.appState.addServiceToCart(s);
-                  Navigator.pop(ctx);
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
+      catalog: widget.appState.catalog,
+      title: "Add Service to Bill",
+      onAdd: (s) {
+        widget.appState.addServiceToCart(s);
+      },
     );
   }
 
@@ -114,15 +90,13 @@ class _PosBillingScreenState extends State<PosBillingScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF060706),
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
-          onPressed: () {
-            // If in nested stack or back to home
-            if (Navigator.canPop(context)) {
-              Navigator.pop(context);
-            }
-          },
-        ),
+        automaticallyImplyLeading: false,
+        leading: Navigator.canPop(context)
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
+                onPressed: () => Navigator.pop(context),
+              )
+            : null,
         title: const Text(
           "Billing (POS)",
           style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ruvexi_mobile/core/state/ruvexi_state.dart';
 import 'package:ruvexi_mobile/core/theme/ruvexi_theme.dart';
+import 'package:ruvexi_mobile/core/widgets/category_service_picker_sheet.dart';
 
 class NewAppointmentScreen extends StatefulWidget {
   final RuvexiAppState appState;
@@ -81,43 +82,16 @@ class _NewAppointmentScreenState extends State<NewAppointmentScreen> {
     );
   }
 
-  void _pickService() {
-    showModalBottomSheet(
+  void _pickService() async {
+    final picked = await CategoryServicePickerSheet.showSingle(
       context: context,
-      backgroundColor: const Color(0xFF101311),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Select Service",
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 14),
-            ...widget.appState.catalog.map(
-              (s) => ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.content_cut, color: RuvexiTheme.primaryAccent),
-                title: Text(s.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
-                subtitle: Text("${s.durationMinutes} min • ₹${s.price.toInt()}", style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12)),
-                trailing: _selectedService?.id == s.id
-                    ? const Icon(Icons.check_circle, color: RuvexiTheme.primaryAccent, size: 20)
-                    : null,
-                onTap: () {
-                  setState(() => _selectedService = s);
-                  Navigator.pop(ctx);
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
+      catalog: widget.appState.catalog,
+      title: "Select Service by Category",
+      current: _selectedService,
     );
+    if (picked != null) {
+      setState(() => _selectedService = picked);
+    }
   }
 
   void _pickStaff() {

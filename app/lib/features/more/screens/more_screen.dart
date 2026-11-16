@@ -9,6 +9,8 @@ import 'package:ruvexi_mobile/features/offers/screens/offers_packages_screen.dar
 import 'package:ruvexi_mobile/features/expenses/screens/expenses_screen.dart';
 import 'package:ruvexi_mobile/features/business/screens/business_settings_screen.dart';
 import 'package:ruvexi_mobile/features/legal/screens/legal_and_support_screens.dart';
+import 'package:ruvexi_mobile/features/auth/screens/login_screen.dart';
+import 'package:ruvexi_mobile/shared/widgets/salon_notification_dialog.dart';
 
 class MoreScreen extends StatelessWidget {
   final RuvexiAppState appState;
@@ -110,7 +112,8 @@ class MoreScreen extends StatelessWidget {
                   ),
                   IconButton(
                     icon: const Icon(Icons.notifications_outlined, color: Colors.white70, size: 22),
-                    onPressed: () {},
+                    tooltip: "Salon Notifications",
+                    onPressed: () => showSalonNotificationModal(context, appState),
                   ),
                 ],
               ),
@@ -195,7 +198,32 @@ class MoreScreen extends StatelessWidget {
                   Navigator.push(context, MaterialPageRoute(builder: (_) => const TermsConditionsScreen()));
                 },
               ),
-              const SizedBox(height: 36),
+              const SizedBox(height: 18),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: OutlinedButton.icon(
+                  onPressed: () async {
+                    await appState.logout();
+                    if (!context.mounted) return;
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => LoginScreen(appState: appState)),
+                      (route) => false,
+                    );
+                  },
+                  icon: const Icon(Icons.logout_rounded, color: Color(0xFFEF4444), size: 18),
+                  label: const Text(
+                    "Log Out",
+                    style: TextStyle(color: Color(0xFFEF4444), fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: const Color(0xFFEF4444).withOpacity(0.45)),
+                    backgroundColor: const Color(0xFF1A0E0E),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 28),
 
               // Footer branding
               Center(

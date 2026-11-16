@@ -86,9 +86,6 @@ export function OverviewView({ onNavigateTab }: OverviewViewProps) {
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2.5">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#151515] border border-[#27272A] text-xs font-mono tracking-wider">
-              <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
-              <span className="text-[#10B981] font-semibold">Live Operational</span>
-              <span className="text-[#71717A]">•</span>
               <span className="text-[#A1A1AA]">{todayDateString}</span>
             </div>
 
